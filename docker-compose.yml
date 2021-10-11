@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  web:
+    build: .
+    container_name: flask_web
+    restart: always
+    ports:
+      - "1337:1337"
+    networks:
+      - web-net
+
+networks:
+  web-net:
+    driver: bridge

@@ -1,0 +1,4 @@
+flask
+gunicorn
+cloudscraper
+gevent
