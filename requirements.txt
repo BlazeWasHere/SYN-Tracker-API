@@ -1,4 +1,5 @@
 flask
 gunicorn
-cloudscraper
+requests
 gevent
+web3

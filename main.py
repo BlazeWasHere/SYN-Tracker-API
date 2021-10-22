@@ -10,31 +10,54 @@
 from functools import lru_cache, wraps
 from typing import List
 import time
-import re
 
 from flask import Flask, jsonify, send_from_directory
 from gevent.greenlet import Greenlet
 from gevent.pool import Pool
-import cloudscraper
+from web3 import Web3
 import requests
 import gevent
 
+TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 COINGECKO_URL = "https://api.coingecko.com/api/v3/coins/synapse-2?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false"
-NRV_URL = "https://bscscan.com/token/0x42f6f551ae042cbe50c739158b4f0cac0edb9096"
-URLS = {
-    "ethereum":
-    "https://etherscan.io/token/0x0f2d719407fdbeff09d87557abb7232601fd9f29",
-    "bsc":
-    "https://bscscan.com/token/0xa4080f1778e69467e905b8d6f72f6e441f9e9484",
-    "polygon":
-    "https://polygonscan.com/token/0xf8f9efc0db77d8881500bb06ff5d6abc3070e695",
-    "avalanche":
-    "https://avascan.info/blockchain/c/token/0x1f1E7c893855525b303f99bDF5c3c05Be09ca251",
-    "arbitrum":
-    "https://arbiscan.io/token/0x080f6aed32fc474dd5717105dba5ea57268f46eb",
-    "fantom":
-    "https://ftmscan.com/token/0xE55e19Fb4F2D85af758950957714292DAC1e25B2",
+SYN_DECIMALS = 18
+SYN_DATA = {
+    "ethereum": {
+        "rpc":
+        "https://eth-mainnet.alchemyapi.io/v2/0AovFRYl9L7l4YUf6nPaMrs7H2_pj_Pf",
+        "address": "0x0f2D719407FdBeFF09D87557AbB7232601FD9F29",
+    },
+    "avalanche": {
+        "rpc": "https://api.avax.network/ext/bc/C/rpc",
+        "address": "0x1f1E7c893855525b303f99bDF5c3c05Be09ca251",
+    },
+    "bsc": {
+        "rpc": "https://bsc-dataseed.binance.org",
+        "address": "0xa4080f1778e69467e905b8d6f72f6e441f9e9484",
+    },
+    "polygon": {
+        "rpc": "https://rpc-mainnet.matic.network",
+        "address": "0xf8f9efc0db77d8881500bb06ff5d6abc3070e695",
+    },
+    "arbitrum": {
+        "rpc": "https://arb1.arbitrum.io/rpc",
+        "address": "0x080f6aed32fc474dd5717105dba5ea57268f46eb",
+    },
+    "fantom": {
+        "rpc": "https://rpc.ftm.tools",
+        "address": "0xe55e19fb4f2d85af758950957714292dac1e25b2",
+    }
 }
+
+# Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
+for key, value in SYN_DATA.items():
+    w3 = Web3(Web3.HTTPProvider(value['rpc']))
+    value.update({
+        'contract':
+        w3.eth.contract(Web3.toChecksumAddress(value['address']),
+                        abi=TOTAL_SUPPLY_ABI)  # type: ignore
+    })
+
 # Data for the adaper: https://github.com/DefiLlama/DefiLlama-Adapters/blob/main/projects/synapse/index.js
 DEFILLAMA_DATA = {
     "bridges": {
@@ -88,10 +111,6 @@ DEFILLAMA_DATA = {
     "unsupported": ["nUSD", "Frapped USDT", "Magic Internet Money", "nETH"]
 }
 
-AVASCAN_RE = re.compile(r"<span class=\"amount\">(.*)<span>(.{3})<\/span>")
-TOTAL_SUPPLY_RE = re.compile(r"total supply (.*), number")
-# Some sites like etherscan use CF and love to ruin us!
-s = cloudscraper.create_scraper()
 app = Flask(__name__)
 pool = Pool()
 
@@ -124,25 +143,9 @@ def timed_cache(max_age, maxsize=5, typed=False):
 
 @timed_cache(60)
 def get_chain_circ_cupply(chain: str) -> float:
-    assert (chain in URLS)
-
-    r = s.get(URLS[chain])
-
-    if chain != 'avalanche':
-        res = re.findall(TOTAL_SUPPLY_RE, r.text)
-    else:
-        res = re.findall(AVASCAN_RE, r.text)
-        res[0] = res[0][0] + res[0][1]
-
-    # Regex found.
-    if len(res) > 0:
-        # Convert 123,456,789.12 -> 123456789.12 (float)
-        return float(res[0].replace(',', ''))
-    else:
-        print(
-            f'Failed to find total supply from {chain!r} on response text {r.text}'
-        )
-        return -1
+    assert (chain in SYN_DATA)
+    return SYN_DATA[chain]['contract'].functions.totalSupply(  # type: ignore
+    ).call() / 10**SYN_DECIMALS
 
 
 @timed_cache(60)
@@ -157,7 +160,7 @@ def get_all_chains_circ_supply() -> float:
     jobs: List[Greenlet] = []
     total: float = 0
 
-    for chain in URLS:
+    for chain in SYN_DATA:
         jobs.append(pool.spawn(get_chain_circ_cupply, chain))
 
     ret: List[Greenlet] = gevent.joinall(jobs)
@@ -192,10 +195,10 @@ def circ():
 
 @app.route('/circ/<chain>', methods=['GET'])
 def circ_chain(chain: str):
-    if chain not in URLS:
+    if chain not in SYN_DATA:
         return (jsonify({
             'error': 'invalid chain',
-            'valids': list(URLS.keys()),
+            'valids': list(SYN_DATA),
         }), 400)
 
     ret = get_chain_circ_cupply(chain)
@@ -203,7 +206,7 @@ def circ_chain(chain: str):
         return (jsonify({'error':
                          'failed to get chain circulatory supply'}), 500)
 
-    return jsonify({'success': True, 'supply': round(ret, 2)})
+    return jsonify({'supply': round(ret, 2)})
 
 
 if __name__ == '__main__':
