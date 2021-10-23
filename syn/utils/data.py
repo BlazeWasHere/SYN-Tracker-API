@@ -12,6 +12,7 @@ from web3 import Web3
 COINGECKO_URL = "https://api.coingecko.com/api/v3/coins/synapse-2?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false"
 
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
+METAPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
 
 SYN_DECIMALS = 18
 SYN_DATA = {
@@ -19,6 +20,7 @@ SYN_DATA = {
         "rpc":
         "https://eth-mainnet.alchemyapi.io/v2/0AovFRYl9L7l4YUf6nPaMrs7H2_pj_Pf",
         "address": "0x0f2D719407FdBeFF09D87557AbB7232601FD9F29",
+        "metapool": "0x1116898DdA4015eD8dDefb84b6e8Bc24528Af2d8"
     },
     "avalanche": {
         "rpc": "https://api.avax.network/ext/bc/C/rpc",
@@ -50,6 +52,13 @@ for key, value in SYN_DATA.items():
         w3.eth.contract(Web3.toChecksumAddress(value['address']),
                         abi=TOTAL_SUPPLY_ABI)  # type: ignore
     })
+
+    if value.get('metapool') is not None:
+        value.update({
+            'metapool_contract':
+            w3.eth.contract(Web3.toChecksumAddress(value['metapool']),
+                            abi=METAPOOL_ABI)  # type: ignore
+        })
 
 # Data for the adaper: https://github.com/DefiLlama/DefiLlama-Adapters/blob/main/projects/synapse/index.js
 DEFILLAMA_DATA = {
@@ -103,3 +112,5 @@ DEFILLAMA_DATA = {
     },
     "unsupported": ["nUSD", "Frapped USDT", "Magic Internet Money", "nETH"]
 }
+
+MAX_UINT8 = 2**8 - 1
