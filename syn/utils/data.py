@@ -10,6 +10,7 @@
 from web3.middleware.geth_poa import geth_poa_middleware
 from web3 import Web3
 
+COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/coins/{0}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false"
 COINGECKO_URL = "https://api.coingecko.com/api/v3/coins/synapse-2?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false"
 
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
@@ -27,26 +28,31 @@ SYN_DATA = {
         "rpc": "https://api.avax.network/ext/bc/C/rpc",
         "address": "0x1f1E7c893855525b303f99bDF5c3c05Be09ca251",
         "basepool": "0xE55e19Fb4F2D85af758950957714292DAC1e25B2",
+        "metapool": "0xF44938b0125A6662f9536281aD2CD6c499F22004",
     },
     "bsc": {
         "rpc": "https://bsc-dataseed.binance.org",
         "address": "0xa4080f1778e69467e905b8d6f72f6e441f9e9484",
         "basepool": "0x938aFAFB36E8B1AB3347427eb44537f543475cF9",
+        "metapool": "0x930d001b7efb225613ac7f35911c52ac9e111fa9",
     },
     "polygon": {
         "rpc": "https://rpc-mainnet.matic.network",
         "address": "0xf8f9efc0db77d8881500bb06ff5d6abc3070e695",
         "basepool": "0x3f52E42783064bEba9C1CFcD2E130D156264ca77",
+        "metapool": "0x96cf323E477Ec1E17A4197Bdcc6f72Bb2502756a",
     },
     "arbitrum": {
         "rpc": "https://arb1.arbitrum.io/rpc",
         "address": "0x080f6aed32fc474dd5717105dba5ea57268f46eb",
         "basepool": "0xbafc462d00993ffcd3417abbc2eb15a342123fda",
+        "metapool": "0x84cd82204c07c67dF1C2C372d8Fd11B3266F76a3",
     },
     "fantom": {
         "rpc": "https://rpc.ftm.tools",
         "address": "0xe55e19fb4f2d85af758950957714292dac1e25b2",
         "basepool": "0x080F6AEd32Fc474DD5717105Dba5ea57268F46eb",
+        "metapool": "0x1f6A0656Ff5061930076bf0386b02091e0839F9f",
     }
 }
 
@@ -63,10 +69,16 @@ for key, value in SYN_DATA.items():
                         abi=TOTAL_SUPPLY_ABI)  # type: ignore
     })
 
-    if value.get('basepool') is not None:
+    value.update({
+        'basepool_contract':
+        w3.eth.contract(Web3.toChecksumAddress(value['basepool']),
+                        abi=BASEPOOL_ABI)  # type: ignore
+    })
+
+    if value.get('metapool') is not None:
         value.update({
-            'basepool_contract':
-            w3.eth.contract(Web3.toChecksumAddress(value['basepool']),
+            'metapool_contract':
+            w3.eth.contract(Web3.toChecksumAddress(value['metapool']),
                             abi=BASEPOOL_ABI)  # type: ignore
         })
 
