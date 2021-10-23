@@ -11,9 +11,9 @@ from flask import Blueprint, jsonify
 import requests
 
 from .circ import get_all_chains_circ_supply, get_chain_circ_cupply, SYN_DATA
+from syn.utils.data import COINGECKO_URL
 from syn.utils.cache import timed_cache
 
-COINGECKO_URL = "https://api.coingecko.com/api/v3/coins/synapse-2?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false"
 mcap_bp = Blueprint('mcap_bp', __name__)
 
 
