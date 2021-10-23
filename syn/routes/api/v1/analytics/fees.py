@@ -9,6 +9,8 @@
 
 from flask import Blueprint, jsonify, request
 
+from web3.exceptions import BadFunctionCallOutput
+
 from syn.utils.analytics.fees import get_admin_fees
 from syn.utils.data import SYN_DATA
 from syn.utils import verify
@@ -31,4 +33,9 @@ def adminfees_chain(chain: str):
 
         block = int(block)
 
-    return jsonify({'admin_fee': get_admin_fees(chain, block)})
+    try:
+        return jsonify({'admin_fee': get_admin_fees(chain, block)})
+    except BadFunctionCallOutput:
+        # Contract didn't exist then basically, this happens in blocks
+        # before the metapool contract deployment.
+        return jsonify({'admin_fee': 0})
