@@ -26,6 +26,8 @@ def adminfees_chain(chain: str):
             'valids': list(SYN_DATA),
         }), 400)
 
+    # TODO(blaze): On some RPC nodes they limit past blocks and this throws
+    # an error messily here.
     block = request.args.get('block', 'latest')
     if block != 'latest':
         if not verify.isdigit(block):

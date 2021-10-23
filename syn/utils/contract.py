@@ -45,7 +45,7 @@ def get_all_tokens_in_pool(chain: str,
 
     for i in range(max_index or MAX_UINT8):
         try:
-            res.append(call_abi(data, 'metapool_contract', 'getToken', i))
+            res.append(call_abi(data, 'basepool_contract', 'getToken', i))
         except web3.exceptions.ContractLogicError:
             # Out of range.
             break

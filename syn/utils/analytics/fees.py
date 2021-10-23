@@ -19,7 +19,7 @@ def get_admin_fee(chain: str,
                   index: int,
                   block: Union[int, str] = 'latest') -> int:
     return call_abi(SYN_DATA[chain],
-                    'metapool_contract',
+                    'basepool_contract',
                     'getAdminBalance',
                     index,
                     call_args={'block_identifier': block})
