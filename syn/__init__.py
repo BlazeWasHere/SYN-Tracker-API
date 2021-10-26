@@ -13,6 +13,7 @@ from flask import Flask
 def init() -> Flask:
     app = Flask(__name__)
 
+    from .routes.api.v1.analytics.volume import volume_bp
     from .routes.api.v1.analytics.fees import fees_bp
     from .routes.api.v1.circ import circ_bp
     from .routes.api.v1.mcap import mcap_bp
@@ -22,5 +23,6 @@ def init() -> Flask:
     app.register_blueprint(circ_bp, url_prefix='/api/v1/circ')
     app.register_blueprint(mcap_bp, url_prefix='/api/v1/mcap')
     app.register_blueprint(fees_bp, url_prefix='/api/v1/analytics/fees')
+    app.register_blueprint(volume_bp, url_prefix='/api/v1/analytics/volume')
 
     return app

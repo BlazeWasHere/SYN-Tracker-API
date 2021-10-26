@@ -23,6 +23,8 @@ COINGECKO_URL = "https://api.coingecko.com/api/v3/coins/synapse-2?localization=f
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
 
+MORALIS_APIKEY = os.getenv('MORALIS_APIKEY')
+
 SYN_DECIMALS = 18
 SYN_DATA = {
     "ethereum": {
@@ -49,7 +51,7 @@ SYN_DATA = {
         "metapool": "0x96cf323E477Ec1E17A4197Bdcc6f72Bb2502756a",
     },
     "arbitrum": {
-        "rpc": os.getenv('BSC_RPC'),
+        "rpc": os.getenv('ARB_RPC'),
         "address": "0x080f6aed32fc474dd5717105dba5ea57268f46eb",
         "basepool": "0xbafc462d00993ffcd3417abbc2eb15a342123fda",
         "metapool": "0x84cd82204c07c67dF1C2C372d8Fd11B3266F76a3",
@@ -65,6 +67,7 @@ SYN_DATA = {
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
 for key, value in SYN_DATA.items():
     w3 = Web3(Web3.HTTPProvider(value['rpc']))
+    assert w3.isConnected()
 
     if key != 'ethereum':
         w3.middleware_onion.inject(geth_poa_middleware, layer=0)

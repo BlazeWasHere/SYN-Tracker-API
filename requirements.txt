@@ -3,3 +3,5 @@ gunicorn
 requests
 gevent
 web3
+python-dateutil
+python-dotenv
