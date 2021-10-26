@@ -9,7 +9,12 @@
 
 from typing import Any, Dict, List, Optional
 
+from gevent.greenlet import Greenlet
+from gevent.pool import Pool
 import requests
+import gevent
+
+pool = Pool()
 
 
 class Moralis(object):
@@ -35,16 +40,28 @@ class Moralis(object):
             raise e
 
     def _paginate(self, *args, **kwargs) -> List[Any]:
+        jobs: List[Greenlet] = []
         res: List[Any] = []
 
         offset = kwargs.pop('offset', 0)
-        ret = {'total': offset + 1}
+        ret = self.__request(*args, **kwargs, params={'offset': offset})
 
-        while ret['total'] > offset:
-            ret = self.__request(*args, **kwargs, params={'offset': offset})
+        offset += int(ret['page_size'])
+        res += ret['result']
 
-            offset += int(ret['page_size'])
-            res += ret['result']
+        needed = ret['total'] // offset + 1
+
+        # Workers, dispatch!
+        for i in range(needed):
+            jobs.append(
+                pool.spawn(self.__request,
+                           *args,
+                           **kwargs,
+                           params={'offset': offset * i}))
+
+        _ret: List[Greenlet] = gevent.joinall(jobs)
+        for x in _ret:
+            res += x.get()['result']  # type: ignore
 
         return res
 

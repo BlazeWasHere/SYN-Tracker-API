@@ -7,7 +7,7 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Callable, Dict, List, Literal
+from typing import Callable, Dict, Literal
 
 import dateutil.parser
 
@@ -25,7 +25,7 @@ def _always_true(*args, **kwargs) -> Literal[True]:
     return True
 
 
-@timed_cache(360)
+@timed_cache(360, maxsize=50)
 def get_chain_volume(
     address: str,
     chain: str,

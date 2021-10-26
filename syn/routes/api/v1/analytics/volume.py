@@ -7,9 +7,7 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from flask import Blueprint, jsonify, request
-
-from web3 import Web3
+from flask import Blueprint, jsonify
 
 from syn.utils.analytics.volume import get_chain_volume
 from syn.utils.data import SYN_DATA, DEFILLAMA_DATA
@@ -23,8 +21,8 @@ _chains = {
 }
 
 
-@volume_bp.route('/admin/<chain>', methods=['GET'])
-def adminfees_chain(chain: str):
+@volume_bp.route('/<chain>', methods=['GET'])
+def volume_chain(chain: str):
     if chain not in SYN_DATA or chain not in _chains:
         _list = list(SYN_DATA)
         _list.remove('arbitrum')

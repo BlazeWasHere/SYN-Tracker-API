@@ -7,7 +7,10 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from gevent import monkey
 from flask import Flask
+
+monkey.patch_all()
 
 
 def init() -> Flask:
