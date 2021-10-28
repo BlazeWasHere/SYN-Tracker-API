@@ -14,6 +14,8 @@ from gevent.pool import Pool
 import requests
 import gevent
 
+from syn.utils.cache import timed_cache
+
 pool = Pool()
 
 
@@ -103,6 +105,7 @@ class Moralis(object):
                               f'/{address}?chain={chain}',
                               offset=offset)
 
+    @timed_cache(60, maxsize=25)
     def erc20_transfers(self,
                         address: str,
                         chain: str = 'eth',

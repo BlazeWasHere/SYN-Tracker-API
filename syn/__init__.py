@@ -8,13 +8,17 @@
 """
 
 from gevent import monkey
-from flask import Flask
 
 monkey.patch_all()
+
+from flask import Flask
 
 
 def init() -> Flask:
     app = Flask(__name__)
+
+    from syn.utils import price
+    price.init()
 
     from .routes.api.v1.analytics.volume import volume_bp
     from .routes.api.v1.analytics.fees import fees_bp
