@@ -17,8 +17,7 @@ load_dotenv(find_dotenv('.env.sample'))
 # If `.env` exists, let it override the sample env file.
 load_dotenv(override=True)
 
-COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/coins/{0}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false"
-COINGECKO_URL = "https://api.coingecko.com/api/v3/coins/synapse-2?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false"
+COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_currencies={1}"
 
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
@@ -159,10 +158,10 @@ TOKEN_DECIMALS = {
         '0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f': 18
     },
     'bsc': {
-          '0x23b891e5c62e0955ae2bd185990103928ab817b3': 18,
-          '0xf0b8b631145d393a767b4387d08aa09969b2dfed': 18,
-          '0xe9e7cea3dedca5984780bafc599bd69add087d56': 18,
-          '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 18,
+        '0x23b891e5c62e0955ae2bd185990103928ab817b3': 18,
+        '0xf0b8b631145d393a767b4387d08aa09969b2dfed': 18,
+        '0xe9e7cea3dedca5984780bafc599bd69add087d56': 18,
+        '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 18,
     }
 }
 

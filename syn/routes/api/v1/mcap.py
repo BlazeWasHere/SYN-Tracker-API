@@ -11,23 +11,18 @@ from flask import Blueprint, jsonify
 import requests
 
 from .circ import get_all_chains_circ_supply, get_chain_circ_cupply, SYN_DATA
-from syn.utils.data import COINGECKO_URL
-from syn.utils.cache import timed_cache
+from syn.utils.price import CoingeckoIDS, get_price_coingecko
 
 mcap_bp = Blueprint('mcap_bp', __name__)
-
-
-@timed_cache(60)
-def get_current_price(currency: str = "usd") -> float:
-    r = requests.get(COINGECKO_URL)
-    return r.json()['market_data']['current_price'][currency]
 
 
 @mcap_bp.route('/', methods=['GET'])
 def mcap():
     return jsonify({
         'market_cap':
-        round(get_current_price() * get_all_chains_circ_supply(), 2)
+        round(
+            get_price_coingecko(CoingeckoIDS.SYN) *
+            get_all_chains_circ_supply(), 2)
     })
 
 
@@ -41,4 +36,5 @@ def mcap_chain(chain: str):
 
     ret = get_chain_circ_cupply(chain)
 
-    return jsonify({'market_cap': round(get_current_price() * ret, 2)})
+    return jsonify(
+        {'market_cap': round(get_price_coingecko(CoingeckoIDS.SYN) * ret, 2)})

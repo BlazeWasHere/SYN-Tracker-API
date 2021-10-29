@@ -66,8 +66,8 @@ def get_price_for_address(chain: str, address: str) -> float:
 
 @timed_cache(60 * 10, maxsize=500)
 def get_price_coingecko(_id: CoingeckoIDS, currency: str = "usd") -> float:
-    r = requests.get(COINGECKO_BASE_URL.format(_id.value))
-    return r.json()['market_data']['current_price'][currency]
+    r = requests.get(COINGECKO_BASE_URL.format(_id.value, currency))
+    return r.json()[_id.value][currency]
 
 
 def init() -> None:
