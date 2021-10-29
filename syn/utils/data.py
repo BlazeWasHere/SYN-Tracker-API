@@ -34,6 +34,10 @@ SYN_DATA = {
         "basepool": "0x1116898DdA4015eD8dDefb84b6e8Bc24528Af2d8",
         "nusd": "0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f",
         "high": "0x71ab77b7dbb4fa7e017bc15090b2163221420282",
+        "dog": "0xbaac2b4491727d78d2b78815144570b9f2fe8899",
+        "usdt": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+        "usdc": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "dai": "0x6b175474e89094c44da98b954eedeac495271d0f",
     },
     "avalanche": {
         "rpc": os.getenv('AVAX_RPC'),
@@ -155,13 +159,15 @@ TOKEN_DECIMALS = {
         '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 6,
         '0x6b175474e89094c44da98b954eedeac495271d0f': 18,
         '0xdac17f958d2ee523a2206206994597c13d831ec7': 6,
-        '0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f': 18
+        '0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f': 18,
+        '0xbaac2b4491727d78d2b78815144570b9f2fe8899': 18,
     },
     'bsc': {
         '0x23b891e5c62e0955ae2bd185990103928ab817b3': 18,
         '0xf0b8b631145d393a767b4387d08aa09969b2dfed': 18,
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': 18,
         '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 18,
+        '0xaa88c603d142c371ea0eac8756123c5805edee03': 18,
     }
 }
 

@@ -23,6 +23,7 @@ class CoingeckoIDS(Enum):
     BUSD = 'binance-usd'
     DAI = 'dai'
     ETH = 'ethereum'
+    DOG = 'the-doge-nft'
 
 
 CUSTOM = {
@@ -49,10 +50,12 @@ ADDRESS_TO_CGID = {
         '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': CoingeckoIDS.USDC,
         '0x6b175474e89094c44da98b954eedeac495271d0f': CoingeckoIDS.DAI,
         '0xdac17f958d2ee523a2206206994597c13d831ec7': CoingeckoIDS.USDT,
+        '0xbaac2b4491727d78d2b78815144570b9f2fe8899': CoingeckoIDS.DOG,
     },
     'bsc': {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': CoingeckoIDS.BUSD,
         '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': CoingeckoIDS.USDC,
+        '0xaa88c603d142c371ea0eac8756123c5805edee03': CoingeckoIDS.DOG,
     },
 }
 
