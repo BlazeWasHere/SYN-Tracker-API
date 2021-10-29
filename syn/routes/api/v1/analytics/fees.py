@@ -36,8 +36,8 @@ def adminfees_chain(chain: str):
         block = int(block)
 
     try:
-        return jsonify({'admin_fee': get_admin_fees(chain, block)})
+        return jsonify(get_admin_fees(chain, block))
     except BadFunctionCallOutput:
         # Contract didn't exist then basically, this happens in blocks
         # before the metapool contract deployment.
-        return jsonify({'admin_fee': 0})
+        return (jsonify({'error': 'contract not deployed'}), 400)

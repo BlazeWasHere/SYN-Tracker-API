@@ -7,13 +7,14 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Callable, Dict, Literal, List
+from typing import Any, Callable, Dict, Literal
 
 import dateutil.parser
 
-from syn.utils.price import ADDRESS_TO_CGID, get_price_for_address
 from syn.utils.data import MORALIS_APIKEY, TOKEN_DECIMALS
+from syn.utils.price import get_price_for_address
 from syn.utils.wrappa.moralis import Moralis
+from syn.utils.helpers import add_to_dict
 from syn.utils.cache import timed_cache
 
 if MORALIS_APIKEY is None:
@@ -34,7 +35,7 @@ def get_chain_volume(
                          bool] = _always_true) -> Dict[str, Any]:
     # TODO(blaze): Cache past days volume, after all they dont change.
     data = moralis.erc20_transfers(address, chain)
-    res: Dict[str, Dict[str, Dict[str, float]]] = {}
+    res: Dict[str, Any] = {}
 
     for x in data:
         if filter(x) and x['address'] in TOKEN_DECIMALS[chain]:
@@ -68,33 +69,29 @@ def get_chain_volume(
 
     # Create a `total` key for each day.
     for k, v in res.items():
+        total: Dict[str, float] = {}
         total_usd: float = 0
-        total: float = 0
 
         for _v in v.values():
             total_usd += _v['usd']
-            total += _v['volume']
 
-        res[k]['total'] = {'usd': total_usd, 'volume': total}
+        res[k]['total'] = {'usd': total_usd}
 
+    total: Dict[str, float] = {}
     total_usd: float = 0
-    total: float = 0
 
     # Now create a `total` including every day.
     for k, v in res.items():
-        total_usd += res[k]['total']['usd']
-        total += res[k]['total']['volume']
+        total_usd += v['total']['usd']
 
-    _res: List[Dict[str, Dict[str, Any]]] = []
-
-    # Convert to an array of objects.
-    for k, v in res.items():
-        _res.append({k: v})
+        for token, _v in v.items():
+            if 'volume' in _v:
+                add_to_dict(total, token, _v['volume'])
 
     return {
         'stats': {
             'volume': total,
             'usd': total_usd,
         },
-        'data': _res
+        'data': res
     }

@@ -58,23 +58,18 @@ def volume_chain(chain: str):
         return (x['from_address'] == address.lower()
                 or x['to_address'] == address.lower())
 
-    return jsonify(
-        {'volume': get_chain_volume(address, _chains[chain], _filter)})
+    return jsonify(get_chain_volume(address, _chains[chain], _filter))
 
 
 @volume_bp.route('/ethereum/filter/nusd', methods=['GET'])
 def volume_chain_nusd():
     address = DEFILLAMA_DATA['bridges']['ethereum']['metaswap']
-    return jsonify({
-        'volume':
-        get_chain_volume(address, 'eth', eth_filter_factory('nusd'))
-    })
+    return jsonify(get_chain_volume(address, 'eth',
+                                    eth_filter_factory('nusd')))
 
 
 @volume_bp.route('/ethereum/filter/high', methods=['GET'])
 def volume_chain_high():
     address = DEFILLAMA_DATA['bridges']['ethereum']['metaswap']
-    return jsonify({
-        'volume':
-        get_chain_volume(address, 'eth', eth_filter_factory('high'))
-    })
+    return jsonify(get_chain_volume(address, 'eth',
+                                    eth_filter_factory('high')))
