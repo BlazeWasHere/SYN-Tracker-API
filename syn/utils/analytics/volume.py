@@ -20,7 +20,7 @@ from syn.utils.helpers import add_to_dict
 from syn.utils.cache import timed_cache
 
 if COVALENT_APIKEY is None:
-    raise TypeError('`MORALIS_APIKEY` is not set')
+    raise TypeError('`COVALENT_APIKEY` is not set')
 
 covalent = Covalent(COVALENT_APIKEY)
 
