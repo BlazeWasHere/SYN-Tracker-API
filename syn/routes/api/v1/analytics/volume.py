@@ -7,24 +7,30 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Callable, Dict
+from typing import Any, Callable, Dict
 
 from flask import Blueprint, jsonify
 
-from syn.utils.analytics.volume import get_chain_volume
-from syn.utils.data import SYN_DATA, DEFILLAMA_DATA
+from syn.utils.analytics.volume import get_chain_volume, get_chain_volume_covalent
+from syn.utils.data import NULL_ADDR, SYN_DATA, DEFILLAMA_DATA
 
 volume_bp = Blueprint('volume_bp', __name__)
 ETH_TOKENS = ['nusd', 'syn', 'high', 'dog', 'usdt', 'usdc', 'dai']
+BSC_TOKENS = ['nusd', 'syn', 'high', 'dog']
 
 
-def eth_filter_factory(
-    key: str,
-    address: str = DEFILLAMA_DATA['bridges']['ethereum']['metaswap']
-) -> Callable[[Dict[str, str]], bool]:
+def filter_factory(key: str,
+                   chain: str,
+                   address: str = '') -> Callable[[Dict[str, str]], bool]:
+    if not address:
+        if chain == 'ethereum':
+            address = DEFILLAMA_DATA['bridges'][chain]['metaswap']
+        else:
+            address = SYN_DATA[chain]['metapool']
+
     def filter(x: Dict[str, str]) -> bool:
         return x['to_address'] == address.lower() \
-            and x['address'] == SYN_DATA['ethereum'][key].lower()
+            and x['address'] == SYN_DATA[chain][key].lower()
 
     return filter
 
@@ -40,4 +46,39 @@ def volume_eth_filter(token: str):
         token = 'address'
 
     address = DEFILLAMA_DATA['bridges']['ethereum']['metaswap']
-    return jsonify(get_chain_volume(address, 'eth', eth_filter_factory(token)))
+    return jsonify(
+        get_chain_volume(address, 'eth', filter_factory(token, 'ethereum')))
+
+
+@volume_bp.route('/bsc/filter/<token>', methods=['GET'])
+def volume_bsc_filter(token: str):
+    if token not in BSC_TOKENS:
+        return (jsonify({
+            'error': 'invalid token',
+            'valids': BSC_TOKENS,
+        }), 400)
+    elif token == 'syn':
+        token = 'address'
+
+    def filter(data: Dict[str, Any]) -> bool:
+        _bridges = [
+            # BSC Bridge
+            '0xd123f70ae324d34a9e76b67a27bf77593ba8749f',
+            # BSC Bridge Zap
+            '0x612f3a0226463599ccbcabff89623904ef38bcb9',
+            # BSC Meta Bridge Zap
+            '0x8027a7fa5753c8873e130f1205da9fb8691726ab',
+        ]
+
+        if data['to_address'] not in _bridges:
+            return False
+
+        for x in data['transfers']:
+            if x['contract_address'] == c_address.lower():
+                return True
+
+        return False
+
+    c_address = SYN_DATA['bsc'][token]
+    return jsonify(
+        get_chain_volume_covalent(NULL_ADDR, c_address, 'bsc', filter))

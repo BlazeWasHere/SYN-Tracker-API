@@ -17,11 +17,13 @@ load_dotenv(find_dotenv('.env.sample'))
 # If `.env` exists, let it override the sample env file.
 load_dotenv(override=True)
 
+COINGECKO_HISTORIC_URL = "https://api.coingecko.com/api/v3/coins/{0}/history?date={1}&localization=false"
 COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_currencies={1}"
 
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
 
+COVALENT_APIKEY = os.getenv('COVALENT_APIKEY')
 MORALIS_APIKEY = os.getenv('MORALIS_APIKEY')
 
 NULL_ADDR = '0x0000000000000000000000000000000000000000'
@@ -50,6 +52,12 @@ SYN_DATA = {
         "address": "0xa4080f1778e69467e905b8d6f72f6e441f9e9484",
         "basepool": "0x938aFAFB36E8B1AB3347427eb44537f543475cF9",
         "metapool": "0x930d001b7efb225613ac7f35911c52ac9e111fa9",
+        "nusd": "0x23b891e5c62e0955ae2bd185990103928ab817b3",
+        "busd": "0xe9e7cea3dedca5984780bafc599bd69add087d56",
+        "usdc": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+        "usdt": "0x55d398326f99059ff775485246999027b3197955",
+        "dog": "0xaa88c603d142c371ea0eac8756123c5805edee03",
+        "high": "0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63",
     },
     "polygon": {
         "rpc": os.getenv('POLYGON_RPC'),

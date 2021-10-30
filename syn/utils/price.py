@@ -7,11 +7,13 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from datetime import datetime
 from enum import Enum
 
+import dateutil.parser
 import requests
 
-from .data import COINGECKO_BASE_URL
+from .data import COINGECKO_BASE_URL, COINGECKO_HISTORIC_URL
 from .cache import timed_cache
 
 
@@ -24,6 +26,7 @@ class CoingeckoIDS(Enum):
     DAI = 'dai'
     ETH = 'ethereum'
     DOG = 'the-doge-nft'
+    NRV = 'nerve-finance'
 
 
 CUSTOM = {
@@ -56,8 +59,44 @@ ADDRESS_TO_CGID = {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': CoingeckoIDS.BUSD,
         '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': CoingeckoIDS.USDC,
         '0xaa88c603d142c371ea0eac8756123c5805edee03': CoingeckoIDS.DOG,
+        '0xa4080f1778e69467e905b8d6f72f6e441f9e9484': CoingeckoIDS.SYN,
+        '0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63': CoingeckoIDS.HIGH,
+        '0x55d398326f99059ff775485246999027b3197955': CoingeckoIDS.USDT,
     },
 }
+
+
+# TODO(blaze): this is a constant, store it in a persistant cache.
+@timed_cache(9999999999, maxsize=500)
+def get_historic_price(_id: CoingeckoIDS,
+                       date: str,
+                       currency: str = "usd") -> float:
+    # Assume we got `date` as yyyy-mm-dd and we need as dd-mm-yyyy.
+    date = datetime.strptime(date, '%Y-%m-%d').strftime('%d-%m-%Y')
+    r = requests.get(COINGECKO_HISTORIC_URL.format(_id.value, date))
+    try:
+        return r.json()['market_data']['current_price'][currency]
+    except KeyError:
+        # CG doesn't have the price.
+        return 0
+
+
+def get_historic_price_syn(date: str, currency: str = "usd") -> float:
+    dt = dateutil.parser.parse(date)
+
+    # SYN price didn't exist here on CG but was pegged 1:2.5 to NRV.
+    if dt < datetime(year=2021, month=8, day=30):
+        return get_historic_price(CoingeckoIDS.NRV, date, currency) / 2.5
+
+    return get_historic_price(CoingeckoIDS.SYN, date, currency)
+
+
+def get_historic_price_for_address(chain: str, address: str,
+                                   date: str) -> float:
+    if address in CUSTOM[chain]:
+        return CUSTOM[chain][address]
+
+    return get_historic_price(ADDRESS_TO_CGID[chain][address], date)
 
 
 def get_price_for_address(chain: str, address: str) -> float:

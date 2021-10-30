@@ -51,10 +51,10 @@ class Moralis(object):
         offset += int(ret['page_size'])
         res += ret['result']
 
-        needed = ret['total'] // offset + 1
+        needed = ret['total'] // offset
 
         # Workers, dispatch!
-        for i in range(needed):
+        for i in range(1, needed):
             jobs.append(
                 pool.spawn(self.__request,
                            *args,

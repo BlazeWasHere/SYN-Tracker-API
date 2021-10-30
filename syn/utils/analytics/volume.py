@@ -7,15 +7,22 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Callable, Dict, Literal
+from typing import Any, Callable, Dict, Literal, Tuple
 
 import dateutil.parser
 
-from syn.utils.data import MORALIS_APIKEY, TOKEN_DECIMALS
-from syn.utils.price import get_price_for_address
+from syn.utils.data import MORALIS_APIKEY, TOKEN_DECIMALS, COVALENT_APIKEY
+from syn.utils.price import get_historic_price_for_address, \
+    get_price_for_address, get_historic_price_syn
+from syn.utils.wrappa.covalent import Covalent
 from syn.utils.wrappa.moralis import Moralis
 from syn.utils.helpers import add_to_dict
 from syn.utils.cache import timed_cache
+
+if COVALENT_APIKEY is None:
+    raise TypeError('`MORALIS_APIKEY` is not set')
+
+covalent = Covalent(COVALENT_APIKEY)
 
 if MORALIS_APIKEY is None:
     raise TypeError('`MORALIS_APIKEY` is not set')
@@ -25,6 +32,94 @@ moralis = Moralis(MORALIS_APIKEY)
 
 def _always_true(*args, **kwargs) -> Literal[True]:
     return True
+
+
+def create_totals(res: Dict[str, Any],
+                  chain: str) -> Tuple[Dict[str, float], float, float]:
+    # Create a `total` key for each day.
+    for v in res.values():
+        total_usd: float = 0
+
+        for _v in v.values():
+            total_usd += _v['usd']
+
+        v['total'] = {'usd': total_usd}
+
+    total: Dict[str, float] = {}
+    total_usd_current: float = 0
+    # Total adjusted.
+    total_usd: float = 0
+
+    # Now create a `total` including every day.
+    for v in res.values():
+        total_usd += v['total']['usd']
+
+        for token, _v in v.items():
+            if 'volume' in _v:
+                add_to_dict(total, token, _v['volume'])
+
+    for k, v in total.items():
+        price = get_price_for_address(chain, k)
+        total_usd_current += (price * v)
+
+    return total, total_usd, total_usd_current
+
+
+@timed_cache(360, maxsize=50)
+def get_chain_volume_covalent(
+        address: str,
+        contract_address: str,
+        chain: str,
+        filter: Callable[[Dict[str, Any]],
+                         bool] = _always_true) -> Dict[str, Any]:
+    data = covalent.transfers_v2(address, contract_address, chain)
+    res: Dict[str, Any] = {}
+
+    for y in data:
+        for x in y['items']:
+            if filter(x):
+                # TODO(blaze): there is normally only 1 transfer involved,
+                # but what do we do when there is more?
+                for z in x['transfers']:
+                    value = z['delta_quote']
+                    volume = int(z['delta']) / 10**z['contract_decimals']
+                    key = str(
+                        dateutil.parser.parse(z['block_signed_at']).date())
+
+                    if value is None:
+                        if z['contract_ticker_symbol'] == 'SYN':
+                            value = volume * get_historic_price_syn(key)
+                        else:
+                            value = volume * get_historic_price_for_address(
+                                chain, z['contract_address'], key)
+
+                    if key not in res:
+                        res.update({
+                            key: {
+                                z['contract_address']: {},
+                                'total': {
+                                    'usd': 0,
+                                    'volume': 0,
+                                }
+                            }
+                        })
+
+                    add_to_dict(res[key][z['contract_address']], 'volume',
+                                volume)
+                    add_to_dict(res[key][z['contract_address']], 'usd', value)
+
+    total, total_usd, total_usd_current = create_totals(res, chain)
+
+    return {
+        'stats': {
+            'volume': total,
+            'usd': {
+                'adjusted': total_usd,
+                'current': total_usd_current,
+            },
+        },
+        'data': res
+    }
 
 
 @timed_cache(360, maxsize=50)
@@ -67,31 +162,15 @@ def get_chain_volume(
                 res[key][x['address']]['volume'] += value
                 res[key][x['address']]['usd'] += value * price
 
-    # Create a `total` key for each day.
-    for k, v in res.items():
-        total: Dict[str, float] = {}
-        total_usd: float = 0
-
-        for _v in v.values():
-            total_usd += _v['usd']
-
-        res[k]['total'] = {'usd': total_usd}
-
-    total: Dict[str, float] = {}
-    total_usd: float = 0
-
-    # Now create a `total` including every day.
-    for k, v in res.items():
-        total_usd += v['total']['usd']
-
-        for token, _v in v.items():
-            if 'volume' in _v:
-                add_to_dict(total, token, _v['volume'])
+    total, total_usd, total_usd_current = create_totals(res, chain)
 
     return {
         'stats': {
             'volume': total,
-            'usd': total_usd,
+            'usd': {
+                'adjusted': total_usd,
+                'current': total_usd_current,
+            },
         },
         'data': res
     }
