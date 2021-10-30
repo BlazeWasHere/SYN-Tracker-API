@@ -1,0 +1,409 @@
+{
+  "components": {
+    "schemas": {
+      "InvalidError": {
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "valids": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "type": "object"
+      },
+      "Chains": {
+        "type": "string",
+        "enum": [
+          "ethereum",
+          "avalanche",
+          "bsc",
+          "polygon",
+          "arbitrum",
+          "fantom"
+        ]
+      },
+      "BridgeFilter": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "object",
+                  "properties": {
+                    "usd": {
+                      "type": "number",
+                      "format": "float"
+                    }
+                  }
+                }
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "usd": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "volume": {
+                    "type": "number",
+                    "format": "float"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "data": {
+            "2021-10-25": {
+              "0xaa88c603d142c371ea0eac8756123c5805edee03": {
+                "usd": 1355.478528122246,
+                "volume": 123446.9082698944
+              },
+              "total": {
+                "usd": 1355.478528122246
+              }
+            },
+            "2021-10-26": {
+              "0xaa88c603d142c371ea0eac8756123c5805edee03": {
+                "usd": 1055.4443547315896,
+                "volume": 100420
+              },
+              "total": {
+                "usd": 1055.4443547315896
+              }
+            },
+            "2021-10-27": {
+              "0xaa88c603d142c371ea0eac8756123c5805edee03": {
+                "usd": 757281.1329737306,
+                "volume": 75000000
+              },
+              "total": {
+                "usd": 757281.1329737306
+              }
+            },
+            "2021-10-28": {
+              "0xaa88c603d142c371ea0eac8756123c5805edee03": {
+                "usd": 265722.62781034486,
+                "volume": 15805181.048415447
+              },
+              "total": {
+                "usd": 265722.62781034486
+              }
+            },
+            "2021-10-29": {
+              "0xaa88c603d142c371ea0eac8756123c5805edee03": {
+                "usd": 626228.3000757314,
+                "volume": 19759417.301290344
+              },
+              "total": {
+                "usd": 626228.3000757314
+              }
+            },
+            "2021-10-30": {
+              "0xaa88c603d142c371ea0eac8756123c5805edee03": {
+                "usd": 368915.2027302926,
+                "volume": 12501172.662217114
+              },
+              "total": {
+                "usd": 368915.2027302926
+              }
+            }
+          },
+          "stats": {
+            "usd": {
+              "adjusted": 2020558.186472953,
+              "current": 3624643.8468636745
+            },
+            "volume": {
+              "0xaa88c603d142c371ea0eac8756123c5805edee03": 123289637.9201928
+            }
+          }
+        }
+      }
+    }
+  },
+  "info": {
+    "title": "SYN Tracker",
+    "version": "1.0.0",
+    "description": "An API to track useful things about SYN. Still a WIP. View the repo [here](https://github.com/blazewashere/syn-tracker-api)",
+    "contact": {
+      "email": "blaze@dorime.org"
+    },
+    "license": {
+      "name": "Boost Software License 1.0",
+      "url": " https://www.boost.org/LICENSE_1_0.txt"
+    }
+  },
+  "openapi": "3.0.3",
+  "servers": [
+    { "url": "https://synapse.dorime.org", "description": "production" },
+    { "url": "http://localhost:1337", "description": "development" }
+  ],
+  "paths": {
+    "/api/v1/analytics/fees/admin/{chain}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "example": {
+                    "0x6B175474E89094C44Da98b954EedeAC495271d0F": 5.037710710295178e21,
+                    "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": 14505109603,
+                    "0xdAC17F958D2ee523a2206206994597C13D831ec7": 8510981976
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "admin fees on a chain",
+        "tags": ["Admin Fees"]
+      }
+    },
+    "/api/v1/analytics/volume/bsc/filter/{token}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["nusd", "syn", "high", "dog"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
+              }
+            },
+            "description": "Successful response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "volume of a token on the BSC bridge",
+        "tags": ["Bridge Volume"]
+      }
+    },
+    "/api/v1/analytics/volume/ethereum/filter/{token}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["nusd", "syn", "high", "dog", "usdt", "usdc", "dai"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
+              }
+            },
+            "description": "Successful response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "volume of a token on the ETH bridge",
+        "tags": ["Bridge Volume"]
+      }
+    },
+    "/api/v1/circ/": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supply": { "type": "number", "format": "float" }
+                  },
+                  "example": {
+                    "supply": 161369615.5922159
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "circulatory supply for all chains",
+        "tags": ["Circulatory Supply"]
+      }
+    },
+    "/api/v1/circ/{chain}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supply": { "type": "number", "format": "float" }
+                  },
+                  "example": {
+                    "supply": 80381211.2436923
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "circulatory supply on a chain",
+        "tags": ["Circulatory Supply"]
+      }
+    },
+    "/api/v1/mcap/": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "market_cap": { "type": "number", "format": "float" }
+                  },
+                  "example": {
+                    "market_cap": 490563631.4
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "market cap of SYN on all chains",
+        "tags": ["Market Cap"]
+      }
+    },
+    "/api/v1/mcap/{chain}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "market_cap": { "type": "number", "format": "float" }
+                  },
+                  "example": {
+                    "market_cap": 244358882.18
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "market cap of SYN on a chain",
+        "tags": ["Market Cap"]
+      }
+    }
+  }
+}

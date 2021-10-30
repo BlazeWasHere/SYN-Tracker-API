@@ -6,30 +6,11 @@
     <meta content="Synapse (SYN)" property="og:title">
     <meta content="Unofficial SYN tracker API" property="og:description">
     <meta content="https://synapse.dorime.org" property="og:url">
-    <style>
-        .centered {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-    </style>
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 </head>
 
 <body>
-    <div class="centered">
-        {% for route in routes %}
-        <br>
-        {% if route is not none %}
-        <a href="{{ route }}">{{ route }}</a>
-        {% else %}
-        <br>
-        {% endif %}
-        {% endfor %}
-        <br>
-        Repo <a href="https://github.com/blazewashere/syn-tracker-api">SYN-Tracker-API</a>
-    </div>
+    <rapi-doc spec-url="./openapi.json" theme="dark"> </rapi-doc>
 </body>
 
 </html>

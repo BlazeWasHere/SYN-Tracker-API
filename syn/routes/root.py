@@ -7,42 +7,34 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import List, Optional
+import json
 import os
 
-from flask import Blueprint, render_template, current_app as app, jsonify
+from flask import Blueprint, jsonify
 
-from syn.utils.data import DEFILLAMA_DATA, SYN_DATA
+from syn.utils.data import DEFILLAMA_DATA
 
 # Get parent (root) dir.
 _path = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+openapi_folder = os.path.join(_path, 'docs', 'openapi')
 template_folder = os.path.join(_path, 'public')
-root_bp = Blueprint('root_bp', __name__, template_folder=template_folder)
+root_bp = Blueprint('root_bp', __name__, static_folder=template_folder)
+
+with open(os.path.join(openapi_folder, 'specification.json')) as f:
+    OPENAPI_DATA = json.load(f)
 
 
 @root_bp.route('/')
 def index():
-    routes: List[Optional[str]] = []
-
-    for x in app.url_map.iter_rules():
-        x = str(x)
-
-        if x.startswith('/api'):
-            if '<chain>' in x:
-                _route = x.split('<chain>')[0]
-
-                for chain in SYN_DATA:
-                    routes.append(_route + chain)
-
-                routes.append(None)
-            else:
-                routes.append(x)
-                routes.append(None)
-
-    return render_template('index.html', routes=routes)
+    return root_bp.send_static_file('index.html')
 
 
 @root_bp.route('/defillama.json')
 def defillama():
     return jsonify(DEFILLAMA_DATA)
+
+
+@root_bp.route('/openapi.json')
+def openapi():
+    return jsonify(OPENAPI_DATA)
