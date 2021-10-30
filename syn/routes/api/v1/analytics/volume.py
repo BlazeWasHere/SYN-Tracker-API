@@ -35,6 +35,7 @@ def filter_factory(key: str,
     return filter
 
 
+@volume_bp.route('/ethereum/filter/', defaults={'token': ''}, methods=['GET'])
 @volume_bp.route('/ethereum/filter/<token>', methods=['GET'])
 def volume_eth_filter(token: str):
     if token not in ETH_TOKENS:
@@ -50,6 +51,7 @@ def volume_eth_filter(token: str):
         get_chain_volume(address, 'eth', filter_factory(token, 'ethereum')))
 
 
+@volume_bp.route('/bsc/filter/', defaults={'token': ''}, methods=['GET'])
 @volume_bp.route('/bsc/filter/<token>', methods=['GET'])
 def volume_bsc_filter(token: str):
     if token not in BSC_TOKENS:
