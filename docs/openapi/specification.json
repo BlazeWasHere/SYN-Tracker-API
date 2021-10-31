@@ -193,6 +193,23 @@
         "tags": ["Admin Fees"]
       }
     },
+    "/api/v1/analytics/volume/bsc": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "volume of all tokens on the BSC bridge",
+        "tags": ["Bridge Volume"]
+      }
+    },
     "/api/v1/analytics/volume/bsc/filter/{token}": {
       "get": {
         "parameters": [
@@ -227,6 +244,23 @@
           }
         },
         "summary": "volume of a token on the BSC bridge",
+        "tags": ["Bridge Volume"]
+      }
+    },
+    "/api/v1/analytics/volume/ethereum": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "volume of all tokens on the ETH bridge",
         "tags": ["Bridge Volume"]
       }
     },

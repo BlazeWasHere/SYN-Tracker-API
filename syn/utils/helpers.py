@@ -7,7 +7,7 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Dict, TypeVar
+from typing import Any, List, Dict, TypeVar
 
 KT = TypeVar('KT')
 VT = TypeVar('VT')
@@ -23,3 +23,36 @@ def add_to_dict(dict: Dict[KT, VT], key: KT, value: VT) -> None:
         dict[key] += value  # type: ignore
     else:
         dict.update({key: value})
+
+
+def merge_many_dicts(dicts: List[Dict[KT, Any]],
+                     is_price_dict: bool = False) -> Dict[KT, Any]:
+    res: Dict[KT, Any] = {}
+
+    for dict in dicts:
+        res.update(merge_dict(res, dict, is_price_dict))
+
+    return res
+
+
+def merge_dict(dict1: Dict[KT, Any],
+               dict2: Dict[KT, Any],
+               is_price_dict: bool = False) -> Dict[KT, Any]:
+    for k, v in dict1.items():
+        if isinstance(v, dict):
+            if k in dict2 and isinstance(dict2[k], dict):
+                merge_dict(dict1[k], dict2[k], is_price_dict)
+        else:
+            if k in dict2:
+                if is_price_dict:
+                    if k in ['adjusted', 'current', 'usd']:
+                        dict1[k] += dict2[k]  # type: ignore
+
+                else:
+                    dict1[k] = dict2[k]
+
+    for k, v in dict2.items():
+        if not k in dict1:
+            dict1[k] = v
+
+    return dict1

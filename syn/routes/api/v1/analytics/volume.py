@@ -7,12 +7,14 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, cast, List
 
 from flask import Blueprint, jsonify
+from flask.wrappers import Response
 
 from syn.utils.analytics.volume import get_chain_volume, get_chain_volume_covalent
 from syn.utils.data import NULL_ADDR, SYN_DATA, DEFILLAMA_DATA
+from syn.utils.helpers import merge_many_dicts
 
 volume_bp = Blueprint('volume_bp', __name__)
 ETH_TOKENS = ['nusd', 'syn', 'high', 'dog', 'usdt', 'usdc', 'dai']
@@ -35,6 +37,17 @@ def filter_factory(key: str,
     return filter
 
 
+@volume_bp.route('/ethereum', methods=['GET'])
+def volume_eth():
+    resps: List[Dict[str, Any]] = []
+
+    for x in ETH_TOKENS:
+        ret = cast(Response, volume_eth_filter(x)).get_json(force=True)
+        resps.append(cast(dict, ret))
+
+    return jsonify(merge_many_dicts(resps, is_price_dict=True))
+
+
 @volume_bp.route('/ethereum/filter/', defaults={'token': ''}, methods=['GET'])
 @volume_bp.route('/ethereum/filter/<token>', methods=['GET'])
 def volume_eth_filter(token: str):
@@ -49,6 +62,17 @@ def volume_eth_filter(token: str):
     address = DEFILLAMA_DATA['bridges']['ethereum']['metaswap']
     return jsonify(
         get_chain_volume(address, 'eth', filter_factory(token, 'ethereum')))
+
+
+@volume_bp.route('/bsc', methods=['GET'])
+def volume_bsc():
+    resps: List[Dict[str, Any]] = []
+
+    for x in BSC_TOKENS:
+        ret = cast(Response, volume_bsc_filter(x)).get_json(force=True)
+        resps.append(cast(dict, ret))
+
+    return jsonify(merge_many_dicts(resps, is_price_dict=True))
 
 
 @volume_bp.route('/bsc/filter/', defaults={'token': ''}, methods=['GET'])
