@@ -7,14 +7,14 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, List, Dict, Union
+from typing import Any, List, Dict
 
 from gevent.greenlet import Greenlet
 from gevent.pool import Pool
 import requests
 import gevent
 
-from syn.utils.cache import timed_cache
+from syn.utils.cache import redis_cache, timed_cache
 
 pool = Pool()
 
@@ -25,6 +25,12 @@ CHAIN_MAPPING = {
     'avalanche': 43114,
     'fantom': 250
 }
+
+
+def _filter(*args, **kwargs) -> bool:
+    # Cache from page 2 onwards.
+    return kwargs['params']['skip'] > (2 *
+                                       kwargs['params'].get('page-size', 100))
 
 
 class Covalent(object):
@@ -39,6 +45,7 @@ class Covalent(object):
         self.api_key = api_key
         self.base = url
 
+    @redis_cache(filter=_filter, is_class=True)
     def __request(self, method: str, endpoint: str, *args, **kwargs) -> Any:
         params = kwargs.pop('params', {})
         params.update({'key': self.api_key})
@@ -63,12 +70,7 @@ class Covalent(object):
         res: List[Any] = []
 
         offset = kwargs.pop('offset', 0)
-        ret = self.__request(*args,
-                             **kwargs,
-                             params={
-                                 'skip': offset,
-                                 'page-size': 750
-                             })
+        ret = self.__request(*args, **kwargs, params={'skip': offset})
 
         offset += int(ret['data']['pagination']['page_size'])
         res += [ret['data']]
@@ -81,14 +83,17 @@ class Covalent(object):
                 pool.spawn(self.__request,
                            *args,
                            **kwargs,
-                           params={
-                               'skip': offset * i,
-                               'page-size': 750
-                           }))
+                           params={'skip': offset * i}))
 
         _ret: List[Greenlet] = gevent.joinall(jobs)
         for x in _ret:
-            res += [x.get()['data']]  # type: ignore
+            z = x.get()
+
+            try:
+                res += [z['data']]  # type: ignore
+            except:
+                print(z)
+                raise
 
         return res
 

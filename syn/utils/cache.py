@@ -7,8 +7,14 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from typing import Callable, Optional, Union
 from functools import lru_cache, wraps
+from datetime import timedelta
+import json
 import time
+
+from .helpers import flatten_dict
+from .data import REDIS
 
 
 # Gotta love SO: https://stackoverflow.com/a/63674816
@@ -31,6 +37,71 @@ def timed_cache(max_age, maxsize=5, typed=False):
             return _new(*args,
                         **kwargs,
                         __time_salt=round(time.time() / max_age))
+
+        return _wrapped
+
+    return _decorator
+
+
+def _serialize_args_to_str(*args, **kwargs) -> str:
+    from .price import CoingeckoIDS
+
+    res = []
+
+    if kwargs.pop('is_class', False):
+        x = list(args)
+        x.pop(0)
+        args = tuple(x)
+
+    for arg in args:
+        if isinstance(arg, CoingeckoIDS):
+            res.append(arg.value)
+        else:
+            res.append(str(arg))
+
+    return ':'.join(res) + flatten_dict(kwargs)
+
+
+def redis_cache(key: Optional[str] = None,
+                expires_at: Optional[Union[int, timedelta]] = None,
+                filter: Callable[..., bool] = lambda *args, **kwargs: True,
+                is_class: bool = False):
+    """
+    Fetch `key` from `REDIS` else run the function and store the response
+    as `key` for later (cache) usage.
+
+    Args:
+        key (str): the unqiue key
+        expires_at (Optional[int], optional): time `key` should expire. Defaults to None.
+    """
+    def _decorator(fn):
+        @wraps(fn)
+        def _wrapped(*args, **kwargs):
+            if key is None:
+                _key = _serialize_args_to_str(*args,
+                                              **kwargs,
+                                              is_class=is_class)
+            else:
+                _key = key
+
+            if (data := REDIS.get(_key)) is not None:
+                if isinstance(data, str):
+                    try:
+                        return json.loads(data)
+                    except:
+                        return data
+
+                return data
+
+            res = fn(*args, **kwargs)
+
+            if filter(*args, **kwargs):
+                if not isinstance(res, (str, bytes, float, int)):
+                    res = json.dumps(res)
+
+                REDIS.set(_key, res, expires_at)
+
+            return res
 
         return _wrapped
 

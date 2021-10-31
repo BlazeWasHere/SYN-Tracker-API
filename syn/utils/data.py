@@ -12,6 +12,7 @@ import os
 
 from web3.middleware.geth_poa import geth_poa_middleware
 from web3 import Web3
+import redis
 
 load_dotenv(find_dotenv('.env.sample'))
 # If `.env` exists, let it override the sample env file.
@@ -25,6 +26,15 @@ BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uin
 
 COVALENT_APIKEY = os.getenv('COVALENT_APIKEY')
 MORALIS_APIKEY = os.getenv('MORALIS_APIKEY')
+
+if os.getenv('docker') == 'true':
+    REDIS = redis.Redis(os.environ['REDIS_DOCKER_HOST'],
+                        int(os.environ['REDIS_DOCKER_PORT']),
+                        decode_responses=True)
+else:
+    REDIS = redis.Redis(os.environ['REDIS_HOST'],
+                        int(os.environ['REDIS_PORT']),
+                        decode_responses=True)
 
 NULL_ADDR = '0x0000000000000000000000000000000000000000'
 

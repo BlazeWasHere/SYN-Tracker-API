@@ -56,3 +56,15 @@ def merge_dict(dict1: Dict[KT, Any],
             dict1[k] = v
 
     return dict1
+
+
+def flatten_dict(_dict: Dict[Any, Any], _join: str = ':') -> str:
+    values = []
+
+    for k, v in _dict.items():
+        if isinstance(v, dict):
+            values.append(flatten_dict(v))
+        else:
+            values.append(f'{k}-{v}')
+
+    return _join.join(values)

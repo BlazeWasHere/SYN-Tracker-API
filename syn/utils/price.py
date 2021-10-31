@@ -14,7 +14,7 @@ import dateutil.parser
 import requests
 
 from .data import COINGECKO_BASE_URL, COINGECKO_HISTORIC_URL
-from .cache import timed_cache
+from .cache import timed_cache, redis_cache
 
 
 class CoingeckoIDS(Enum):
@@ -66,8 +66,7 @@ ADDRESS_TO_CGID = {
 }
 
 
-# TODO(blaze): this is a constant, store it in a persistant cache.
-@timed_cache(9999999999, maxsize=500)
+@redis_cache()
 def get_historic_price(_id: CoingeckoIDS,
                        date: str,
                        currency: str = "usd") -> float:

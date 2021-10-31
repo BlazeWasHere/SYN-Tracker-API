@@ -14,9 +14,15 @@ from gevent.pool import Pool
 import requests
 import gevent
 
-from syn.utils.cache import timed_cache
+from syn.utils.cache import timed_cache, redis_cache
 
 pool = Pool()
+
+
+def _filter(*args, **kwargs) -> bool:
+    # Cache from page 1 onwards.
+    return kwargs['params']['offset'] > (
+        1 * kwargs['params'].get('page-size', 500))
 
 
 class Moralis(object):
@@ -31,6 +37,7 @@ class Moralis(object):
         self.session = requests.Session()
         self.session.headers['x-api-key'] = api_key
 
+    @redis_cache(filter=_filter, is_class=True)
     def __request(self, method: str, endpoint: str, *args, **kwargs) -> Any:
         r = self.session.request(method, self.base + endpoint, *args, **kwargs)
 
