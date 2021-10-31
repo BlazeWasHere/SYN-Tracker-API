@@ -56,6 +56,31 @@
                 }
               }
             }
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "usd": {
+                "type": "object",
+                "properties": {
+                  "adjusted": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "current": {
+                    "type": "number",
+                    "format": "float"
+                  }
+                }
+              },
+              "volume": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "format": "float"
+                }
+              }
+            }
           }
         },
         "example": {
