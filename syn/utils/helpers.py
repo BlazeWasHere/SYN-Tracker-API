@@ -68,3 +68,10 @@ def flatten_dict(_dict: Dict[Any, Any], _join: str = ':') -> str:
             values.append(f'{k}-{v}')
 
     return _join.join(values)
+
+
+def raise_if(val: Any, match: Any) -> Any:
+    if val == match:
+        raise TypeError(val)
+
+    return val

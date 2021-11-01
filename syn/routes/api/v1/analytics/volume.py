@@ -7,14 +7,18 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Callable, Dict, cast, List
+from typing import Any, Callable, Dict, List
 
 from flask import Blueprint, jsonify
-from flask.wrappers import Response
+from gevent.greenlet import Greenlet
+from gevent.pool import Pool
+import gevent
 
 from syn.utils.analytics.volume import get_chain_volume, get_chain_volume_covalent
 from syn.utils.data import NULL_ADDR, SYN_DATA, DEFILLAMA_DATA
-from syn.utils.helpers import merge_many_dicts
+from syn.utils.helpers import merge_many_dicts, raise_if
+
+pool = Pool()
 
 volume_bp = Blueprint('volume_bp', __name__)
 ETH_TOKENS = ['nusd', 'syn', 'high', 'dog', 'usdt', 'usdc', 'dai']
@@ -37,13 +41,47 @@ def filter_factory(key: str,
     return filter
 
 
+def bsc_filter_factory(c_address: str) -> Callable[[Dict[str, Any]], bool]:
+    def filter(data: Dict[str, Any]) -> bool:
+        _bridges = [
+            # BSC Bridge
+            '0xd123f70ae324d34a9e76b67a27bf77593ba8749f',
+            # BSC Bridge Zap
+            '0x612f3a0226463599ccbcabff89623904ef38bcb9',
+            # BSC Meta Bridge Zap
+            '0x8027a7fa5753c8873e130f1205da9fb8691726ab',
+        ]
+
+        if data['to_address'] not in _bridges:
+            return False
+
+        for x in data['transfers']:
+            if x['contract_address'] == c_address.lower():
+                return True
+
+        return False
+
+    return filter
+
+
 @volume_bp.route('/ethereum', methods=['GET'])
 def volume_eth():
+    address = DEFILLAMA_DATA['bridges']['ethereum']['metaswap']
     resps: List[Dict[str, Any]] = []
+    jobs: List[Greenlet] = []
+
+    def _dispatch(*args, **kwargs):
+        return get_chain_volume(*args, **kwargs)
 
     for x in ETH_TOKENS:
-        ret = cast(Response, volume_eth_filter(x)).get_json(force=True)
-        resps.append(cast(dict, ret))
+        x = 'address' if x == 'syn' else x
+        jobs.append(
+            pool.spawn(_dispatch, address, 'eth',
+                       filter_factory(x, 'ethereum')))
+
+    ret: List[Greenlet] = gevent.joinall(jobs)
+    for x in ret:
+        resps.append(raise_if(x.get(), None))
 
     return jsonify(merge_many_dicts(resps, is_price_dict=True))
 
@@ -67,10 +105,20 @@ def volume_eth_filter(token: str):
 @volume_bp.route('/bsc', methods=['GET'])
 def volume_bsc():
     resps: List[Dict[str, Any]] = []
+    jobs: List[Greenlet] = []
+
+    def _dispatch(*args, **kwargs):
+        return get_chain_volume_covalent(*args, **kwargs)
 
     for x in BSC_TOKENS:
-        ret = cast(Response, volume_bsc_filter(x)).get_json(force=True)
-        resps.append(cast(dict, ret))
+        c_address = SYN_DATA['bsc']['address' if x == 'syn' else x]
+        jobs.append(
+            pool.spawn(_dispatch, NULL_ADDR, c_address, 'bsc',
+                       bsc_filter_factory(c_address)))
+
+    ret: List[Greenlet] = gevent.joinall(jobs)
+    for x in ret:
+        resps.append(raise_if(x.get(), None))
 
     return jsonify(merge_many_dicts(resps, is_price_dict=True))
 
@@ -86,25 +134,7 @@ def volume_bsc_filter(token: str):
     elif token == 'syn':
         token = 'address'
 
-    def filter(data: Dict[str, Any]) -> bool:
-        _bridges = [
-            # BSC Bridge
-            '0xd123f70ae324d34a9e76b67a27bf77593ba8749f',
-            # BSC Bridge Zap
-            '0x612f3a0226463599ccbcabff89623904ef38bcb9',
-            # BSC Meta Bridge Zap
-            '0x8027a7fa5753c8873e130f1205da9fb8691726ab',
-        ]
-
-        if data['to_address'] not in _bridges:
-            return False
-
-        for x in data['transfers']:
-            if x['contract_address'] == c_address.lower():
-                return True
-
-        return False
-
     c_address = SYN_DATA['bsc'][token]
     return jsonify(
-        get_chain_volume_covalent(NULL_ADDR, c_address, 'bsc', filter))
+        get_chain_volume_covalent(NULL_ADDR, c_address, 'bsc',
+                                  bsc_filter_factory(c_address)))
