@@ -15,6 +15,7 @@ import requests
 import gevent
 
 from syn.utils.cache import timed_cache, redis_cache
+from syn.utils.helpers import raise_if
 
 pool = Pool()
 
@@ -70,7 +71,7 @@ class Moralis(object):
 
         _ret: List[Greenlet] = gevent.joinall(jobs)
         for x in _ret:
-            res += x.get()['result']  # type: ignore
+            res += raise_if(x.get(), None)['result']
 
         return res
 

@@ -15,6 +15,7 @@ import requests
 import gevent
 
 from syn.utils.cache import redis_cache, timed_cache
+from syn.utils.helpers import raise_if
 
 pool = Pool()
 
@@ -87,13 +88,7 @@ class Covalent(object):
 
         _ret: List[Greenlet] = gevent.joinall(jobs)
         for x in _ret:
-            z = x.get()
-
-            try:
-                res += [z['data']]  # type: ignore
-            except:
-                print(z)
-                raise
+            res += [raise_if(x.get(), None)['data']]
 
         return res
 
