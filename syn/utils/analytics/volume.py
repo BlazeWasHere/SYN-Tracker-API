@@ -11,7 +11,8 @@ from typing import Any, Callable, Dict, Literal, Tuple
 
 import dateutil.parser
 
-from syn.utils.data import MORALIS_APIKEY, TOKEN_DECIMALS, COVALENT_APIKEY
+from syn.utils.data import MORALIS_APIKEY, SYN_DATA, TOKEN_DECIMALS, \
+    COVALENT_APIKEY
 from syn.utils.price import get_historic_price_for_address, \
     get_price_for_address, get_historic_price_syn
 from syn.utils.wrappa.covalent import Covalent
@@ -136,7 +137,13 @@ def get_chain_volume(
         if filter(x) and x['address'] in TOKEN_DECIMALS[chain]:
             value = int(x['value']) / 10**TOKEN_DECIMALS[chain][x['address']]
             key = str(dateutil.parser.parse(x['block_timestamp']).date())
-            price = get_price_for_address(chain, x['address'])
+
+            if x['address'] == SYN_DATA['ethereum' if chain ==
+                                        'eth' else chain]['address'].lower():
+                price = get_historic_price_syn(key)
+            else:
+                price = get_historic_price_for_address(chain, x['address'],
+                                                       key)
 
             if key not in res:
                 res.update({
