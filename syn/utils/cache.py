@@ -97,9 +97,10 @@ def redis_cache(key: Optional[str] = None,
 
             if filter(*args, **kwargs):
                 if not isinstance(res, (str, bytes, float, int)):
-                    res = json.dumps(res)
-
-                REDIS.set(_key, res, expires_at)
+                    _res = json.dumps(res)
+                    REDIS.set(_key, _res, expires_at)
+                else:
+                    REDIS.set(_key, res, expires_at)
 
             return res
 
