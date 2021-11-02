@@ -13,8 +13,12 @@ from enum import Enum
 import dateutil.parser
 import requests
 
-from .data import COINGECKO_BASE_URL, COINGECKO_HISTORIC_URL
+from .data import COINGECKO_BASE_URL, COINGECKO_HISTORIC_URL, POPULATE_CACHE
 from .cache import timed_cache, redis_cache
+
+if POPULATE_CACHE:
+    from random import randint
+    import time
 
 
 class CoingeckoIDS(Enum):
@@ -93,7 +97,13 @@ def get_historic_price(_id: CoingeckoIDS,
                        currency: str = "usd") -> float:
     # Assume we got `date` as yyyy-mm-dd and we need as dd-mm-yyyy.
     date = datetime.strptime(date, '%Y-%m-%d').strftime('%d-%m-%Y')
+
+    # CG rate limits us @ 10-50 r/m, let's hope this makes us not trigger it.
+    if POPULATE_CACHE:
+        time.sleep(randint(5, 20))
+
     r = requests.get(COINGECKO_HISTORIC_URL.format(_id.value, date))
+
     try:
         return r.json()['market_data']['current_price'][currency]
     except KeyError:
@@ -128,6 +138,10 @@ def get_price_for_address(chain: str, address: str) -> float:
 
 @timed_cache(60 * 10, maxsize=500)
 def get_price_coingecko(_id: CoingeckoIDS, currency: str = "usd") -> float:
+    # CG rate limits us @ 10-50 r/m, let's hope this makes us not trigger it.
+    if POPULATE_CACHE:
+        time.sleep(randint(5, 20))
+
     r = requests.get(COINGECKO_BASE_URL.format(_id.value, currency))
     return r.json()[_id.value][currency]
 

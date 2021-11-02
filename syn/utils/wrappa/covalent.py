@@ -14,8 +14,13 @@ from gevent.pool import Pool
 import requests
 import gevent
 
+from syn.utils.data import POPULATE_CACHE
 from syn.utils.cache import timed_cache
 from syn.utils.helpers import raise_if
+
+if POPULATE_CACHE:
+    from random import randint
+    import time
 
 pool = Pool()
 
@@ -45,6 +50,11 @@ class Covalent(object):
         params.update({'key': self.api_key})
 
         chain = CHAIN_MAPPING[kwargs.pop('chain', 'eth')]
+
+        # We don't want to get rate limited, and Covalent doesn't have a 'defined'
+        # rate limit... so let's just hope we dont get rate limited :)
+        if POPULATE_CACHE:
+            time.sleep(randint(0, kwargs.pop('max_wait_time', 30)))
 
         r = self.session.request(method,
                                  f'{self.base}{chain}{endpoint}',
@@ -76,6 +86,9 @@ class Covalent(object):
             res += [ret['data']]
 
             needed = ret['data']['pagination']['total_count'] // offset + 1
+
+        if POPULATE_CACHE:
+            kwargs.update({'max_wait_time': int(needed * 1.5)})
 
         # Workers, dispatch!
         for i in range(1, needed):

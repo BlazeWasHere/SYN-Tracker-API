@@ -43,6 +43,15 @@ else:
                         int(os.environ['REDIS_PORT']),
                         decode_responses=True)
 
+_POPULATE_CACHE = os.getenv('POPULATE_CACHE')
+if _POPULATE_CACHE is not None:
+    POPULATE_CACHE = _POPULATE_CACHE.lower() == 'true'
+else:
+    POPULATE_CACHE = False
+
+if POPULATE_CACHE:
+    print('`POPULATE_CACHE` set to true, disable this during deployment.')
+
 NULL_ADDR = '0x0000000000000000000000000000000000000000'
 
 SYN_DECIMALS = 18

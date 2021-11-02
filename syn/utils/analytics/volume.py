@@ -12,7 +12,7 @@ from typing import Any, Callable, Dict, Literal, Tuple
 import dateutil.parser
 
 from syn.utils.data import MORALIS_APIKEY, SYN_DATA, TOKEN_DECIMALS, \
-    COVALENT_APIKEY
+    COVALENT_APIKEY, POPULATE_CACHE
 from syn.utils.price import get_historic_price_for_address, \
     get_price_for_address, get_historic_price_syn
 from syn.utils.helpers import add_to_dict, get_all_keys, merge_dict
@@ -58,7 +58,6 @@ def create_totals(res: Dict[str, Any],
                 add_to_dict(total, token, _v['volume'])
 
     for k, v in total.items():
-        print(k, v)
         if k != 'total':
             price = get_price_for_address(chain, k)
             total_usd_current += (price * v)
@@ -76,7 +75,7 @@ def get_chain_volume_covalent(
     data = covalent.transfers_v2(address,
                                  contract_address,
                                  chain,
-                                 useRedis=True)
+                                 useRedis=not POPULATE_CACHE)
     res: Dict[str, Any] = {}
     _address: str = ''
 
@@ -138,7 +137,7 @@ def get_chain_volume(
         chain: str,
         filter: Callable[[Dict[str, str]],
                          bool] = _always_true) -> Dict[str, Any]:
-    data = moralis.erc20_transfers(address, chain, useRedis=True)
+    data = moralis.erc20_transfers(address, chain, useRedis=not POPULATE_CACHE)
     res: Dict[str, Any] = {}
     _address: str = ''
 
