@@ -43,6 +43,15 @@ CUSTOM = {
         '0x55d398326f99059ff775485246999027b3197955': 1,
         '0xdfd717f4e942931c98053d5453f803a1b52838db': 0,
     },
+    'polygon': {
+        # nUSD
+        '0xb6c473756050de474286bed418b77aeac39b02af': 1,
+        '0x81067076dcb7d3168ccf7036117b9d72051205e2': 0,
+    },
+    'avalanche': {
+        # nUSD
+        '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46': 1,
+    },
 }
 
 ADDRESS_TO_CGID = {
@@ -62,6 +71,18 @@ ADDRESS_TO_CGID = {
         '0xa4080f1778e69467e905b8d6f72f6e441f9e9484': CoingeckoIDS.SYN,
         '0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63': CoingeckoIDS.HIGH,
         '0x55d398326f99059ff775485246999027b3197955': CoingeckoIDS.USDT,
+    },
+    'polygon': {
+        '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': CoingeckoIDS.SYN,
+        '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': CoingeckoIDS.DAI,
+        '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': CoingeckoIDS.USDC,
+        '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': CoingeckoIDS.USDT,
+    },
+    'avalanche': {
+        '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': CoingeckoIDS.SYN,
+        '0xd586e7f844cea2f87f50152665bcbc2c279d8d70': CoingeckoIDS.DAI,
+        '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664': CoingeckoIDS.USDC,
+        '0xc7198437980c041c805a1edcba50c1ce5db95118': CoingeckoIDS.USDT,
     },
 }
 

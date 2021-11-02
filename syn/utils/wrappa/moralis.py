@@ -21,9 +21,12 @@ pool = Pool()
 
 
 def _filter(*args, **kwargs) -> bool:
-    # Cache from page 1 onwards.
-    return kwargs['params']['offset'] > (
-        1 * kwargs['params'].get('page-size', 500))
+    if 'offset' in kwargs['params']:
+        # Cache from page 1 onwards.
+        return kwargs['params']['offset'] > (
+            1 * kwargs['params'].get('page-size', 500))
+    else:
+        return kwargs['params']['to_block'] != 0
 
 
 class Moralis(object):
@@ -141,3 +144,34 @@ class Moralis(object):
         return self._paginate('GET',
                               f'/{address}/erc20/transfers?chain={chain}',
                               offset=offset)
+
+    @timed_cache(60, maxsize=25)
+    def erc20_balances(self,
+                       address: str,
+                       chain: str = 'eth',
+                       to_block: int = 0) -> List[Dict[str, Any]]:
+        """
+        Gets token balances for a specific address.
+
+        Args:
+            address (str): the evm compatible address
+            chain (str, optional): the evm chain. Defaults to 'eth'.
+            to_block (Optional[int], optional): the block height. Defaults to None.
+
+        Returns:
+            List[Dict[str, Optional[str]]]: list of token balances
+
+        Schema:
+        {
+            "token_address": "0x0f2d719407fdbeff09d87557abb7232601fd9f29",
+            "name": "Synapse",
+            "symbol": "SYN",
+            "logo": null,
+            "thumbnail": null,
+            "decimals": "18",
+            "balance": "87719066447989719155743"
+        }
+        """
+        return self.__request('GET',
+                              f'/{address}/erc20?chain={chain}',
+                              params={'to_block': to_block})

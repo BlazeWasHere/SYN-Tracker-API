@@ -7,10 +7,11 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from dotenv import load_dotenv, find_dotenv
+from typing import cast
 import os
 
 from web3.middleware.geth_poa import geth_poa_middleware
+from dotenv import load_dotenv, find_dotenv
 from web3 import Web3
 import redis
 
@@ -23,9 +24,15 @@ COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_c
 
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
+BALANCE_ABI = """[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 
-COVALENT_APIKEY = os.getenv('COVALENT_APIKEY')
-MORALIS_APIKEY = os.getenv('MORALIS_APIKEY')
+COVALENT_APIKEY = cast(str, os.getenv('COVALENT_APIKEY'))
+MORALIS_APIKEY = cast(str, os.getenv('MORALIS_APIKEY'))
+
+if MORALIS_APIKEY is None:
+    raise TypeError('`MORALIS_APIKEY` is not set')
+elif COVALENT_APIKEY is None:
+    raise TypeError('`COVALENT_APIKEY` is not set')
 
 if os.getenv('docker') == 'true':
     REDIS = redis.Redis(os.environ['REDIS_DOCKER_HOST'],
@@ -74,6 +81,7 @@ SYN_DATA = {
         "address": "0xf8f9efc0db77d8881500bb06ff5d6abc3070e695",
         "basepool": "0x3f52E42783064bEba9C1CFcD2E130D156264ca77",
         "metapool": "0x96cf323E477Ec1E17A4197Bdcc6f72Bb2502756a",
+        "nusd": "0xb6c473756050de474286bed418b77aeac39b02af",
     },
     "arbitrum": {
         "rpc": os.getenv('ARB_RPC'),
@@ -87,6 +95,15 @@ SYN_DATA = {
         "basepool": "0x080F6AEd32Fc474DD5717105Dba5ea57268F46eb",
         "metapool": "0x1f6A0656Ff5061930076bf0386b02091e0839F9f",
     }
+}
+
+TREASURY = {
+    'eth': '0x67F60b0891EBD842Ebe55E4CCcA1098d7Aac1A55',
+    'bsc': '0x0056580B0E8136c482b03760295F912279170D46',
+    'polygon': '0xBdD38B2eaae34C9FCe187909e81e75CBec0dAA7A',
+    'avalanche': '0xd7aDA77aa0f82E6B3CF5bF9208b0E5E1826CD79C',
+    'arbitrum': '0x940279D22EB27415F2b0A0Ee6287749b5B19F43D',
+    'fantom': '0x224002428cF0BA45590e0022DF4b06653058F22F',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
@@ -186,7 +203,32 @@ TOKEN_DECIMALS = {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': 18,
         '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 18,
         '0xaa88c603d142c371ea0eac8756123c5805edee03': 18,
-    }
+    },
+    'polygon': {
+        '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': 18,
+        '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': 18,
+        '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': 6,
+        '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 18,
+    },
+}
+
+BRIDGES = {
+    'bsc': [
+        # Bridge
+        '0xd123f70ae324d34a9e76b67a27bf77593ba8749f',
+        # Bridge Zap
+        '0x612f3a0226463599ccbcabff89623904ef38bcb9',
+        # Meta Bridge Zap
+        '0x8027a7fa5753c8873e130f1205da9fb8691726ab',
+    ],
+    'polygon': [
+        # Bridge
+        '0x8f5bbb2bb8c2ee94639e55d5f41de9b4839c1280',
+        # Bridge Zap
+        '0xff0047e2156b2d62055a77fE9aBBD01Baa11D54a',
+        # Meta Bridge Zap
+        '0x0775632F3d2b8aa764E833C0E3Db6382882D0f48',
+    ],
 }
 
 MAX_UINT8 = 2**8 - 1

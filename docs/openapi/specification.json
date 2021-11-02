@@ -24,6 +24,37 @@
           "fantom"
         ]
       },
+      "TreasuryResponse": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number",
+              "format": "float"
+            },
+            "symbol": {
+              "type": "string"
+            },
+            "usd": {
+              "type": "number",
+              "format": "float"
+            }
+          }
+        },
+        "example": {
+          "0x1f1e7c893855525b303f99bdf5c3c05be09ca251": {
+            "amount": 11976.962548325106,
+            "symbol": "SYN",
+            "usd": 43476.374050420134
+          },
+          "0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46": {
+            "amount": 4395.289912532142,
+            "symbol": "nUSD",
+            "usd": 4395.289912532142
+          }
+        }
+      },
       "BridgeFilter": {
         "type": "object",
         "properties": {
@@ -462,6 +493,54 @@
         },
         "summary": "market cap of SYN on a chain",
         "tags": ["Market Cap"]
+      }
+    },
+    "/api/v1/analytics/treasury/{chain}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["eth", "bsc", "polygon", "avalanche"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "block",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreasuryResponse"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "view treasury balance on a chain",
+        "tags": ["Treasury Balance"]
       }
     }
   }
