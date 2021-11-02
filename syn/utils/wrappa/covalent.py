@@ -54,7 +54,7 @@ class Covalent(object):
         # We don't want to get rate limited, and Covalent doesn't have a 'defined'
         # rate limit... so let's just hope we dont get rate limited :)
         if POPULATE_CACHE:
-            time.sleep(randint(0, kwargs.pop('max_wait_time', 30)))
+            time.sleep(randint(5, kwargs.pop('max_wait_time', 30)))
 
         r = self.session.request(method,
                                  f'{self.base}{chain}{endpoint}',
