@@ -14,7 +14,7 @@ from gevent.pool import Pool
 import requests
 import gevent
 
-from syn.utils.cache import redis_cache, timed_cache
+from syn.utils.cache import timed_cache
 from syn.utils.helpers import raise_if
 
 pool = Pool()
@@ -26,12 +26,6 @@ CHAIN_MAPPING = {
     'avalanche': 43114,
     'fantom': 250
 }
-
-
-def _filter(*args, **kwargs) -> bool:
-    # Cache from page 2 onwards.
-    return kwargs['params']['skip'] > (2 *
-                                       kwargs['params'].get('page-size', 100))
 
 
 class Covalent(object):
@@ -46,7 +40,6 @@ class Covalent(object):
         self.api_key = api_key
         self.base = url
 
-    @redis_cache(filter=_filter, is_class=True)
     def __request(self, method: str, endpoint: str, *args, **kwargs) -> Any:
         params = kwargs.pop('params', {})
         params.update({'key': self.api_key})
@@ -70,13 +63,19 @@ class Covalent(object):
         jobs: List[Greenlet] = []
         res: List[Any] = []
 
+        useRedisCache = kwargs.pop('useRedis', False)
         offset = kwargs.pop('offset', 0)
-        ret = self.__request(*args, **kwargs, params={'skip': offset})
 
-        offset += int(ret['data']['pagination']['page_size'])
-        res += [ret['data']]
+        if useRedisCache:
+            # Equivalent of 1 request.
+            needed = 2
+        else:
+            ret = self.__request(*args, **kwargs, params={'skip': offset})
 
-        needed = ret['data']['pagination']['total_count'] // offset + 1
+            offset += int(ret['data']['pagination']['page_size'])
+            res += [ret['data']]
+
+            needed = ret['data']['pagination']['total_count'] // offset + 1
 
         # Workers, dispatch!
         for i in range(1, needed):
@@ -93,8 +92,8 @@ class Covalent(object):
         return res
 
     @timed_cache(60, maxsize=25)
-    def transfers_v2(self, address: str, contract_address: str,
-                     chain: str) -> List[Dict[str, Any]]:
+    def transfers_v2(self, address: str, contract_address: str, chain: str,
+                     **kwargs) -> List[Dict[str, Any]]:
         """
 		Get ERC20 token transfers. Passing in an ENS resolves automatically.
 
@@ -155,4 +154,5 @@ class Covalent(object):
         return self._paginate(
             'GET',
             f'/address/{address}/transfers_v2/?contract-address={contract_address}',
-            chain=chain)
+            chain=chain,
+            **kwargs)

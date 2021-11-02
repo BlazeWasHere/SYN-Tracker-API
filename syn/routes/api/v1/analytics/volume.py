@@ -10,19 +10,23 @@
 from typing import Any, Callable, Dict, List
 
 from flask import Blueprint, jsonify
+from flask.wrappers import Response
 from gevent.greenlet import Greenlet
 from gevent.pool import Pool
 import gevent
+from werkzeug.wrappers import response
 
 from syn.utils.analytics.volume import get_chain_volume, get_chain_volume_covalent
-from syn.utils.data import NULL_ADDR, SYN_DATA, DEFILLAMA_DATA
-from syn.utils.helpers import merge_many_dicts, raise_if
+from syn.utils.data import BRIDGES, NULL_ADDR, SYN_DATA, DEFILLAMA_DATA
+from syn.utils.helpers import merge_many_dicts, raise_if, \
+    store_volume_dict_to_redis
 
 pool = Pool()
 
 volume_bp = Blueprint('volume_bp', __name__)
 ETH_TOKENS = ['nusd', 'syn', 'high', 'dog', 'usdt', 'usdc', 'dai']
 BSC_TOKENS = ['nusd', 'syn', 'high', 'dog']
+POLYGON_TOKENS = ['nusd', 'syn']
 
 
 def filter_factory(key: str,
@@ -41,18 +45,10 @@ def filter_factory(key: str,
     return filter
 
 
-def bsc_filter_factory(c_address: str) -> Callable[[Dict[str, Any]], bool]:
+def esc_filter_factory(chain: str,
+                       c_address: str) -> Callable[[Dict[str, Any]], bool]:
     def filter(data: Dict[str, Any]) -> bool:
-        _bridges = [
-            # BSC Bridge
-            '0xd123f70ae324d34a9e76b67a27bf77593ba8749f',
-            # BSC Bridge Zap
-            '0x612f3a0226463599ccbcabff89623904ef38bcb9',
-            # BSC Meta Bridge Zap
-            '0x8027a7fa5753c8873e130f1205da9fb8691726ab',
-        ]
-
-        if data['to_address'] not in _bridges:
+        if data['to_address'] not in BRIDGES[chain]:
             return False
 
         for x in data['transfers']:
@@ -98,8 +94,10 @@ def volume_eth_filter(token: str):
         token = 'address'
 
     address = DEFILLAMA_DATA['bridges']['ethereum']['metaswap']
-    return jsonify(
-        get_chain_volume(address, 'eth', filter_factory(token, 'ethereum')))
+    ret = get_chain_volume(address, 'eth', filter_factory(token, 'ethereum'))
+    pool.spawn(store_volume_dict_to_redis, 'ethereum', ret)
+
+    return jsonify(ret)
 
 
 @volume_bp.route('/bsc', methods=['GET'])
@@ -114,7 +112,7 @@ def volume_bsc():
         c_address = SYN_DATA['bsc']['address' if x == 'syn' else x]
         jobs.append(
             pool.spawn(_dispatch, NULL_ADDR, c_address, 'bsc',
-                       bsc_filter_factory(c_address)))
+                       esc_filter_factory('bsc', c_address)))
 
     ret: List[Greenlet] = gevent.joinall(jobs)
     for x in ret:
@@ -135,6 +133,25 @@ def volume_bsc_filter(token: str):
         token = 'address'
 
     c_address = SYN_DATA['bsc'][token]
+    ret = get_chain_volume_covalent(NULL_ADDR, c_address, 'bsc',
+                                    esc_filter_factory('bsc', c_address))
+    pool.spawn(store_volume_dict_to_redis, 'bsc', ret)
+
+    return jsonify(ret)
+
+
+@volume_bp.route('/polygon/filter/', defaults={'token': ''}, methods=['GET'])
+@volume_bp.route('/polygon/filter/<token>', methods=['GET'])
+def volume_polygon_filter(token: str):
+    if token not in POLYGON_TOKENS:
+        return (jsonify({
+            'error': 'invalid token',
+            'valids': POLYGON_TOKENS,
+        }), 400)
+    elif token == 'syn':
+        token = 'address'
+
+    c_address = SYN_DATA['polygon'][token]
     return jsonify(
-        get_chain_volume_covalent(NULL_ADDR, c_address, 'bsc',
-                                  bsc_filter_factory(c_address)))
+        get_chain_volume_covalent(NULL_ADDR, c_address, 'polygon',
+                                  esc_filter_factory('polygon', c_address)))

@@ -14,19 +14,10 @@ from gevent.pool import Pool
 import requests
 import gevent
 
-from syn.utils.cache import timed_cache, redis_cache
+from syn.utils.cache import timed_cache
 from syn.utils.helpers import raise_if
 
 pool = Pool()
-
-
-def _filter(*args, **kwargs) -> bool:
-    if 'offset' in kwargs['params']:
-        # Cache from page 1 onwards.
-        return kwargs['params']['offset'] > (
-            1 * kwargs['params'].get('page-size', 500))
-    else:
-        return kwargs['params']['to_block'] != 0
 
 
 class Moralis(object):
@@ -41,7 +32,6 @@ class Moralis(object):
         self.session = requests.Session()
         self.session.headers['x-api-key'] = api_key
 
-    @redis_cache(filter=_filter, is_class=True)
     def __request(self, method: str, endpoint: str, *args, **kwargs) -> Any:
         r = self.session.request(method, self.base + endpoint, *args, **kwargs)
 
@@ -56,13 +46,19 @@ class Moralis(object):
         jobs: List[Greenlet] = []
         res: List[Any] = []
 
+        useRedisCache = kwargs.pop('useRedis', False)
         offset = kwargs.pop('offset', 0)
-        ret = self.__request(*args, **kwargs, params={'offset': offset})
 
-        offset += int(ret['page_size'])
-        res += ret['result']
+        if useRedisCache:
+            # Equivalent of 1 request.
+            needed = 2
+        else:
+            ret = self.__request(*args, **kwargs, params={'offset': offset})
 
-        needed = ret['total'] // offset
+            offset += int(ret['page_size'])
+            res += ret['result']
+
+            needed = ret['total'] // offset + 1
 
         # Workers, dispatch!
         for i in range(1, needed):
@@ -120,7 +116,8 @@ class Moralis(object):
     def erc20_transfers(self,
                         address: str,
                         chain: str = 'eth',
-                        offset: int = 0) -> List[Dict[str, str]]:
+                        offset: int = 0,
+                        **kwargs) -> List[Dict[str, str]]:
         """
         Gets ERC20 token transactions in descending order.
 
@@ -143,7 +140,8 @@ class Moralis(object):
         """
         return self._paginate('GET',
                               f'/{address}/erc20/transfers?chain={chain}',
-                              offset=offset)
+                              offset=offset,
+                              **kwargs)
 
     @timed_cache(60, maxsize=25)
     def erc20_balances(self,

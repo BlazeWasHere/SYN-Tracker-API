@@ -7,7 +7,14 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, List, Dict, TypeVar
+from typing import Any, List, Dict, TypeVar, cast
+from datetime import datetime, timedelta
+from collections import defaultdict
+import json
+
+import dateutil.parser
+
+from .data import REDIS
 
 KT = TypeVar('KT')
 VT = TypeVar('VT')
@@ -75,3 +82,34 @@ def raise_if(val: Any, match: Any) -> Any:
         raise TypeError(val)
 
     return val
+
+
+def store_volume_dict_to_redis(chain: str, _dict: Dict[str, Any]) -> None:
+    # Only cache from 2 days back.
+    # TODO: does this even work?
+    date = (datetime.now().today() - timedelta(days=2)).timestamp()
+    key = chain + ':{date}:{key}'
+
+    for k, v in _dict['data'].items():
+        dt = dateutil.parser.parse(k).timestamp()
+
+        if dt < date:
+            REDIS.setnx(key.format(date=k, key=list(v.keys())[0]),
+                        json.dumps(v))
+
+
+def get_all_keys(pattern: str, serialize: bool = False) -> Dict[str, Any]:
+    res = cast(Dict[str, Any], defaultdict(dict))
+
+    for key in REDIS.keys(pattern):
+        ret = REDIS.get(key)
+
+        if serialize:
+            if ret is not None:
+                ret = json.loads(ret)
+
+            key = key.split(':')[1]
+
+        res[key] = ret
+
+    return res

@@ -15,9 +15,9 @@ from syn.utils.data import MORALIS_APIKEY, SYN_DATA, TOKEN_DECIMALS, \
     COVALENT_APIKEY
 from syn.utils.price import get_historic_price_for_address, \
     get_price_for_address, get_historic_price_syn
+from syn.utils.helpers import add_to_dict, get_all_keys, merge_dict
 from syn.utils.wrappa.covalent import Covalent
 from syn.utils.wrappa.moralis import Moralis
-from syn.utils.helpers import add_to_dict
 from syn.utils.cache import timed_cache
 
 covalent = Covalent(COVALENT_APIKEY)
@@ -33,6 +33,10 @@ def create_totals(res: Dict[str, Any],
                   chain: str) -> Tuple[Dict[str, float], float, float]:
     # Create a `total` key for each day.
     for v in res.values():
+        # Total has already been set, most likely from cache.
+        if v['total'].get('usd', 0) != 0:
+            continue
+
         total_usd: float = 0
 
         for _v in v.values():
@@ -54,8 +58,10 @@ def create_totals(res: Dict[str, Any],
                 add_to_dict(total, token, _v['volume'])
 
     for k, v in total.items():
-        price = get_price_for_address(chain, k)
-        total_usd_current += (price * v)
+        print(k, v)
+        if k != 'total':
+            price = get_price_for_address(chain, k)
+            total_usd_current += (price * v)
 
     return total, total_usd, total_usd_current
 
@@ -67,8 +73,12 @@ def get_chain_volume_covalent(
         chain: str,
         filter: Callable[[Dict[str, Any]],
                          bool] = _always_true) -> Dict[str, Any]:
-    data = covalent.transfers_v2(address, contract_address, chain)
+    data = covalent.transfers_v2(address,
+                                 contract_address,
+                                 chain,
+                                 useRedis=True)
     res: Dict[str, Any] = {}
+    _address: str = ''
 
     for y in data:
         for x in y['items']:
@@ -80,6 +90,7 @@ def get_chain_volume_covalent(
                     volume = int(z['delta']) / 10**z['contract_decimals']
                     key = str(
                         dateutil.parser.parse(z['block_signed_at']).date())
+                    _address = z['contract_address']
 
                     if value is None:
                         if z['contract_ticker_symbol'] == 'SYN':
@@ -103,6 +114,10 @@ def get_chain_volume_covalent(
                                 volume)
                     add_to_dict(res[key][z['contract_address']], 'usd', value)
 
+    _chain = 'ethereum' if chain == 'eth' else chain
+
+    res = merge_dict(res, get_all_keys(f'{_chain}:*:{_address}',
+                                       serialize=True))
     total, total_usd, total_usd_current = create_totals(res, chain)
 
     return {
@@ -123,14 +138,15 @@ def get_chain_volume(
         chain: str,
         filter: Callable[[Dict[str, str]],
                          bool] = _always_true) -> Dict[str, Any]:
-    # TODO(blaze): Cache past days volume, after all they dont change.
-    data = moralis.erc20_transfers(address, chain)
+    data = moralis.erc20_transfers(address, chain, useRedis=True)
     res: Dict[str, Any] = {}
+    _address: str = ''
 
     for x in data:
         if filter(x) and x['address'] in TOKEN_DECIMALS[chain]:
             value = int(x['value']) / 10**TOKEN_DECIMALS[chain][x['address']]
             key = str(dateutil.parser.parse(x['block_timestamp']).date())
+            _address = x['address']
 
             if x['address'] == SYN_DATA['ethereum' if chain ==
                                         'eth' else chain]['address'].lower():
@@ -159,10 +175,13 @@ def get_chain_volume(
                          'usd': price * value,
                      }})
             else:
-                # Ditto.
                 res[key][x['address']]['volume'] += value
                 res[key][x['address']]['usd'] += value * price
 
+    _chain = 'ethereum' if chain == 'eth' else chain
+
+    res = merge_dict(res, get_all_keys(f'{_chain}:*:{_address}',
+                                       serialize=True))
     total, total_usd, total_usd_current = create_totals(res, chain)
 
     return {
