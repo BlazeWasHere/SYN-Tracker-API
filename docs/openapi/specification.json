@@ -288,7 +288,7 @@
             "name": "chain",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/Chains"
+              "$ref": "#/components/schemas/MetapoolChains"
             }
           }
         ],
