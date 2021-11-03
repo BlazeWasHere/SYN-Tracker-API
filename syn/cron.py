@@ -8,7 +8,6 @@
 """
 
 from syn.utils.data import schedular, CACHE_FORCED_UPDATE
-
 routes = [
     '/api/v1/analytics/volume/ethereum/filter/nusd',
     '/api/v1/analytics/volume/ethereum/filter/syn',
@@ -24,6 +23,11 @@ routes = [
     '/api/v1/analytics/volume/polygon/filter/syn',
     '/api/v1/analytics/volume/polygon/filter/nusd',
     '/api/v1/analytics/volume/polygon',
+	'/api/v1/analytics/volume/metapool/bsc',
+	'/api/v1/analytics/volume/metapool/avalanche',
+	'/api/v1/analytics/volume/metapool/polygon',
+	'/api/v1/analytics/volume/metapool/arbitrum',
+	'/api/v1/analytics/volume/metapool/fantom',
 ]
 
 
