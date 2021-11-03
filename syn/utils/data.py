@@ -272,9 +272,9 @@ BRIDGES = {
         # Bridge
         '0x8f5bbb2bb8c2ee94639e55d5f41de9b4839c1280',
         # Bridge Zap
-        '0xff0047e2156b2d62055a77fE9aBBD01Baa11D54a',
+        '0xff0047e2156b2d62055a77fe9abbd01baa11d54a',
         # Meta Bridge Zap
-        '0x0775632F3d2b8aa764E833C0E3Db6382882D0f48',
+        '0x0775632f3d2b8aa764e833c0e3db6382882d0f48',
     ],
 }
 

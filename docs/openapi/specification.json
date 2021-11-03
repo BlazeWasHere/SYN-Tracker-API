@@ -424,6 +424,60 @@
         "tags": ["Bridge Volume"]
       }
     },
+    "/api/v1/analytics/volume/polygon": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "volume of all tokens on the MATIC/Polygon bridge",
+        "tags": ["Bridge Volume"]
+      }
+    },
+    "/api/v1/analytics/volume/polygon/filter/{token}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["nusd", "syn"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
+              }
+            },
+            "description": "Successful response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "volume of a token on the MATIC/Polygon bridge",
+        "tags": ["Bridge Volume"]
+      }
+    },
     "/api/v1/circ/": {
       "get": {
         "parameters": [],
