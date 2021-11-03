@@ -71,7 +71,9 @@ SYN_DATA = {
         "rpc": os.getenv('AVAX_RPC'),
         "address": "0x1f1E7c893855525b303f99bDF5c3c05Be09ca251",
         "basepool": "0xE55e19Fb4F2D85af758950957714292DAC1e25B2",
-        "metapool": "0xF44938b0125A6662f9536281aD2CD6c499F22004",
+        "metapool": "0xf44938b0125a6662f9536281ad2cd6c499f22004",
+        "nusd": "0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46",
+        "usdlp": "0x55904f416586b5140a0f666cf5acf320adf64846"
     },
     "bsc": {
         "rpc": os.getenv('BSC_RPC'),
@@ -90,20 +92,25 @@ SYN_DATA = {
         "rpc": os.getenv('POLYGON_RPC'),
         "address": "0xf8f9efc0db77d8881500bb06ff5d6abc3070e695",
         "basepool": "0x3f52E42783064bEba9C1CFcD2E130D156264ca77",
-        "metapool": "0x96cf323E477Ec1E17A4197Bdcc6f72Bb2502756a",
+        "metapool": "0x96cf323e477ec1e17a4197bdcc6f72bb2502756a",
         "nusd": "0xb6c473756050de474286bed418b77aeac39b02af",
+        "usdlp": "0x128a587555d1148766ef4327172129b50ec66e5d"
     },
     "arbitrum": {
         "rpc": os.getenv('ARB_RPC'),
         "address": "0x080f6aed32fc474dd5717105dba5ea57268f46eb",
         "basepool": "0xbafc462d00993ffcd3417abbc2eb15a342123fda",
-        "metapool": "0x84cd82204c07c67dF1C2C372d8Fd11B3266F76a3",
+        "metapool": "0x84cd82204c07c67df1c2c372d8fd11b3266f76a3",
+        "nusd": "0x2913e812cf0dcca30fb28e6cac3d2dcff4497688",
+        "usdlp": "0xe264cb5a941f98a391b9d5244378edf79bf5c19e"
     },
     "fantom": {
         "rpc": os.getenv('FTM_RPC'),
         "address": "0xe55e19fb4f2d85af758950957714292dac1e25b2",
         "basepool": "0x080F6AEd32Fc474DD5717105Dba5ea57268F46eb",
-        "metapool": "0x1f6A0656Ff5061930076bf0386b02091e0839F9f",
+        "metapool": "0x1f6a0656ff5061930076bf0386b02091e0839f9f",
+        "nusd": "0xed2a7edd7413021d440b09d654f3b87712abab66",
+        "usdlp": "0x43cf58380e69594fa2a5682de484ae00edd83e94"
     }
 }
 
