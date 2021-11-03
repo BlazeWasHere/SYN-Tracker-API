@@ -32,6 +32,11 @@ routes = [
     '/api/v1/analytics/volume/polygon/filter/syn',
     '/api/v1/analytics/volume/polygon/filter/nusd',
     '/api/v1/analytics/volume/polygon',
+	'/api/v1/analytics/volume/metapool/bsc',
+	'/api/v1/analytics/volume/metapool/avalanche',
+	'/api/v1/analytics/volume/metapool/polygon',
+	'/api/v1/analytics/volume/metapool/arbitrum',
+	'/api/v1/analytics/volume/metapool/fantom',
 ]
 
 if __name__ == '__main__':

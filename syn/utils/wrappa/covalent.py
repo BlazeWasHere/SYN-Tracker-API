@@ -29,8 +29,12 @@ CHAIN_MAPPING = {
     'polygon': 137,
     'bsc': 56,
     'avalanche': 43114,
-    'fantom': 250
+    'fantom': 250,
+    'arbitrum': 42161
 }
+
+# it's not silly if it's working
+PAGE_SIZE = 5000
 
 
 class Covalent(object):
@@ -84,7 +88,7 @@ class Covalent(object):
                                  **kwargs,
                                  params={
                                      'skip': offset,
-                                     'page-size': 500,
+                                     'page-size': PAGE_SIZE,
                                  })
 
             offset += int(ret['data']['pagination']['page_size'])
@@ -103,7 +107,7 @@ class Covalent(object):
                            **kwargs,
                            params={
                                'skip': offset * i,
-                               'page-size': 500
+                               'page-size': PAGE_SIZE
                            }))
 
         _ret: List[Greenlet] = gevent.joinall(jobs)
