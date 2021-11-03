@@ -80,7 +80,12 @@ class Covalent(object):
             # Equivalent of 1 request.
             needed = 2
         else:
-            ret = self.__request(*args, **kwargs, params={'skip': offset})
+            ret = self.__request(*args,
+                                 **kwargs,
+                                 params={
+                                     'skip': offset,
+                                     'page-size': 500,
+                                 })
 
             offset += int(ret['data']['pagination']['page_size'])
             res += [ret['data']]
@@ -96,7 +101,10 @@ class Covalent(object):
                 pool.spawn(self.__request,
                            *args,
                            **kwargs,
-                           params={'skip': offset * i}))
+                           params={
+                               'skip': offset * i,
+                               'page-size': 500
+                           }))
 
         _ret: List[Greenlet] = gevent.joinall(jobs)
         for x in _ret:
