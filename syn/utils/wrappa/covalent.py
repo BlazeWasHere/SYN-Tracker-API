@@ -29,7 +29,8 @@ CHAIN_MAPPING = {
     'polygon': 137,
     'bsc': 56,
     'avalanche': 43114,
-    'fantom': 250
+    'fantom': 250,
+    'arbitrum': 42161
 }
 
 

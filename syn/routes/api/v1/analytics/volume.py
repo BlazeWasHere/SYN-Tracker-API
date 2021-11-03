@@ -16,7 +16,7 @@ from gevent.pool import Pool
 import gevent
 from werkzeug.wrappers import response
 
-from syn.utils.analytics.volume import get_chain_volume, get_chain_volume_covalent
+from syn.utils.analytics.volume import get_chain_volume, get_chain_volume_covalent, get_chain_metapool_volume
 from syn.utils.data import BRIDGES, NULL_ADDR, SYN_DATA, DEFILLAMA_DATA
 from syn.utils.helpers import merge_many_dicts, raise_if, \
     store_volume_dict_to_redis
@@ -155,3 +155,23 @@ def volume_polygon_filter(token: str):
     return jsonify(
         get_chain_volume_covalent(NULL_ADDR, c_address, 'polygon',
                                   esc_filter_factory('polygon', c_address)))
+
+
+@volume_bp.route('/metapool/', defaults={'chain': ''}, methods=['GET'])
+@volume_bp.route('/metapool/<chain>', methods=['GET'])
+def volume_metapool(chain: str):
+    valid_chains = list(SYN_DATA)
+    valid_chains.remove('ethereum')
+    if chain not in valid_chains:
+        return (jsonify({
+            'error': f'invalid chain: {chain}',
+            'valids': valid_chains,
+        }), 400)
+
+    metapool = SYN_DATA[chain]['metapool']
+    nusd = SYN_DATA[chain]['nusd']
+    usdlp = SYN_DATA[chain]['usdlp']
+
+    return jsonify(
+        get_chain_metapool_volume(metapool, nusd, usdlp, chain)
+    )

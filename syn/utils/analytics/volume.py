@@ -193,3 +193,47 @@ def get_chain_volume(
         },
         'data': res
     }
+
+
+@timed_cache(360, maxsize=50)
+def get_chain_metapool_volume(
+            metapool: str,
+            nusd: str,
+            usdlp: str,
+            chain: str) -> Dict[str, Any]:
+    transfers_usdlp = covalent.transfers_v2(metapool, usdlp, chain)
+    usdlp_is_to_mp: Dict[str, bool] = {}
+
+    for x in transfers_usdlp:
+        for y in x['items']:
+            for tx in y['transfers']:
+                usdlp_is_to_mp[tx['tx_hash']] = (tx['to_address'] == metapool)
+
+    transfers_nusd = covalent.transfers_v2(metapool, nusd, chain)
+    res: Dict[str, Any] = {}
+
+    volume_total = 0
+
+    for x in transfers_nusd:
+        for y in x['items']:
+            if y['tx_hash'] in usdlp_is_to_mp:
+                for tx in y['transfers']:
+                    is_nusd_to_mp = (tx['to_address'] == metapool)
+                    if is_nusd_to_mp != usdlp_is_to_mp[tx['tx_hash']]:
+                        volume = int(tx['delta']) / 10 ** tx['contract_decimals']
+                        key = str(
+                            dateutil.parser.parse(tx['block_signed_at']).date())
+
+                        add_to_dict(res, key, volume)
+                        volume_total += volume
+                        # nUSD = 1
+                        # add_to_dict(res[key][tx['contract_address']], 'usd', volume)
+
+    # total, total_usd, total_usd_current = create_totals(res, chain)
+
+    return {
+        'stats': {
+            'volume': volume_total
+        },
+        'data': res
+    }
