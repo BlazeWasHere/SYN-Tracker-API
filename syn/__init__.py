@@ -13,8 +13,6 @@ monkey.patch_all()
 
 from flask import Flask
 
-CACHE_CONFIG = {'CACHE_TYPE': 'SimpleCache'}
-
 
 def init() -> Flask:
     app = Flask(__name__)

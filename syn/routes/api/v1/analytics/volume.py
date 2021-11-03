@@ -15,7 +15,7 @@ from gevent.pool import Pool
 import gevent
 
 from syn.utils.analytics.volume import get_chain_volume, get_chain_volume_covalent
-from syn.utils.data import BRIDGES, CACHE_FORCED_UPDATE, NULL_ADDR, SYN_DATA, DEFILLAMA_DATA, cache, \
+from syn.utils.data import BRIDGES, NULL_ADDR, SYN_DATA, DEFILLAMA_DATA, cache, \
     DEFAULT_TIMEOUT, _forced_update
 from syn.utils.helpers import merge_many_dicts, raise_if, \
     store_volume_dict_to_redis
