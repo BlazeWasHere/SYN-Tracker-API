@@ -29,6 +29,9 @@ routes = [
     '/api/v1/analytics/volume/bsc/filter/syn',
     '/api/v1/analytics/volume/bsc/filter/high',
     '/api/v1/analytics/volume/bsc/filter/dog',
+    '/api/v1/analytics/volume/polygon/filter/syn',
+    '/api/v1/analytics/volume/polygon/filter/nusd',
+    '/api/v1/analytics/volume/polygon',
 ]
 
 if __name__ == '__main__':

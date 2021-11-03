@@ -66,13 +66,10 @@ def volume_eth():
     resps: List[Dict[str, Any]] = []
     jobs: List[Greenlet] = []
 
-    def _dispatch(*args, **kwargs):
-        return get_chain_volume(*args, **kwargs)
-
     for x in ETH_TOKENS:
         x = 'address' if x == 'syn' else x
         jobs.append(
-            pool.spawn(_dispatch, address, 'eth',
+            pool.spawn(get_chain_volume_covalent, address, 'eth',
                        filter_factory(x, 'ethereum')))
 
     ret: List[Greenlet] = gevent.joinall(jobs)
@@ -107,13 +104,10 @@ def volume_bsc():
     resps: List[Dict[str, Any]] = []
     jobs: List[Greenlet] = []
 
-    def _dispatch(*args, **kwargs):
-        return get_chain_volume_covalent(*args, **kwargs)
-
     for x in BSC_TOKENS:
         c_address = SYN_DATA['bsc']['address' if x == 'syn' else x]
         jobs.append(
-            pool.spawn(_dispatch, NULL_ADDR, c_address, 'bsc',
+            pool.spawn(get_chain_volume_covalent, NULL_ADDR, c_address, 'bsc',
                        esc_filter_factory('bsc', c_address)))
 
     ret: List[Greenlet] = gevent.joinall(jobs)
@@ -143,9 +137,28 @@ def volume_bsc_filter(token: str):
     return jsonify(ret)
 
 
-# TODO: finish this off.
+@volume_bp.route('/polygon', methods=['GET'])
+@cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
+def volume_polygon():
+    resps: List[Dict[str, Any]] = []
+    jobs: List[Greenlet] = []
+
+    for x in POLYGON_TOKENS:
+        c_address = SYN_DATA['polygon']['address' if x == 'syn' else x]
+        jobs.append(
+            pool.spawn(get_chain_volume_covalent, NULL_ADDR, c_address,
+                       'polygon', esc_filter_factory('polygon', c_address)))
+
+    ret: List[Greenlet] = gevent.joinall(jobs)
+    for x in ret:
+        resps.append(raise_if(x.get(), None))
+
+    return jsonify(merge_many_dicts(resps, is_price_dict=True))
+
+
 @volume_bp.route('/polygon/filter/', defaults={'token': ''}, methods=['GET'])
 @volume_bp.route('/polygon/filter/<token>', methods=['GET'])
+@cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
 def volume_polygon_filter(token: str):
     if token not in POLYGON_TOKENS:
         return (jsonify({
