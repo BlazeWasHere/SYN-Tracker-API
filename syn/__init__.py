@@ -17,6 +17,16 @@ from flask import Flask
 def init() -> Flask:
     app = Flask(__name__)
 
+    from .utils.data import cache, SCHEDULER_CONFIG, schedular
+    from .cron import update_caches
+
+    app.config.from_mapping(SCHEDULER_CONFIG)
+    schedular.init_app(app)
+    cache.init_app(app)
+    # First run.
+    update_caches()
+    schedular.start()
+
     from .routes.api.v1.analytics.treasury import treasury_bp
     from .routes.api.v1.analytics.volume import volume_bp
     from .routes.api.v1.analytics.fees import fees_bp

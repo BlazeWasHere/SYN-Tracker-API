@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 import json
 
+from redis import Redis
 import dateutil.parser
 
 from .data import REDIS
@@ -98,11 +99,13 @@ def store_volume_dict_to_redis(chain: str, _dict: Dict[str, Any]) -> None:
                         json.dumps(v))
 
 
-def get_all_keys(pattern: str, serialize: bool = False) -> Dict[str, Any]:
+def get_all_keys(pattern: str,
+                 serialize: bool = False,
+                 client: Redis = REDIS) -> Dict[str, Any]:
     res = cast(Dict[str, Any], defaultdict(dict))
 
-    for key in REDIS.keys(pattern):
-        ret = REDIS.get(key)
+    for key in client.keys(pattern):
+        ret = client.get(key)
 
         if serialize:
             if ret is not None:

@@ -10,14 +10,13 @@
 from typing import Any, Callable, Dict, List
 
 from flask import Blueprint, jsonify
-from flask.wrappers import Response
 from gevent.greenlet import Greenlet
 from gevent.pool import Pool
 import gevent
-from werkzeug.wrappers import response
 
 from syn.utils.analytics.volume import get_chain_volume, get_chain_volume_covalent, get_chain_metapool_volume
-from syn.utils.data import BRIDGES, NULL_ADDR, SYN_DATA, DEFILLAMA_DATA
+from syn.utils.data import BRIDGES, NULL_ADDR, SYN_DATA, DEFILLAMA_DATA, cache, \
+    DEFAULT_TIMEOUT, _forced_update
 from syn.utils.helpers import merge_many_dicts, raise_if, \
     store_volume_dict_to_redis
 
@@ -61,6 +60,7 @@ def esc_filter_factory(chain: str,
 
 
 @volume_bp.route('/ethereum', methods=['GET'])
+@cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
 def volume_eth():
     address = DEFILLAMA_DATA['bridges']['ethereum']['metaswap']
     resps: List[Dict[str, Any]] = []
@@ -84,6 +84,7 @@ def volume_eth():
 
 @volume_bp.route('/ethereum/filter/', defaults={'token': ''}, methods=['GET'])
 @volume_bp.route('/ethereum/filter/<token>', methods=['GET'])
+@cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
 def volume_eth_filter(token: str):
     if token not in ETH_TOKENS:
         return (jsonify({
@@ -101,6 +102,7 @@ def volume_eth_filter(token: str):
 
 
 @volume_bp.route('/bsc', methods=['GET'])
+@cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
 def volume_bsc():
     resps: List[Dict[str, Any]] = []
     jobs: List[Greenlet] = []
@@ -123,6 +125,7 @@ def volume_bsc():
 
 @volume_bp.route('/bsc/filter/', defaults={'token': ''}, methods=['GET'])
 @volume_bp.route('/bsc/filter/<token>', methods=['GET'])
+@cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
 def volume_bsc_filter(token: str):
     if token not in BSC_TOKENS:
         return (jsonify({
@@ -140,6 +143,7 @@ def volume_bsc_filter(token: str):
     return jsonify(ret)
 
 
+# TODO: finish this off.
 @volume_bp.route('/polygon/filter/', defaults={'token': ''}, methods=['GET'])
 @volume_bp.route('/polygon/filter/<token>', methods=['GET'])
 def volume_polygon_filter(token: str):
@@ -159,6 +163,7 @@ def volume_polygon_filter(token: str):
 
 @volume_bp.route('/metapool/', defaults={'chain': ''}, methods=['GET'])
 @volume_bp.route('/metapool/<chain>', methods=['GET'])
+@cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
 def volume_metapool(chain: str):
     valid_chains = list(SYN_DATA)
     valid_chains.remove('ethereum')

@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Dict, Optional, Union
+from typing import Dict, Union
 
 from syn.utils.contract import get_all_tokens_in_pool, call_abi
 from syn.utils.cache import timed_cache

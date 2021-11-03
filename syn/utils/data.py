@@ -11,7 +11,10 @@ from typing import cast
 import os
 
 from web3.middleware.geth_poa import geth_poa_middleware
+from apscheduler.jobstores.redis import RedisJobStore
 from dotenv import load_dotenv, find_dotenv
+from flask_apscheduler import APScheduler
+from flask_caching import Cache
 from web3 import Web3
 import redis
 
@@ -38,10 +41,14 @@ if os.getenv('docker') == 'true':
     REDIS = redis.Redis(os.environ['REDIS_DOCKER_HOST'],
                         int(os.environ['REDIS_DOCKER_PORT']),
                         decode_responses=True)
+    REDIS_HOST = os.environ['REDIS_DOCKER_HOST']
+    REDIS_PORT = int(os.environ['REDIS_DOCKER_PORT'])
 else:
     REDIS = redis.Redis(os.environ['REDIS_HOST'],
                         int(os.environ['REDIS_PORT']),
                         decode_responses=True)
+    REDIS_HOST = os.environ['REDIS_HOST']
+    REDIS_PORT = int(os.environ['REDIS_PORT'])
 
 _POPULATE_CACHE = os.getenv('POPULATE_CACHE')
 if _POPULATE_CACHE is not None:
@@ -53,6 +60,29 @@ if POPULATE_CACHE:
     print('`POPULATE_CACHE` set to true, disable this during deployment.')
 
 NULL_ADDR = '0x0000000000000000000000000000000000000000'
+
+CACHE_CONFIG = {
+    'CACHE_TYPE': 'RedisCache',
+    'CACHE_REDIS_DB': 2,
+    'CACHE_REDIS_HOST': REDIS_HOST,
+    'CACHE_REDIS_PORT': REDIS_PORT
+}
+# 1 Hour.
+DEFAULT_TIMEOUT = 60 * 60
+
+cache = Cache(config=CACHE_CONFIG)
+
+SCHEDULER_CONFIG = {
+    'SCHEDULAR_JOBSTORES': {
+        'default': RedisJobStore(db=1, host=REDIS_HOST, port=REDIS_PORT)
+    },
+    'SCHEDULER_API_ENABLED': True,
+}
+
+schedular = APScheduler()
+
+CACHE_FORCED_UPDATE = POPULATE_CACHE
+_forced_update = lambda: CACHE_FORCED_UPDATE
 
 SYN_DECIMALS = 18
 SYN_DATA = {

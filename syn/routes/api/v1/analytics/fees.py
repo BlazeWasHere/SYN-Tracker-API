@@ -7,9 +7,8 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from flask import Blueprint, jsonify, request
-
 from web3.exceptions import BadFunctionCallOutput
+from flask import Blueprint, jsonify, request
 
 from syn.utils.analytics.fees import get_admin_fees
 from syn.utils.data import SYN_DATA
