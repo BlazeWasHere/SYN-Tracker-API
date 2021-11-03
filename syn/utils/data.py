@@ -79,6 +79,7 @@ SYN_DATA = {
         "basepool": "0x938aFAFB36E8B1AB3347427eb44537f543475cF9",
         "metapool": "0x930d001b7efb225613ac7f35911c52ac9e111fa9",
         "nusd": "0x23b891e5c62e0955ae2bd185990103928ab817b3",
+        "usdlp": "0xf0b8b631145d393a767b4387d08aa09969b2dfed",
         "busd": "0xe9e7cea3dedca5984780bafc599bd69add087d56",
         "usdc": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
         "usdt": "0x55d398326f99059ff775485246999027b3197955",
