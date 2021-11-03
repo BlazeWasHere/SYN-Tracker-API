@@ -8,3 +8,4 @@ python-dotenv
 redis
 flask-caching
 Flask-APScheduler
+apscheduler
