@@ -6,3 +6,5 @@ web3
 python-dateutil
 python-dotenv
 redis
+flask-caching
+Flask-APScheduler

@@ -13,9 +13,21 @@ monkey.patch_all()
 
 from flask import Flask
 
+CACHE_CONFIG = {'CACHE_TYPE': 'SimpleCache'}
+
 
 def init() -> Flask:
     app = Flask(__name__)
+
+    from .utils.data import cache, SCHEDULER_CONFIG, schedular
+    from .cron import update_caches
+
+    app.config.from_mapping(SCHEDULER_CONFIG)
+    schedular.init_app(app)
+    cache.init_app(app)
+    # First run.
+    update_caches()
+    schedular.start()
 
     from .routes.api.v1.analytics.treasury import treasury_bp
     from .routes.api.v1.analytics.volume import volume_bp
