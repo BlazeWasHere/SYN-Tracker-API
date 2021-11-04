@@ -21,18 +21,13 @@
           "bsc",
           "polygon",
           "arbitrum",
-          "fantom"
+          "fantom",
+          "harmony"
         ]
       },
       "MetapoolChains": {
         "type": "string",
-        "enum": [
-          "avalanche",
-          "bsc",
-          "polygon",
-          "arbitrum",
-          "fantom"
-        ]
+        "enum": ["avalanche", "bsc", "polygon", "arbitrum", "fantom"]
       },
       "TreasuryResponse": {
         "type": "object",
@@ -65,7 +60,7 @@
           }
         }
       },
-      "MetapoolVolumeResponse" : {
+      "MetapoolVolumeResponse": {
         "type": "object",
         "properties": {
           "data": {
@@ -78,7 +73,7 @@
           "stats": {
             "type": "object",
             "properties": {
-              "volume" : {
+              "volume": {
                 "type": "number",
                 "format": "float"
               }
@@ -296,7 +291,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/MetapoolVolumeResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/MetapoolVolumeResponse"
+                }
               }
             },
             "description": "Successful response"

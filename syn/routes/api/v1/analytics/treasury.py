@@ -21,6 +21,7 @@ def treasury_chain(chain: str):
     _list = list(TREASURY.keys())
     _list.remove('arbitrum')
     _list.remove('fantom')
+    _list.remove('harmony')
 
     if chain not in _list:
         return (jsonify({

@@ -169,6 +169,7 @@ def volume_polygon_filter(token: str):
         token = 'address'
 
     c_address = SYN_DATA['polygon'][token]
+    # TODO: store to redis, store_volume_dict_to_redis
     return jsonify(
         get_chain_volume_covalent(NULL_ADDR, c_address, 'polygon',
                                   esc_filter_factory('polygon', c_address)))
@@ -180,6 +181,8 @@ def volume_polygon_filter(token: str):
 def volume_metapool(chain: str):
     valid_chains = list(SYN_DATA)
     valid_chains.remove('ethereum')
+    valid_chains.remove('harmony')
+
     if chain not in valid_chains:
         return (jsonify({
             'error': f'invalid chain: {chain}',
@@ -190,6 +193,4 @@ def volume_metapool(chain: str):
     nusd = SYN_DATA[chain]['nusd']
     usdlp = SYN_DATA[chain]['usdlp']
 
-    return jsonify(
-        get_chain_metapool_volume(metapool, nusd, usdlp, chain)
-    )
+    return jsonify(get_chain_metapool_volume(metapool, nusd, usdlp, chain))

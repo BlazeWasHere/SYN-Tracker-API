@@ -20,10 +20,13 @@ fees_bp = Blueprint('fees_bp', __name__)
 @fees_bp.route('/admin/', defaults={'chain': ''}, methods=['GET'])
 @fees_bp.route('/admin/<chain>', methods=['GET'])
 def adminfees_chain(chain: str):
-    if chain not in SYN_DATA:
+    chainzzz = list(SYN_DATA)
+    chainzzz.remove('harmony')
+
+    if chain not in chainzzz:
         return (jsonify({
             'error': 'invalid chain',
-            'valids': list(SYN_DATA),
+            'valids': chainzzz,
         }), 400)
 
     # TODO(blaze): On some RPC nodes they limit past blocks and this throws

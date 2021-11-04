@@ -141,6 +141,10 @@ SYN_DATA = {
         "metapool": "0x1f6a0656ff5061930076bf0386b02091e0839f9f",
         "nusd": "0xed2a7edd7413021d440b09d654f3b87712abab66",
         "usdlp": "0x43cf58380e69594fa2a5682de484ae00edd83e94"
+    },
+    "harmony": {
+        "rpc": os.getenv('HARMONY_RPC'),
+        'address': '0xE55e19Fb4F2D85af758950957714292DAC1e25B2',
     }
 }
 
@@ -167,11 +171,12 @@ for key, value in SYN_DATA.items():
                         abi=TOTAL_SUPPLY_ABI)  # type: ignore
     })
 
-    value.update({
-        'basepool_contract':
-        w3.eth.contract(Web3.toChecksumAddress(value['basepool']),
-                        abi=BASEPOOL_ABI)  # type: ignore
-    })
+    if value.get('basepool') is not None:
+        value.update({
+            'basepool_contract':
+            w3.eth.contract(Web3.toChecksumAddress(value['basepool']),
+                            abi=BASEPOOL_ABI)  # type: ignore
+        })
 
     if value.get('metapool') is not None:
         value.update({
