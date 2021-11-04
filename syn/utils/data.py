@@ -10,6 +10,7 @@
 from typing import cast
 import os
 
+from apscheduler.schedulers.gevent import GeventScheduler
 from web3.middleware.geth_poa import geth_poa_middleware
 from apscheduler.jobstores.redis import RedisJobStore
 from dotenv import load_dotenv, find_dotenv
@@ -73,13 +74,12 @@ DEFAULT_TIMEOUT = 60 * 60
 cache = Cache(config=CACHE_CONFIG)
 
 SCHEDULER_CONFIG = {
-    'SCHEDULAR_JOBSTORES': {
+    'SCHEDULER_JOBSTORES': {
         'default': RedisJobStore(db=1, host=REDIS_HOST, port=REDIS_PORT)
-    },
-    'SCHEDULER_API_ENABLED': True,
+    }
 }
 
-schedular = APScheduler()
+schedular = APScheduler(scheduler=GeventScheduler())
 
 CACHE_FORCED_UPDATE = POPULATE_CACHE
 _forced_update = lambda: CACHE_FORCED_UPDATE

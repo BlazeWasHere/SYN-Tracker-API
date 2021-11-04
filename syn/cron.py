@@ -7,7 +7,11 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
+import os
 import time
+
+from redis import Redis
+import redis_lock
 
 from syn.utils.data import schedular, CACHE_FORCED_UPDATE
 
@@ -36,10 +40,22 @@ routes = [
 ]
 
 
-# TODO: do more checking if this timing is good enough.
 @schedular.task("cron", id="update_caches", minute="*/15")
 def update_caches():
     global CACHE_FORCED_UPDATE
+
+    r: Redis = schedular._scheduler._jobstores['default'].redis
+    lock = redis_lock.Lock(r, 'CRON_UPDATE_CACHES_LOCK', id=str(os.getpid()))
+
+    # Some logic to prevent multiple cron jobs running when we are scaling the
+    # app with more workers.
+    if not lock.acquire(blocking=False):
+        print(f'It seems pid({lock.get_owner_id()}) got to the lock first. '
+              'Skipping the job...')
+        return
+
+    assert lock.locked()
+
     start = time.time()
     print(f'[{start}] Cron job start.')
 
@@ -53,3 +69,4 @@ def update_caches():
 
     CACHE_FORCED_UPDATE = False
     print(f'Cron job done. Elapsed: {round(time.time() - start, 2)}s')
+    lock.release()
