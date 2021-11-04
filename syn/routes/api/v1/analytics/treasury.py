@@ -10,13 +10,17 @@
 from flask import Blueprint, jsonify, request
 
 from syn.utils.analytics.treasury import get_treasury_erc20_balances
-from syn.utils.data import TREASURY
+from syn.utils.data import TREASURY, cache, _forced_update
 from syn.utils import verify
 
 treasury_bp = Blueprint('treasury_bp', __name__)
 
+# 15m
+TIMEOUT = 60 * 15
+
 
 @treasury_bp.route('/<chain>', methods=['GET'])
+@cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
 def treasury_chain(chain: str):
     _list = list(TREASURY.keys())
     _list.remove('arbitrum')

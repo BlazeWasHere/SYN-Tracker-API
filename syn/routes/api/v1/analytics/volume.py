@@ -169,10 +169,11 @@ def volume_polygon_filter(token: str):
         token = 'address'
 
     c_address = SYN_DATA['polygon'][token]
-    # TODO: store to redis, store_volume_dict_to_redis
-    return jsonify(
-        get_chain_volume_covalent(NULL_ADDR, c_address, 'polygon',
-                                  esc_filter_factory('polygon', c_address)))
+    ret = get_chain_volume_covalent(NULL_ADDR, c_address, 'polygon',
+                                    esc_filter_factory('polygon', c_address))
+    pool.spawn(store_volume_dict_to_redis, 'polygon', ret)
+
+    return jsonify(ret)
 
 
 @volume_bp.route('/metapool/', defaults={'chain': ''}, methods=['GET'])

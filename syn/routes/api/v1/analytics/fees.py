@@ -10,15 +10,19 @@
 from web3.exceptions import BadFunctionCallOutput
 from flask import Blueprint, jsonify, request
 
+from syn.utils.data import SYN_DATA, cache, _forced_update
 from syn.utils.analytics.fees import get_admin_fees
-from syn.utils.data import SYN_DATA
 from syn.utils import verify
 
 fees_bp = Blueprint('fees_bp', __name__)
 
+# 15m
+TIMEOUT = 60 * 15
+
 
 @fees_bp.route('/admin/', defaults={'chain': ''}, methods=['GET'])
 @fees_bp.route('/admin/<chain>', methods=['GET'])
+@cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
 def adminfees_chain(chain: str):
     chainzzz = list(SYN_DATA)
     chainzzz.remove('harmony')
