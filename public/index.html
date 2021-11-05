@@ -6,11 +6,76 @@
     <meta content="Synapse (SYN)" property="og:title">
     <meta content="Unofficial SYN tracker API" property="og:description">
     <meta content="https://synapse.dorime.org" property="og:url">
+    <style>
+        rapi-doc {
+            --border-radius: 7px !important;
+            --layout: row !important;
+            --font-mono: Monaco, "Andale Mono", "Roboto Mono", Consolas, monospace !important;
+            --font-regular: "Open Sans", Avenir, "Segoe UI", Arial, sans-serif !important;
+            --scroll-bar-width: 8px !important;
+            --nav-item-padding: 7px 16px 7px 10px !important;
+            --resp-area-height: 300px !important;
+            --font-size-small: 12px !important;
+            --font-size-mono: 13px !important;
+            --font-size-regular: 14px !important;
+            --dialog-z-index: 1000 !important;
+            --bg: #111827 !important;
+            --bg2: #383838 !important;
+            --bg3: #444444 !important;
+            --light-bg: #565656 !important;
+            --fg: #e8e8e8 !important;
+            --fg2: #6a84aa !important;
+            --fg3: #995ed2 !important;
+            --light-fg: #b8b8b8 !important;
+            --selection-bg: #4a6080 !important;
+            --selection-fg: #eee !important;
+            --overlay-bg: rgba(80, 80, 80, 0.4) !important;
+            --border-color: #a5a5a5 !important;
+            --light-border-color: #9134ea !important;
+            --code-border-color: #a5a5a5 !important;
+            --input-bg: #1a2338 !important;
+            --placeholder-color: #ffffff78 !important;
+            --hover-color: #995ed282 !important;
+            --red: #F06560 !important;
+            --light-red: #292929 !important;
+            --pink: #ffb2b2 !important;
+            --light-pink: #292929 !important;
+            --green: #7ec699 !important;
+            --light-green: #292929 !important;
+            --blue: #71b7ff !important;
+            --light-blue: #292929 !important;
+            --orange: #f08d49 !important;
+            --light-orange: #292929 !important;
+            --yellow: #827717 !important;
+            --light-yellow: #292929 !important;
+            --purple: #786FF1 !important;
+            --brown: #D4AC0D !important;
+            --header-bg: #1f2937 !important;
+            --header-fg: #fff !important;
+            --header-color-darker: #111827 !important;
+            --header-color-border: #995ed2 !important;
+            --nav-bg-color: #1f2937 !important;
+            --nav-text-color: rgb(255 255 255 / 89%) !important;
+            --nav-hover-bg-color: #111827 !important;
+            --nav-hover-text-color: #fff !important;
+            --nav-accent-color: #9134ea !important;
+            --primary-color: #9134ea !important;
+            --primary-color-invert: #fff !important;
+            --primary-color-trans: rgba(247, 107, 57, 0.8) !important;
+            --code-bg: rgba(36, 36, 36, 0.7) !important;
+            --code-fg: #aaa !important;
+            --inline-code-fg: #aaa !important;
+            --code-property-color: #f8c555 !important;
+            --code-keyword-color: #cc99cd !important;
+            --code-operator-color: #67cdcc !important;
+            --light-fg: #e6e6e6 !important;
+        }
+    </style>
     <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 </head>
 
 <body>
-    <rapi-doc spec-url="./openapi.json" theme="dark"> </rapi-doc>
+    <rapi-doc spec-url="./openapi.json" theme="dark" show-header="false"> </rapi-doc>
 </body>
 
 </html>
