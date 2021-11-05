@@ -20,6 +20,7 @@ def init() -> Flask:
     from .routes.api.v1.analytics.treasury import treasury_bp
     from .routes.api.v1.analytics.volume import volume_bp
     from .routes.api.v1.analytics.fees import fees_bp
+    from .routes.api.v1.analytics.nusd import nusd_bp
     from .routes.api.v1.circ import circ_bp
     from .routes.api.v1.mcap import mcap_bp
     from .routes.root import root_bp
@@ -28,6 +29,7 @@ def init() -> Flask:
     app.register_blueprint(circ_bp, url_prefix='/api/v1/circ')
     app.register_blueprint(mcap_bp, url_prefix='/api/v1/mcap')
     app.register_blueprint(fees_bp, url_prefix='/api/v1/analytics/fees')
+    app.register_blueprint(nusd_bp, url_prefix='/api/v1/analytics/nusd')
     app.register_blueprint(volume_bp, url_prefix='/api/v1/analytics/volume')
     app.register_blueprint(treasury_bp,
                            url_prefix='/api/v1/analytics/treasury')

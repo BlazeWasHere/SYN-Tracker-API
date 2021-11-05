@@ -37,6 +37,13 @@ routes = [
     '/api/v1/analytics/volume/metapool/polygon',
     '/api/v1/analytics/volume/metapool/arbitrum',
     '/api/v1/analytics/volume/metapool/fantom',
+    '/api/v1/analytics/nusd/price',
+    '/api/v1/analytics/nusd/price/arbitrum',
+    '/api/v1/analytics/nusd/price/bsc',
+    '/api/v1/analytics/nusd/price/polygon',
+    '/api/v1/analytics/nusd/price/avalanche',
+    '/api/v1/analytics/nusd/price/harmony',
+    '/api/v1/analytics/nusd/price/fantom',
 ]
 
 
