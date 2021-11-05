@@ -29,6 +29,10 @@
         "type": "string",
         "enum": ["avalanche", "bsc", "polygon", "arbitrum", "fantom"]
       },
+      "Pools": {
+        "type": "string",
+        "enum": ["metapool", "basepool"]
+      },
       "TreasuryResponse": {
         "type": "object",
         "additionalProperties": {
@@ -661,9 +665,18 @@
         "tags": ["Treasury Balance"]
       }
     },
-    "/api/v1/analytics/nusd/price": {
+    "/api/v1/analytics/pools/{pool}/price/virtual": {
       "get": {
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pool",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pools"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -710,13 +723,21 @@
             "description": "Successful response"
           }
         },
-        "summary": "view nUSD virtual price on all chains",
-        "tags": ["nUSD"]
+        "summary": "view virtual price for all chains of a pool",
+        "tags": ["Pools"]
       }
     },
-    "/api/v1/analytics/nusd/price/{chain}": {
+    "/api/v1/analytics/pools/{pool}/price/virtual/{chain}": {
       "get": {
         "parameters": [
+          {
+            "in": "path",
+            "name": "pool",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pools"
+            }
+          },
           {
             "in": "path",
             "name": "chain",
@@ -763,8 +784,8 @@
             "description": "Successful response"
           }
         },
-        "summary": "view nUSD virtual price for a chain",
-        "tags": ["nUSD"]
+        "summary": "view virtual price for a chain of a pool",
+        "tags": ["Pools"]
       }
     }
   }

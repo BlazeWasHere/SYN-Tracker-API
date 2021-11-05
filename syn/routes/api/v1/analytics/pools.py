@@ -9,6 +9,7 @@
 
 from typing import Dict, List
 
+from web3.exceptions import BadFunctionCallOutput
 from flask import Blueprint, jsonify, request
 from gevent.greenlet import Greenlet
 from gevent.pool import Pool
@@ -19,24 +20,31 @@ from syn.utils.analytics.nusd import get_virtual_price
 from syn.utils.helpers import raise_if
 from syn.utils import verify
 
-nusd_bp = Blueprint('nusd_bp', __name__)
+pools_bp = Blueprint('pools_bp', __name__)
 
 # 15m
 TIMEOUT = 60 * 15
-pool = Pool()
-_list = list(SYN_DATA)
+gpool = Pool()
+metapools = list(SYN_DATA)
 # No metapool on ETH.
-_list.remove('ethereum')
+metapools.remove('ethereum')
+
+basepools = list(SYN_DATA)
+
+pools = ['metapool', 'basepool']
 
 
-@nusd_bp.route('/price/', defaults={'chain': ''}, methods=['GET'])
-@nusd_bp.route('/price/<chain>', methods=['GET'])
+@pools_bp.route('/<pool>/price/virtual/<chain>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
-def nusd_price_chain(chain: str):
-    if chain not in _list:
+def price_virtual_chain(pool: str, chain: str):
+    chains = metapools if pool == 'metapool' else basepools
+
+    if pool not in pools:
+        return (jsonify({'error': 'invalid pool', 'valids': pools}), 400)
+    elif chain not in chains:
         return (jsonify({
             'error': 'invalid chain',
-            'valids': _list,
+            'valids': chains,
         }), 400)
 
     block = request.args.get('block', 'latest')
@@ -46,17 +54,29 @@ def nusd_price_chain(chain: str):
 
         block = int(block)
 
-    return jsonify(get_virtual_price(chain, block))
+    func = 'metapool_contract' if pool == 'metapool' else 'basepool_contract'
+
+    try:
+        return jsonify(get_virtual_price(chain, block, func=func))
+    except BadFunctionCallOutput:
+        return (jsonify({'error': 'contract not deployed'}), 400)
 
 
-@nusd_bp.route('/price', methods=['GET'])
+@pools_bp.route('/<pool>/price/virtual', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
-def nusd_price():
+def price_virtual(pool: str):
+    chains = metapools if pool == 'metapool' else basepools
+
+    if pool not in pools:
+        return (jsonify({'error': 'invalid pool', 'valids': pools}), 400)
+
     res: Dict[str, float] = {}
     jobs: List[Greenlet] = []
 
-    for chain in _list:
-        jobs.append(pool.spawn(get_virtual_price, chain, 'latest'))
+    func = 'metapool_contract' if pool == 'metapool' else 'basepool_contract'
+
+    for chain in chains:
+        jobs.append(gpool.spawn(get_virtual_price, chain, 'latest', func=func))
 
     ret: List[Greenlet] = gevent.joinall(jobs)
     for x in ret:

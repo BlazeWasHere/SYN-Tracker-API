@@ -146,6 +146,7 @@ SYN_DATA = {
         "rpc": os.getenv('HARMONY_RPC'),
         'address': '0xE55e19Fb4F2D85af758950957714292DAC1e25B2',
         "metapool": "0x555982d2E211745b96736665e19D9308B615F78e",
+        "basepool": "0x080f6aed32fc474dd5717105dba5ea57268f46eb",
     }
 }
 
