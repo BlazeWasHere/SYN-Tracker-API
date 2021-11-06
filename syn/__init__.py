@@ -17,6 +17,9 @@ from flask import Flask
 def init() -> Flask:
     app = Flask(__name__)
 
+    from .utils.converters import register_converter
+    register_converter(app, 'date')
+
     from .routes.api.v1.analytics.treasury import treasury_bp
     from .routes.api.v1.analytics.volume import volume_bp
     from .routes.api.v1.analytics.pools import pools_bp
