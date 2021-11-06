@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Callable, Optional, Union
+from typing import Any, Callable, Optional, Union
 from functools import lru_cache, wraps
 from datetime import timedelta
 import json
@@ -62,7 +62,7 @@ def _serialize_args_to_str(*args, **kwargs) -> str:
     return ':'.join(res) + flatten_dict(kwargs)
 
 
-def redis_cache(key: Optional[str] = None,
+def redis_cache(key: Optional[Callable[..., str]] = None,
                 expires_at: Optional[Union[int, timedelta]] = None,
                 filter: Callable[..., bool] = lambda *args, **kwargs: True,
                 is_class: bool = False):
@@ -71,7 +71,6 @@ def redis_cache(key: Optional[str] = None,
     as `key` for later (cache) usage.
 
     Args:
-        key (str): the unqiue key
         expires_at (Optional[int], optional): time `key` should expire. Defaults to None.
     """
     def _decorator(fn):
@@ -81,8 +80,9 @@ def redis_cache(key: Optional[str] = None,
                 _key = _serialize_args_to_str(*args,
                                               **kwargs,
                                               is_class=is_class)
+                print(_key)
             else:
-                _key = key
+                _key = key(*args, **kwargs, is_class=is_class)
 
             if (data := REDIS.get(_key)) is not None:
                 if isinstance(data, str):

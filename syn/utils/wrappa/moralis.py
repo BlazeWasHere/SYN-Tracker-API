@@ -7,7 +7,7 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from gevent.greenlet import Greenlet
 from gevent.pool import Pool
@@ -15,7 +15,7 @@ import requests
 import gevent
 
 from syn.utils.data import POPULATE_CACHE
-from syn.utils.cache import timed_cache
+from syn.utils.cache import redis_cache, timed_cache
 from syn.utils.helpers import raise_if
 
 if POPULATE_CACHE:
@@ -181,3 +181,9 @@ class Moralis(object):
         return self.__request('GET',
                               f'/{address}/erc20?chain={chain}',
                               params={'to_block': to_block})
+
+    @redis_cache(is_class=True)
+    def date_to_block(self,
+                      date: str,
+                      chain: str = 'eth') -> Dict[str, Union[str, int]]:
+        return self.__request('GET', f'/dateToBlock?chain={chain}&date={date}')

@@ -7,13 +7,22 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-import os
+from datetime import datetime
 import time
+import os
 
 from redis import Redis
 import redis_lock
 
-from syn.utils.data import schedular, CACHE_FORCED_UPDATE
+from syn.utils.data import REDIS, schedular, CACHE_FORCED_UPDATE, MORALIS_APIKEY
+from syn.routes.api.v1.analytics.pools import metapools, basepools
+from syn.utils.analytics.nusd import get_virtual_price
+from syn.utils.wrappa.moralis import Moralis
+
+moralis = Moralis(MORALIS_APIKEY)
+r: Redis = schedular._scheduler._jobstores['default'].redis
+lock = redis_lock.Lock(r, 'CRON_UPDATE_CACHES_LOCK', id=str(os.getpid()))
+lock1 = redis_lock.Lock(r, 'CRON_UPDATE_VP_LOCK', id=str(os.getpid()))
 
 routes = [
     '/api/v1/analytics/volume/ethereum/filter/nusd',
@@ -58,29 +67,56 @@ routes = [
 def update_caches():
     global CACHE_FORCED_UPDATE
 
-    r: Redis = schedular._scheduler._jobstores['default'].redis
-    lock = redis_lock.Lock(r, 'CRON_UPDATE_CACHES_LOCK', id=str(os.getpid()))
-
     # Some logic to prevent multiple cron jobs running when we are scaling the
     # app with more workers.
     if not lock.acquire(blocking=False):
-        print(f'It seems pid({lock.get_owner_id()}) got to the lock first. '
-              'Skipping the job...')
+        print(f'(0) It seems pid({lock.get_owner_id()}) got to the lock '
+              'first. Skipping the job...')
         return
 
     assert lock.locked()
 
     start = time.time()
-    print(f'[{start}] Cron job start.')
+    print(f'(0) [{start}] Cron job start.')
 
     # TODO(blaze): This doesn't actually work in the cache func.
     CACHE_FORCED_UPDATE = True
 
     with schedular.app.test_client() as c:  # type: ignore
         for route in routes:
-            print(f'Updating cache for route ~> {route}')
+            print(f'(0) Updating cache for route ~> {route}')
             c.get(route)
 
     CACHE_FORCED_UPDATE = False
-    print(f'Cron job done. Elapsed: {round(time.time() - start, 2)}s')
+    print(f'(0) Cron job done. Elapsed: {round(time.time() - start, 2)}s')
     lock.release()
+
+
+# Run at 00:01, it is sufficient enough to wait for the first block of the current day.
+@schedular.task("cron", id="set_today_vp", hour=0, minute=1)
+def set_virtual_price():
+    if not lock1.acquire(blocking=False):
+        print(f'(1) It seems pid({lock1.get_owner_id()}) got to the lock '
+              'first. Skipping the job...')
+        return
+
+    assert lock.locked()
+
+    start = time.time()
+    print(f'(1) [{start}] Cron job start.')
+
+    date = str(datetime.now().date())
+    ret = moralis.date_to_block(date)
+
+    for chain in metapools:
+        vp = get_virtual_price(chain, block=ret['block'])
+        REDIS.set(f'metapool:{chain}:vp:{date}', vp[chain])
+
+    for chain in basepools:
+        vp = get_virtual_price(chain,
+                               block=ret['block'],
+                               func='basepool_contract')
+        REDIS.set(f'basepool:{chain}:vp:{date}', vp[chain])
+
+    print(f'(1) Cron job done. Elapsed: {round(time.time() - start, 2)}s')
+    lock1.release()

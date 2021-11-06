@@ -7,6 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from datetime import datetime
 from typing import Dict, List
 
 from web3.exceptions import BadFunctionCallOutput
@@ -15,7 +16,7 @@ from gevent.greenlet import Greenlet
 from gevent.pool import Pool
 import gevent
 
-from syn.utils.data import SYN_DATA, cache, _forced_update
+from syn.utils.data import SYN_DATA, cache, _forced_update, REDIS
 from syn.utils.analytics.nusd import get_virtual_price
 from syn.utils.helpers import raise_if
 from syn.utils import verify
@@ -83,3 +84,24 @@ def price_virtual(pool: str):
         res.update(raise_if(x.get(), None))
 
     return jsonify(res)
+
+
+@pools_bp.route('/<pool>/price/virtual/<chain>/<date:date>', methods=['GET'])
+@cache.cached(forced_update=_forced_update)
+def price_virtual_chain_historical(pool: str, chain: str, date: datetime):
+    chains = metapools if pool == 'metapool' else basepools
+
+    if pool not in pools:
+        return (jsonify({'error': 'invalid pool', 'valids': pools}), 400)
+    elif chain not in chains:
+        return (jsonify({
+            'error': 'invalid chain',
+            'valids': chains,
+        }), 400)
+
+    ret = verify.is_sane_date(date)
+    if ret != True:
+        return (jsonify({'error': ret, 'valids': []}), 400)
+
+    _date = str(date.date())
+    return jsonify({_date: REDIS.get(f'{pool}:{chain}:vp:{_date}')})
