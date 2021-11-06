@@ -13,7 +13,6 @@ from datetime import timedelta
 import json
 import time
 
-from .helpers import flatten_dict
 from .data import REDIS
 
 
@@ -44,6 +43,7 @@ def timed_cache(max_age, maxsize=5, typed=False):
 
 
 def _serialize_args_to_str(*args, **kwargs) -> str:
+    from .helpers import flatten_dict
     from .price import CoingeckoIDS
 
     res = []

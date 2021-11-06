@@ -16,7 +16,6 @@ import gevent
 
 from syn.utils.data import POPULATE_CACHE
 from syn.utils.cache import redis_cache, timed_cache
-from syn.utils.helpers import raise_if
 
 if POPULATE_CACHE:
     import time
@@ -47,6 +46,8 @@ class Moralis(object):
             raise e
 
     def _paginate(self, *args, **kwargs) -> List[Any]:
+        from syn.utils.helpers import raise_if
+
         jobs: List[Greenlet] = []
         res: List[Any] = []
 

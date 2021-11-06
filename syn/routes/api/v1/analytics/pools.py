@@ -18,7 +18,6 @@ import gevent
 
 from syn.utils.data import SYN_DATA, cache, _forced_update, REDIS
 from syn.utils.analytics.nusd import get_virtual_price
-from syn.utils.helpers import raise_if
 from syn.utils import verify
 
 pools_bp = Blueprint('pools_bp', __name__)
@@ -66,6 +65,8 @@ def price_virtual_chain(pool: str, chain: str):
 @pools_bp.route('/<pool>/price/virtual', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def price_virtual(pool: str):
+    from syn.utils.helpers import raise_if
+
     chains = metapools if pool == 'metapool' else basepools
 
     if pool not in pools:
