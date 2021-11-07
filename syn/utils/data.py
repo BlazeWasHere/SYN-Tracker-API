@@ -257,12 +257,37 @@ TOKEN_DECIMALS = {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': 18,
         '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 18,
         '0xaa88c603d142c371ea0eac8756123c5805edee03': 18,
+        '0x55d398326f99059ff775485246999027b3197955': 18,
     },
     'polygon': {
         '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': 18,
         '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': 18,
         '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': 6,
-        '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 18,
+        '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 6,
+        '0xb6c473756050de474286bed418b77aeac39b02af': 18,
+        '0x128a587555d1148766ef4327172129b50ec66e5d': 18,
+    },
+    'avalanche': {
+        '0xd586e7f844cea2f87f50152665bcbc2c279d8d70': 18,
+        '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664': 6,
+        '0xc7198437980c041c805a1edcba50c1ce5db95118': 6,
+        '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46': 18,
+        '0x55904f416586b5140a0f666cf5acf320adf64846': 18,
+    },
+    'arbitrum': {
+        '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': 18,
+        '0x080f6aed32fc474dd5717105dba5ea57268f46eb': 18,
+        '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8': 6,
+        '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': 6,
+        '0x2913e812cf0dcca30fb28e6cac3d2dcff4497688': 18,
+        '0xe264cb5a941f98a391b9d5244378edf79bf5c19e': 18,
+    },
+    'fantom': {
+        '0x04068da6c83afcfa0e13ba15a6696662335d5b75': 6,
+        '0x049d68029688eabf473097a2fc38ef61633a3c7a': 6,
+        '0x43cf58380e69594fa2a5682de484ae00edd83e94': 18,
+        '0x82f0b8b456c1a451378467398982d4834b6829c1': 18,
+        '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,
     },
 }
 
