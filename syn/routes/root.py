@@ -12,8 +12,6 @@ import os
 
 from flask import Blueprint, jsonify
 
-from syn.utils.data import DEFILLAMA_DATA
-
 # Get parent (root) dir.
 _path = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -28,11 +26,6 @@ with open(os.path.join(openapi_folder, 'specification.json')) as f:
 @root_bp.route('/')
 def index():
     return root_bp.send_static_file('index.html')
-
-
-@root_bp.route('/defillama.json')
-def defillama():
-    return jsonify(DEFILLAMA_DATA)
 
 
 @root_bp.route('/openapi.json')
