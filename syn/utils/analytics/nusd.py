@@ -17,7 +17,7 @@ from syn.utils.data import SYN_DATA
 @timed_cache(60, maxsize=50)
 def get_virtual_price(chain: str,
                       block: Union[int, str] = 'latest',
-                      func: str = 'metapool_contract') -> Dict[str, float]:
+                      func: str = 'pool_contract') -> Dict[str, float]:
     ret = call_abi(SYN_DATA[chain],
                    func,
                    'getVirtualPrice',

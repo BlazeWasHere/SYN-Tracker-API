@@ -23,9 +23,10 @@ def call_abi(data, key: str, func_name: str, *args, **kwargs) -> Any:
 
 
 @timed_cache(60)
-def get_all_tokens_in_pool(chain: str,
-                           max_index: Optional[int] = None,
-                           metapool: bool = True) -> List[str]:
+def get_all_tokens_in_pool(
+    chain: str,
+    max_index: Optional[int] = None,
+) -> List[str]:
     """
     Get all tokens by calling `getToken` by iterating from 0 till a
     contract error or `max_index` and implicitly sorted by index.
@@ -34,8 +35,6 @@ def get_all_tokens_in_pool(chain: str,
         chain (str): the EVM chain
         max_index (Optional[int], optional): max index to iterate to. 
             Defaults to None.
-        metapool (Optional[bool], optional): whether to include metapool tokens only.
-            Defaults to True.
 
     Returns:
         List[str]: list of token addresses
@@ -46,19 +45,11 @@ def get_all_tokens_in_pool(chain: str,
     data = SYN_DATA[chain]
     res: List[str] = []
 
-    if metapool:
-        for i in range(max_index or MAX_UINT8):
-            try:
-                res.append(call_abi(data, 'metapool_contract', 'getToken', i))
-            except web3.exceptions.ContractLogicError:
-                # Out of range.
-                break
-    else:
-        for i in range(max_index or MAX_UINT8):
-            try:
-                res.append(call_abi(data, 'basepool_contract', 'getToken', i))
-            except web3.exceptions.ContractLogicError:
-                # Out of range.
-                break
+    for i in range(max_index or MAX_UINT8):
+        try:
+            res.append(call_abi(data, 'pool_contract', 'getToken', i))
+        except web3.exceptions.ContractLogicError:
+            # Out of range.
+            break
 
     return res

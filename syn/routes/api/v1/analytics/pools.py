@@ -34,17 +34,14 @@ basepools = list(SYN_DATA)
 pools = ['metapool', 'basepool']
 
 
-@pools_bp.route('/<pool>/price/virtual/<chain>', methods=['GET'])
+@pools_bp.route('/price/virtual/', defaults={'chain': ''}, methods=['GET'])
+@pools_bp.route('/price/virtual/<chain>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
-def price_virtual_chain(pool: str, chain: str):
-    chains = metapools if pool == 'metapool' else basepools
-
-    if pool not in pools:
-        return (jsonify({'error': 'invalid pool', 'valids': pools}), 400)
-    elif chain not in chains:
+def price_virtual_chain(chain: str):
+    if chain not in SYN_DATA:
         return (jsonify({
             'error': 'invalid chain',
-            'valids': chains,
+            'valids': list(SYN_DATA),
         }), 400)
 
     block = request.args.get('block', 'latest')
@@ -54,31 +51,22 @@ def price_virtual_chain(pool: str, chain: str):
 
         block = int(block)
 
-    func = 'metapool_contract' if pool == 'metapool' else 'basepool_contract'
-
     try:
-        return jsonify(get_virtual_price(chain, block, func=func))
+        return jsonify(get_virtual_price(chain, block))
     except BadFunctionCallOutput:
         return (jsonify({'error': 'contract not deployed'}), 400)
 
 
-@pools_bp.route('/<pool>/price/virtual', methods=['GET'])
+@pools_bp.route('/price/virtual', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
-def price_virtual(pool: str):
+def price_virtual():
     from syn.utils.helpers import raise_if
-
-    chains = metapools if pool == 'metapool' else basepools
-
-    if pool not in pools:
-        return (jsonify({'error': 'invalid pool', 'valids': pools}), 400)
 
     res: Dict[str, float] = {}
     jobs: List[Greenlet] = []
 
-    func = 'metapool_contract' if pool == 'metapool' else 'basepool_contract'
-
-    for chain in chains:
-        jobs.append(gpool.spawn(get_virtual_price, chain, 'latest', func=func))
+    for chain in SYN_DATA:
+        jobs.append(gpool.spawn(get_virtual_price, chain, 'latest'))
 
     ret: List[Greenlet] = gevent.joinall(jobs)
     for x in ret:
@@ -87,17 +75,13 @@ def price_virtual(pool: str):
     return jsonify(res)
 
 
-@pools_bp.route('/<pool>/price/virtual/<chain>/<date:date>', methods=['GET'])
+@pools_bp.route('/price/virtual/<chain>/<date:date>', methods=['GET'])
 @cache.cached(forced_update=_forced_update)
-def price_virtual_chain_historical(pool: str, chain: str, date: datetime):
-    chains = metapools if pool == 'metapool' else basepools
-
-    if pool not in pools:
-        return (jsonify({'error': 'invalid pool', 'valids': pools}), 400)
-    elif chain not in chains:
+def price_virtual_chain_historical(chain: str, date: datetime):
+    if chain not in SYN_DATA:
         return (jsonify({
             'error': 'invalid chain',
-            'valids': chains,
+            'valids': list(SYN_DATA),
         }), 400)
 
     ret = verify.is_sane_date(date)
@@ -105,4 +89,4 @@ def price_virtual_chain_historical(pool: str, chain: str, date: datetime):
         return (jsonify({'error': ret, 'valids': []}), 400)
 
     _date = str(date.date())
-    return jsonify({_date: REDIS.get(f'{pool}:{chain}:vp:{_date}')})
+    return jsonify({_date: REDIS.get(f'pools:{chain}:vp:{_date}')})

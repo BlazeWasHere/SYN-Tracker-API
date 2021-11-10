@@ -15,8 +15,8 @@ from gevent.pool import Pool
 import gevent
 
 from syn.utils.analytics.volume import get_chain_volume, get_chain_volume_covalent, get_chain_metapool_volume
-from syn.utils.data import BRIDGES, NULL_ADDR, SYN_DATA, DEFILLAMA_DATA, cache, \
-    DEFAULT_TIMEOUT, _forced_update
+from syn.utils.data import BRIDGES, NULL_ADDR, SYN_DATA, cache, DEFAULT_TIMEOUT, \
+    _forced_update
 from syn.utils.helpers import merge_many_dicts, raise_if, \
     store_volume_dict_to_redis
 
@@ -33,7 +33,7 @@ def filter_factory(key: str,
                    address: str = '') -> Callable[[Dict[str, str]], bool]:
     if not address:
         if chain == 'ethereum':
-            address = DEFILLAMA_DATA['bridges'][chain]['metaswap']
+            address = BRIDGES[chain][0]
         else:
             address = SYN_DATA[chain]['metapool']
 
@@ -62,7 +62,7 @@ def esc_filter_factory(chain: str,
 @volume_bp.route('/ethereum', methods=['GET'])
 @cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
 def volume_eth():
-    address = DEFILLAMA_DATA['bridges']['ethereum']['metaswap']
+    address = BRIDGES['ethereum'][0]
     resps: List[Dict[str, Any]] = []
     jobs: List[Greenlet] = []
 
@@ -91,7 +91,7 @@ def volume_eth_filter(token: str):
     elif token == 'syn':
         token = 'address'
 
-    address = DEFILLAMA_DATA['bridges']['ethereum']['metaswap']
+    address = BRIDGES['ethereum'][0]
     ret = get_chain_volume(address, 'eth', filter_factory(token, 'ethereum'))
     pool.spawn(store_volume_dict_to_redis, 'ethereum', ret)
 

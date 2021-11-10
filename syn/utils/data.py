@@ -89,7 +89,7 @@ SYN_DATA = {
     "ethereum": {
         "rpc": os.getenv('ETH_RPC'),
         "address": "0x0f2D719407FdBeFF09D87557AbB7232601FD9F29",
-        "basepool": "0x1116898DdA4015eD8dDefb84b6e8Bc24528Af2d8",
+        "pool": "0x1116898DdA4015eD8dDefb84b6e8Bc24528Af2d8",
         "nusd": "0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f",
         "high": "0x71ab77b7dbb4fa7e017bc15090b2163221420282",
         "dog": "0xbaac2b4491727d78d2b78815144570b9f2fe8899",
@@ -100,16 +100,14 @@ SYN_DATA = {
     "avalanche": {
         "rpc": os.getenv('AVAX_RPC'),
         "address": "0x1f1E7c893855525b303f99bDF5c3c05Be09ca251",
-        "basepool": "0xE55e19Fb4F2D85af758950957714292DAC1e25B2",
-        "metapool": "0xf44938b0125a6662f9536281ad2cd6c499f22004",
+        "pool": "0xed2a7edd7413021d440b09d654f3b87712abab66",
         "nusd": "0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46",
         "usdlp": "0x55904f416586b5140a0f666cf5acf320adf64846"
     },
     "bsc": {
         "rpc": os.getenv('BSC_RPC'),
         "address": "0xa4080f1778e69467e905b8d6f72f6e441f9e9484",
-        "basepool": "0x938aFAFB36E8B1AB3347427eb44537f543475cF9",
-        "metapool": "0x930d001b7efb225613ac7f35911c52ac9e111fa9",
+        "pool": "0x28ec0b36f0819ecb5005cab836f4ed5a2eca4d13",
         "nusd": "0x23b891e5c62e0955ae2bd185990103928ab817b3",
         "usdlp": "0xf0b8b631145d393a767b4387d08aa09969b2dfed",
         "busd": "0xe9e7cea3dedca5984780bafc599bd69add087d56",
@@ -121,32 +119,28 @@ SYN_DATA = {
     "polygon": {
         "rpc": os.getenv('POLYGON_RPC'),
         "address": "0xf8f9efc0db77d8881500bb06ff5d6abc3070e695",
-        "basepool": "0x3f52E42783064bEba9C1CFcD2E130D156264ca77",
-        "metapool": "0x96cf323e477ec1e17a4197bdcc6f72bb2502756a",
+        "pool": "0x85fcd7dd0a1e1a9fcd5fd886ed522de8221c3ee5",
         "nusd": "0xb6c473756050de474286bed418b77aeac39b02af",
         "usdlp": "0x128a587555d1148766ef4327172129b50ec66e5d"
     },
     "arbitrum": {
         "rpc": os.getenv('ARB_RPC'),
         "address": "0x080f6aed32fc474dd5717105dba5ea57268f46eb",
-        "basepool": "0xbafc462d00993ffcd3417abbc2eb15a342123fda",
-        "metapool": "0x84cd82204c07c67df1c2c372d8fd11b3266f76a3",
+        "pool": "0x0db3fe3b770c95a0b99d1ed6f2627933466c0dd8",
         "nusd": "0x2913e812cf0dcca30fb28e6cac3d2dcff4497688",
         "usdlp": "0xe264cb5a941f98a391b9d5244378edf79bf5c19e"
     },
     "fantom": {
         "rpc": os.getenv('FTM_RPC'),
         "address": "0xe55e19fb4f2d85af758950957714292dac1e25b2",
-        "basepool": "0x080F6AEd32Fc474DD5717105Dba5ea57268F46eb",
-        "metapool": "0x1f6a0656ff5061930076bf0386b02091e0839f9f",
+        "pool": "0x2913e812cf0dcca30fb28e6cac3d2dcff4497688",
         "nusd": "0xed2a7edd7413021d440b09d654f3b87712abab66",
         "usdlp": "0x43cf58380e69594fa2a5682de484ae00edd83e94"
     },
     "harmony": {
         "rpc": os.getenv('HARMONY_RPC'),
         'address': '0xE55e19Fb4F2D85af758950957714292DAC1e25B2',
-        "metapool": "0x555982d2E211745b96736665e19D9308B615F78e",
-        "basepool": "0x080f6aed32fc474dd5717105dba5ea57268f46eb",
+        "pool": "0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e",
     }
 }
 
@@ -170,21 +164,14 @@ for key, value in SYN_DATA.items():
     value.update({
         'contract':
         w3.eth.contract(Web3.toChecksumAddress(value['address']),
-                        abi=TOTAL_SUPPLY_ABI)  # type: ignore
+                        abi=TOTAL_SUPPLY_ABI)
     })
 
-    if value.get('basepool') is not None:
+    if value.get('pool') is not None:
         value.update({
-            'basepool_contract':
-            w3.eth.contract(Web3.toChecksumAddress(value['basepool']),
-                            abi=BASEPOOL_ABI)  # type: ignore
-        })
-
-    if value.get('metapool') is not None:
-        value.update({
-            'metapool_contract':
-            w3.eth.contract(Web3.toChecksumAddress(value['metapool']),
-                            abi=BASEPOOL_ABI)  # type: ignore
+            'pool_contract':
+            w3.eth.contract(Web3.toChecksumAddress(value['pool']),
+                            abi=BASEPOOL_ABI)
         })
 
 TOKEN_DECIMALS = {
@@ -228,6 +215,7 @@ TOKEN_DECIMALS = {
         '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': 6,
         '0x2913e812cf0dcca30fb28e6cac3d2dcff4497688': 18,
         '0xe264cb5a941f98a391b9d5244378edf79bf5c19e': 18,
+        '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': 18,
     },
     'fantom': {
         '0x04068da6c83afcfa0e13ba15a6696662335d5b75': 6,
@@ -254,6 +242,10 @@ BRIDGES = {
         '0xff0047e2156b2d62055a77fe9abbd01baa11d54a',
         # Meta Bridge Zap
         '0x0775632f3d2b8aa764e833c0e3db6382882d0f48',
+    ],
+    'ethereum': [
+        # Bridge
+        '0x2796317b0ff8538f253012862c06787adfb8ceb6',
     ],
 }
 

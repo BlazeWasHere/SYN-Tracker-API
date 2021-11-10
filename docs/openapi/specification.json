@@ -29,10 +29,6 @@
         "type": "string",
         "enum": ["avalanche", "bsc", "polygon", "arbitrum", "fantom"]
       },
-      "Pools": {
-        "type": "string",
-        "enum": ["metapool", "basepool"]
-      },
       "TreasuryResponse": {
         "type": "object",
         "additionalProperties": {
@@ -665,18 +661,8 @@
         "tags": ["Treasury Balance"]
       }
     },
-    "/api/v1/analytics/pools/{pool}/price/virtual": {
+    "/api/v1/analytics/pools/price/virtual": {
       "get": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "pool",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/Pools"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "content": {
@@ -727,17 +713,9 @@
         "tags": ["Pools"]
       }
     },
-    "/api/v1/analytics/pools/{pool}/price/virtual/{chain}": {
+    "/api/v1/analytics/pools/price/virtual/{chain}": {
       "get": {
         "parameters": [
-          {
-            "in": "path",
-            "name": "pool",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/Pools"
-            }
-          },
           {
             "in": "path",
             "name": "chain",

@@ -23,7 +23,9 @@ def is_sane_date(date: datetime) -> Union[Literal[True], str]:
 
     if date > now:
         return f'{date} is in the future'
-    elif date < datetime(year=2000, month=1, day=1):
-        return f'21st century only, not {date}'
+    elif date < datetime(year=2021, month=11, day=6):
+        # New pools were created post failed exploit. ref:
+        # https://synapseprotocol.medium.com/11-06-2021-post-mortem-of-synapse-metapool-exploit-3003b4df4ef4
+        return f'the pools weren not created at {date}'
 
     return True
