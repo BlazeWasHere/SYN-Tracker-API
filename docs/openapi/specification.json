@@ -238,6 +238,16 @@
             "schema": {
               "$ref": "#/components/schemas/Chains"
             }
+          },
+          {
+            "in": "query",
+            "name": "block",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "can be negative to indicate a block backwards since the latest block."
           }
         ],
         "responses": {
