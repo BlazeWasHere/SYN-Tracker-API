@@ -9,9 +9,11 @@
 
 from web3.exceptions import BadFunctionCallOutput
 from flask import Blueprint, jsonify, request
+from web3 import Web3
 
+from syn.utils.analytics.fees import get_admin_fees, get_pending_admin_fees
+from syn.utils.analytics.treasury import get_treasury_erc20_balances
 from syn.utils.data import SYN_DATA, cache, _forced_update
-from syn.utils.analytics.fees import get_admin_fees
 from syn.utils import verify
 
 fees_bp = Blueprint('fees_bp', __name__)
@@ -33,8 +35,6 @@ def adminfees_chain(chain: str):
             'valids': chainzzz,
         }), 400)
 
-    # TODO(blaze): On some RPC nodes they limit past blocks and this throws
-    # an error messily here.
     block = request.args.get('block', 'latest')
     if block != 'latest':
         if not verify.isdigit(block):
@@ -44,6 +44,46 @@ def adminfees_chain(chain: str):
 
     try:
         return jsonify(get_admin_fees(chain, block, handle_decimals=True))
+    except BadFunctionCallOutput:
+        # Contract didn't exist then basically, this happens in blocks
+        # before the metapool contract deployment.
+        return (jsonify({'error': 'contract not deployed'}), 400)
+
+
+@fees_bp.route('/admin/<chain>/pending', methods=['GET'])
+@cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
+def pending_adminfees_chain(chain: str):
+    chainzzz = list(SYN_DATA)
+    chainzzz.remove('harmony')
+    chainzzz.remove('fantom')
+    chainzzz.remove('arbitrum')
+
+    if chain not in chainzzz:
+        return (jsonify({
+            'error': 'invalid chain',
+            'valids': chainzzz,
+        }), 400)
+
+    block = request.args.get('block', 'latest')
+    if block != 'latest':
+        if not verify.isdigit(block):
+            return (jsonify({'error': 'invalid block num'}), 400)
+
+        block = int(block)
+
+    # The tokens can be found here.
+    _chain = 'eth' if chain == 'ethereum' else chain
+    ret = get_treasury_erc20_balances(_chain)
+    print(ret)
+    tokens = [Web3.toChecksumAddress(x) for x in ret.keys()]
+
+    try:
+        return jsonify(
+            get_pending_admin_fees(
+                chain,
+                block,
+                tokens=tokens,  # type: ignore
+                handle_decimals=True))
     except BadFunctionCallOutput:
         # Contract didn't exist then basically, this happens in blocks
         # before the metapool contract deployment.

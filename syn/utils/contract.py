@@ -48,7 +48,8 @@ def get_all_tokens_in_pool(
     for i in range(max_index or MAX_UINT8):
         try:
             res.append(call_abi(data, 'pool_contract', 'getToken', i))
-        except web3.exceptions.ContractLogicError:
+        except (web3.exceptions.ContractLogicError,
+                web3.exceptions.BadFunctionCallOutput):
             # Out of range.
             break
 

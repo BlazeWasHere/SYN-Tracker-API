@@ -28,7 +28,7 @@ COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_c
 
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getVirtualPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
-BALANCE_ABI = """[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
+BRIDGE_ABI = """[{"inputs":[{"internalType":"address","name":"tokenAddress","type":"address"}],"name":"getFeeBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
 
 COVALENT_APIKEY = cast(str, os.getenv('COVALENT_APIKEY'))
 MORALIS_APIKEY = cast(str, os.getenv('MORALIS_APIKEY'))
@@ -96,13 +96,15 @@ SYN_DATA = {
         "usdt": "0xdac17f958d2ee523a2206206994597c13d831ec7",
         "usdc": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         "dai": "0x6b175474e89094c44da98b954eedeac495271d0f",
+        "bridge": "0x2796317b0ff8538f253012862c06787adfb8ceb6",
     },
     "avalanche": {
         "rpc": os.getenv('AVAX_RPC'),
         "address": "0x1f1E7c893855525b303f99bDF5c3c05Be09ca251",
         "pool": "0xed2a7edd7413021d440b09d654f3b87712abab66",
         "nusd": "0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46",
-        "usdlp": "0x55904f416586b5140a0f666cf5acf320adf64846"
+        "usdlp": "0x55904f416586b5140a0f666cf5acf320adf64846",
+        "bridge": "0xc05e61d0e7a63d27546389b7ad62fdff5a91aace",
     },
     "bsc": {
         "rpc": os.getenv('BSC_RPC'),
@@ -115,13 +117,15 @@ SYN_DATA = {
         "usdt": "0x55d398326f99059ff775485246999027b3197955",
         "dog": "0xaa88c603d142c371ea0eac8756123c5805edee03",
         "high": "0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63",
+        "bridge": "0xd123f70ae324d34a9e76b67a27bf77593ba8749f",
     },
     "polygon": {
         "rpc": os.getenv('POLYGON_RPC'),
         "address": "0xf8f9efc0db77d8881500bb06ff5d6abc3070e695",
         "pool": "0x85fcd7dd0a1e1a9fcd5fd886ed522de8221c3ee5",
         "nusd": "0xb6c473756050de474286bed418b77aeac39b02af",
-        "usdlp": "0x128a587555d1148766ef4327172129b50ec66e5d"
+        "usdlp": "0x128a587555d1148766ef4327172129b50ec66e5d",
+        "bridge": "0x8f5bbb2bb8c2ee94639e55d5f41de9b4839c1280",
     },
     "arbitrum": {
         "rpc": os.getenv('ARB_RPC'),
@@ -135,12 +139,14 @@ SYN_DATA = {
         "address": "0xe55e19fb4f2d85af758950957714292dac1e25b2",
         "pool": "0x2913e812cf0dcca30fb28e6cac3d2dcff4497688",
         "nusd": "0xed2a7edd7413021d440b09d654f3b87712abab66",
-        "usdlp": "0x43cf58380e69594fa2a5682de484ae00edd83e94"
+        "usdlp": "0x43cf58380e69594fa2a5682de484ae00edd83e94",
+        "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
     },
     "harmony": {
         "rpc": os.getenv('HARMONY_RPC'),
         'address': '0xE55e19Fb4F2D85af758950957714292DAC1e25B2',
         "pool": "0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e",
+        "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
     }
 }
 
@@ -174,6 +180,13 @@ for key, value in SYN_DATA.items():
                             abi=BASEPOOL_ABI)
         })
 
+    if value.get('bridge') is not None:
+        value.update({
+            'bridge_contract':
+            w3.eth.contract(Web3.toChecksumAddress(value['bridge']),
+                            abi=BRIDGE_ABI)
+        })
+
 TOKEN_DECIMALS = {
     'eth': {
         '0x71ab77b7dbb4fa7e017bc15090b2163221420282': 18,
@@ -192,6 +205,8 @@ TOKEN_DECIMALS = {
         '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 18,
         '0xaa88c603d142c371ea0eac8756123c5805edee03': 18,
         '0x55d398326f99059ff775485246999027b3197955': 18,
+        '0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63': 18,
+        '0xa4080f1778e69467e905b8d6f72f6e441f9e9484': 18,
     },
     'polygon': {
         '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': 18,
@@ -207,6 +222,7 @@ TOKEN_DECIMALS = {
         '0xc7198437980c041c805a1edcba50c1ce5db95118': 6,
         '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46': 18,
         '0x55904f416586b5140a0f666cf5acf320adf64846': 18,
+        '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': 18,
     },
     'arbitrum': {
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': 18,

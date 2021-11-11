@@ -285,6 +285,64 @@
         "tags": ["Admin Fees"]
       }
     },
+    "/api/v1/analytics/fees/admin/{chain}/pending": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["ethereum", "avalanche", "bsc", "polygon"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "block",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "can be negative to indicate a block backwards since the latest block."
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "example": {
+                    "0x6B175474E89094C44Da98b954EedeAC495271d0F": 5.037710710295178e21,
+                    "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": 14505109603,
+                    "0xdAC17F958D2ee523a2206206994597C13D831ec7": 8510981976
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "pending admin fees on a chain",
+        "tags": ["Admin Fees"]
+      }
+    },
     "/api/v1/analytics/volume/metapool/{chain}": {
       "get": {
         "parameters": [

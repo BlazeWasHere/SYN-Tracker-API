@@ -20,7 +20,8 @@ moralis = Moralis(MORALIS_APIKEY)
 
 @timed_cache(60, maxsize=50)
 def get_treasury_erc20_balances(chain: str,
-                                to_block: int = 0) -> Dict[str, float]:
+                                to_block: int = 0,
+                                filter: bool = True) -> Dict[str, float]:
     res = defaultdict(dict)
     ret = moralis.erc20_balances(TREASURY[chain], chain, to_block)
 
@@ -33,5 +34,15 @@ def get_treasury_erc20_balances(chain: str,
                 'usd': amount * price,
                 'symbol': x['symbol'],
             }
+
+        if filter:
+            # Filter these spam tokens that have 0 value.
+            _res = defaultdict(dict)
+
+            for k, v in res.items():
+                if v['usd'] != 0:
+                    _res[k] = v
+
+            res = _res
 
     return cast(Dict[str, float], res)
