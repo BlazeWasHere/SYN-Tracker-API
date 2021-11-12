@@ -80,7 +80,6 @@ def redis_cache(key: Optional[Callable[..., str]] = None,
                 _key = _serialize_args_to_str(*args,
                                               **kwargs,
                                               is_class=is_class)
-                print(_key)
             else:
                 _key = key(*args, **kwargs, is_class=is_class)
 
