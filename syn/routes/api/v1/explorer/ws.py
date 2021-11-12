@@ -72,7 +72,7 @@ def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
             try:
                 _data = pending_addresses[data['to']]
 
-                if method != 'TokenWithdraw':
+                if method not in ['TokenWithdraw', 'TokenMint']:
                     to_token = TOKENS_IN_POOL[_chain][data['tokenIndexTo']]
                 else:
                     to_token = data['token']
