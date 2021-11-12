@@ -190,7 +190,7 @@ def volume_metapool(chain: str):
             'valids': valid_chains,
         }), 400)
 
-    metapool = SYN_DATA[chain]['metapool']
+    metapool = SYN_DATA[chain]['pool']
     nusd = SYN_DATA[chain]['nusd']
     usdlp = SYN_DATA[chain]['usdlp']
 

@@ -7,18 +7,29 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from typing import Tuple
+
 from gevent import monkey
 
 monkey.patch_all()
 
+from flask_socketio import SocketIO
 from flask import Flask
 
 
-def init() -> Flask:
+def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     app = Flask(__name__)
 
     from .utils.converters import register_converter
     register_converter(app, 'date')
+
+    from .utils.data import MESSAGE_QUEUE_REDIS_URL
+    app.socketio = SocketIO(  # type: ignore
+        app,
+        logger=debug,
+        engineio_logger=debug,
+        asnyc_mode='gevent',
+        message_queue=MESSAGE_QUEUE_REDIS_URL)
 
     from .routes.api.v1.analytics.treasury import treasury_bp
     from .routes.api.v1.analytics.volume import volume_bp
@@ -47,4 +58,9 @@ def init() -> Flask:
     update_caches()
     schedular.start()
 
-    return app
+    with app.app_context():
+        from .routes.api.v1.explorer import ws
+
+    ws.start()
+
+    return app, app.socketio  # type: ignore

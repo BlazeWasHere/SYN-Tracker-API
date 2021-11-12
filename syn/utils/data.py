@@ -8,8 +8,10 @@
 """
 
 from typing import cast
+import json
 import os
 
+from web3.middleware.filter import local_filter_middleware
 from apscheduler.schedulers.gevent import GeventScheduler
 from web3.middleware.geth_poa import geth_poa_middleware
 from apscheduler.jobstores.redis import RedisJobStore
@@ -28,7 +30,10 @@ COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_c
 
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getVirtualPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
-BRIDGE_ABI = """[{"inputs":[{"internalType":"address","name":"tokenAddress","type":"address"}],"name":"getFeeBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
+with open(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'explorer',
+                     'abis', 'bridge.json')) as f:
+    BRIDGE_ABI = json.load(f)['abi']
 
 COVALENT_APIKEY = cast(str, os.getenv('COVALENT_APIKEY'))
 MORALIS_APIKEY = cast(str, os.getenv('MORALIS_APIKEY'))
@@ -50,6 +55,9 @@ else:
                         decode_responses=True)
     REDIS_HOST = os.environ['REDIS_HOST']
     REDIS_PORT = int(os.environ['REDIS_PORT'])
+
+# We use this for processes to interact w/ eachother.
+MESSAGE_QUEUE_REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/3'
 
 _POPULATE_CACHE = os.getenv('POPULATE_CACHE')
 if _POPULATE_CACHE is not None:
@@ -132,7 +140,8 @@ SYN_DATA = {
         "address": "0x080f6aed32fc474dd5717105dba5ea57268f46eb",
         "pool": "0x0db3fe3b770c95a0b99d1ed6f2627933466c0dd8",
         "nusd": "0x2913e812cf0dcca30fb28e6cac3d2dcff4497688",
-        "usdlp": "0xe264cb5a941f98a391b9d5244378edf79bf5c19e"
+        "usdlp": "0xe264cb5a941f98a391b9d5244378edf79bf5c19e",
+        "bridge": "0x6f4e8eba4d337f874ab57478acc2cb5bacdc19c9",
     },
     "fantom": {
         "rpc": os.getenv('FTM_RPC'),
@@ -167,10 +176,14 @@ for key, value in SYN_DATA.items():
     if key != 'ethereum':
         w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
+    w3.middleware_onion.add(local_filter_middleware)
+
     value.update({
         'contract':
         w3.eth.contract(Web3.toChecksumAddress(value['address']),
-                        abi=TOTAL_SUPPLY_ABI)
+                        abi=TOTAL_SUPPLY_ABI),
+        'w3':
+        w3,
     })
 
     if value.get('pool') is not None:
@@ -238,6 +251,13 @@ TOKEN_DECIMALS = {
         '0x049d68029688eabf473097a2fc38ef61633a3c7a': 6,
         '0x43cf58380e69594fa2a5682de484ae00edd83e94': 18,
         '0x82f0b8b456c1a451378467398982d4834b6829c1': 18,
+        '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,
+    },
+    'harmony': {
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2': 18,
+        '0xef977d2f931c1978db5f6747666fa1eacb0d0339': 18,
+        '0x985458e523db3d53125813ed68c274899e9dfab4': 6,
+        '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f': 6,
         '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,
     },
 }

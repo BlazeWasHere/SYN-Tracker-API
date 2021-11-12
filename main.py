@@ -9,7 +9,8 @@
 
 import syn
 
-app = syn.init()
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=1337, debug=True)
+    app, socketio = syn.init(debug=True)
+    socketio.run(app, host='0.0.0.0', port=1337, debug=True)
+else:
+    app, socketio = syn.init()
