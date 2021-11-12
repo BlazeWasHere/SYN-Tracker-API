@@ -17,7 +17,7 @@ from gevent import Greenlet
 from web3 import Web3
 import gevent
 
-from syn.utils.explorer.data import ETH_TOPICS, EVENTS, TOPICS, Direction
+from syn.utils.explorer.data import EVENTS, TOPICS, Direction
 from syn.utils.data import BRIDGE_ABI, SYN_DATA
 
 CB = Callable[[AttributeDict, str, AttributeDict, str, Direction], None]
@@ -67,12 +67,10 @@ def start(cb: CB):
     for chain, x in SYN_DATA.items():
         _address = Web3.toChecksumAddress(x['bridge'])
 
-        _topics = ETH_TOPICS if chain == 'Ethereum' else TOPICS
-
         filter = x['w3'].eth.filter({
             'address': _address,
             'fromBlock': 'latest',
-            'topics': [list(_topics)],
+            'topics': [list(TOPICS)],
         })
 
         jobs.append(

@@ -31,7 +31,18 @@ def _callback(event: AttributeDict, chain: str, data: AttributeDict,
     _chain = 'ethereum' if chain == 'eth' else chain
 
     if direction == Direction.OUT:
-        from_token = TOKENS_IN_POOL[_chain][data['tokenIndexFrom']]
+        x = CHAINS[data['chainId']]
+        to_chain = 'ethereum' if x == 'eth' else x
+
+        if method not in ['TokenRedeem', 'TokenRedeemAndRemove']:
+            from_token = TOKENS_IN_POOL[_chain][data['tokenIndexFrom']]
+            to_token = TOKENS_IN_POOL[to_chain][data['tokenIndexTo']]
+        elif method == 'TokenRedeem':
+            to_token = from_token = data['token']
+        else:
+            from_token = data['token']
+            to_token = TOKENS_IN_POOL[to_chain][data['swapTokenIndex']]
+
         _time = datetime.now().timestamp()
 
         json = {
@@ -42,11 +53,13 @@ def _callback(event: AttributeDict, chain: str, data: AttributeDict,
             'time': _time,
             'txhash': event['transactionHash'].hex(),
             'from_token': from_token,
+            'to_token': to_token,
         }
 
         pending_addresses[data['to']] = {
             'chain': chain,
             'time': _time,
+            'from_token': from_token,
         }
 
         socketio.emit('bridge', json, broadcast=True)
@@ -62,7 +75,9 @@ def _callback(event: AttributeDict, chain: str, data: AttributeDict,
                 'to_chain': chain,
                 'fee': data['fee'] / 10**18,  # Fee is in nUSD/nETH
                 'to_token': to_token,
+                'from_token': _data['from_token'],
                 'amount': _convert_amount(chain, to_token, data['amount']),
+                'txhash': event['transactionHash'].hex(),
             }
 
             if method != 'mint':
