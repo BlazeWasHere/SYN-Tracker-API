@@ -156,7 +156,13 @@ SYN_DATA = {
         'address': '0xE55e19Fb4F2D85af758950957714292DAC1e25B2',
         "pool": "0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
-    }
+    },
+    "boba": {
+        "rpc": os.getenv('BOBA_RPC'),
+        "address": '0xb554A55358fF0382Fb21F0a478C3546d1106Be8c',
+        "pool": "0x75ff037256b36f15919369ac58695550be72fead",
+        "bridge": "0x432036208d2717394d2614d6697c46df3ed69540",
+    },
 }
 
 TREASURY = {
@@ -259,6 +265,14 @@ TOKEN_DECIMALS = {
         '0x985458e523db3d53125813ed68c274899e9dfab4': 6,
         '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f': 6,
         '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,
+    },
+    'boba': {
+        '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc': 6,
+        '0xb554a55358ff0382fb21f0a478c3546d1106be8c': 18,
+        '0x5de1677344d3cb0d7d465c10b72a8f60699c062d': 6,
+        '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000': 18,
+        '0x96419929d7949d6a801a6909c145c8eef6a40431': 18,
+        '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 18,
     },
 }
 

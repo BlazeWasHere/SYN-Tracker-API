@@ -22,6 +22,7 @@ CHAINS = {
     137: 'polygon',
     56: 'bsc',
     1: 'eth',
+    288: 'boba',
 }
 
 
@@ -58,9 +59,6 @@ TOPICS = {
     # TokenMint
     '0xbf14b9fde87f6e1c29a7e0787ad1d0d64b4648d8ae63da21524d9fd0f283dd38':
     Direction.IN,
-}
-
-ETH_TOPICS = {
     # TokenDepositAndSwap
     '0x79c15604b92ef54d3f61f0c40caab8857927ca3d5092367163b4562c1699eb5f':
     Direction.OUT,
