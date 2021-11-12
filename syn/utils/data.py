@@ -251,6 +251,7 @@ TOKEN_DECIMALS = {
         '0x2913e812cf0dcca30fb28e6cac3d2dcff4497688': 18,
         '0xe264cb5a941f98a391b9d5244378edf79bf5c19e': 18,
         '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': 18,
+        '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e': 18,
     },
     'fantom': {
         '0x04068da6c83afcfa0e13ba15a6696662335d5b75': 6,

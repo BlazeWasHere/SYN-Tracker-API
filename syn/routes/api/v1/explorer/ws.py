@@ -26,65 +26,78 @@ def _convert_amount(chain: str, token: str, amount: int) -> float:
     return amount / 10**TOKEN_DECIMALS[chain][token.lower()]
 
 
-def _callback(event: AttributeDict, chain: str, data: AttributeDict,
+def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
               method: str, direction: Direction) -> None:
-    _chain = 'ethereum' if chain == 'eth' else chain
+    chain = 'eth' if _chain == 'ethereum' else _chain
 
     if direction == Direction.OUT:
-        x = CHAINS[data['chainId']]
-        to_chain = 'ethereum' if x == 'eth' else x
+        to_chain = CHAINS[data['chainId']]
 
-        if method not in ['TokenRedeem', 'TokenRedeemAndRemove']:
-            from_token = TOKENS_IN_POOL[_chain][data['tokenIndexFrom']]
-            to_token = TOKENS_IN_POOL[to_chain][data['tokenIndexTo']]
-        elif method == 'TokenRedeem':
-            to_token = from_token = data['token']
-        else:
-            from_token = data['token']
-            to_token = TOKENS_IN_POOL[to_chain][data['swapTokenIndex']]
+        try:
+            if method not in ['TokenRedeem', 'TokenRedeemAndRemove']:
+                from_token = TOKENS_IN_POOL[_chain][data['tokenIndexFrom']]
+                to_token = TOKENS_IN_POOL[to_chain][data['tokenIndexTo']]
+            elif method == 'TokenRedeem':
+                to_token = from_token = data['token']
+            else:
+                from_token = data['token']
+                to_token = TOKENS_IN_POOL[to_chain][data['swapTokenIndex']]
 
-        _time = datetime.now().timestamp()
-
-        json = {
-            'address': data['to'],
-            'to_chain': CHAINS[data['chainId']],
-            'from_chain': chain,
-            'amount': _convert_amount(chain, from_token, data['amount']),
-            'time': _time,
-            'txhash': event['transactionHash'].hex(),
-            'from_token': from_token,
-            'to_token': to_token,
-        }
-
-        pending_addresses[data['to']] = {
-            'chain': chain,
-            'time': _time,
-            'from_token': from_token,
-        }
-
-        socketio.emit('bridge', json, broadcast=True)
-    elif direction == Direction.IN:
-        if data['to'] in pending_addresses:
-            _data = pending_addresses[data['to']]
-            to_token = TOKENS_IN_POOL[_chain][data['tokenIndexTo']]
+            _time = datetime.now().timestamp()
 
             json = {
                 'address': data['to'],
-                'time_taken': datetime.now().timestamp() - _data['time'],
-                'from_chain': _data['chain'],
-                'to_chain': chain,
-                'fee': data['fee'] / 10**18,  # Fee is in nUSD/nETH
-                'to_token': to_token,
-                'from_token': _data['from_token'],
-                'amount': _convert_amount(chain, to_token, data['amount']),
+                'to_chain': CHAINS[data['chainId']],
+                'from_chain': chain,
+                'amount': _convert_amount(chain, from_token, data['amount']),
+                'time': _time,
                 'txhash': event['transactionHash'].hex(),
+                'from_token': from_token,
+                'to_token': to_token,
             }
 
-            if method != 'mint':
-                json.update({'success': data['swapSuccess']})
+            pending_addresses[data['to']] = {
+                'chain': chain,
+                'time': _time,
+                'from_token': from_token,
+            }
 
-            socketio.emit('confirm', json, broadcast=True)
-            del pending_addresses[data['to']]
+            socketio.emit('bridge', json, broadcast=True)
+
+        except Exception as e:
+            print(chain, event, data, method)
+            raise
+    elif direction == Direction.IN:
+        if data['to'] in pending_addresses:
+            try:
+                _data = pending_addresses[data['to']]
+
+                if method != 'TokenWithdraw':
+                    to_token = TOKENS_IN_POOL[_chain][data['tokenIndexTo']]
+                else:
+                    to_token = data['token']
+
+                json = {
+                    'address': data['to'],
+                    'time_taken': datetime.now().timestamp() - _data['time'],
+                    'from_chain': _data['chain'],
+                    'to_chain': chain,
+                    'fee': data['fee'] / 10**18,  # Fee is in nUSD/nETH
+                    'to_token': to_token,
+                    'from_token': _data['from_token'],
+                    'amount': _convert_amount(chain, to_token, data['amount']),
+                    'txhash': event['transactionHash'].hex(),
+                }
+
+                if method != 'mint':
+                    json.update({'success': data['swapSuccess']})
+
+                socketio.emit('confirm', json, broadcast=True)
+                del pending_addresses[data['to']]
+
+            except Exception as e:
+                print(chain, event, data, method)
+                raise
 
 
 def start() -> None:
