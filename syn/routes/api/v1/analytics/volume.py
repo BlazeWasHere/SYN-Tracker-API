@@ -35,7 +35,7 @@ def filter_factory(key: str,
         if chain == 'ethereum':
             address = BRIDGES[chain][0]
         else:
-            address = SYN_DATA[chain]['metapool']
+            address = SYN_DATA[chain]['pool']
 
     def filter(x: Dict[str, str]) -> bool:
         return x['to_address'] == address.lower() \
