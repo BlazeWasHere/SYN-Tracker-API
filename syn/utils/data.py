@@ -259,6 +259,7 @@ TOKEN_DECIMALS = {
         '0x43cf58380e69594fa2a5682de484ae00edd83e94': 18,
         '0x82f0b8b456c1a451378467398982d4834b6829c1': 18,
         '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2': 18,
     },
     'harmony': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': 18,

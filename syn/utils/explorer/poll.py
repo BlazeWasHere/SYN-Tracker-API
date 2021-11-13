@@ -20,7 +20,8 @@ import gevent
 from syn.utils.explorer.data import EVENTS, TOPICS, Direction
 from syn.utils.data import BRIDGE_ABI, SYN_DATA
 
-CB = Callable[[AttributeDict, str, AttributeDict, str, Direction], None]
+CB = Callable[
+    [AttributeDict, str, AttributeDict, str, Direction, AttributeDict], None]
 pool = Pool()
 
 
@@ -49,7 +50,7 @@ def handle_event(event: AttributeDict, chain: str, contract: Contract,
         raise
 
     data = data[0]['args']
-    cb(event, chain, data, method, direction)
+    cb(event, chain, data, method, direction, receipt.logs)
 
 
 def log_loop(filter, chain: str, contract: Contract, poll: int, cb: CB):

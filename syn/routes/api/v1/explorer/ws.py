@@ -27,7 +27,7 @@ def _convert_amount(chain: str, token: str, amount: int) -> float:
 
 
 def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
-              method: str, direction: Direction) -> None:
+              method: str, direction: Direction, logs: AttributeDict) -> None:
     chain = 'eth' if _chain == 'ethereum' else _chain
 
     if direction == Direction.OUT:
@@ -35,7 +35,7 @@ def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
 
         try:
             if method not in ['TokenRedeem', 'TokenRedeemAndRemove']:
-                from_token = TOKENS_IN_POOL[_chain][data['tokenIndexFrom']]
+                from_token = logs[0].address
                 to_token = TOKENS_IN_POOL[to_chain][data['tokenIndexTo']]
             elif method == 'TokenRedeem':
                 to_token = from_token = data['token']
@@ -64,7 +64,7 @@ def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
 
             socketio.emit('bridge', json, broadcast=True)
 
-        except Exception as e:
+        except:
             print(chain, event, data, method)
             raise
     elif direction == Direction.IN:
@@ -89,13 +89,13 @@ def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
                     'txhash': event['transactionHash'].hex(),
                 }
 
-                if method != 'mint':
+                if method not in ['mint', 'TokenMint']:
                     json.update({'success': data['swapSuccess']})
 
                 socketio.emit('confirm', json, broadcast=True)
                 del pending_addresses[data['to']]
 
-            except Exception as e:
+            except:
                 print(chain, event, data, method)
                 raise
 

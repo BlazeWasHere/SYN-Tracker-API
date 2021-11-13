@@ -21,7 +21,7 @@ CHAINS = {
     250: 'fantom',
     137: 'polygon',
     56: 'bsc',
-    1: 'eth',
+    1: 'ethereum',
     288: 'boba',
 }
 
