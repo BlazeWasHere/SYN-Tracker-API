@@ -49,7 +49,7 @@ def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
                 'address': data['to'],
                 'to_chain': CHAINS[data['chainId']],
                 'from_chain': chain,
-                'amount': _convert_amount(chain, from_token, data['amount']),
+                'amount': data['amount'] / 10**18,  # Fee is in nUSD/nETH
                 'time': _time,
                 'txhash': event['transactionHash'].hex(),
                 'from_token': from_token,
@@ -85,7 +85,7 @@ def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
                     'fee': data['fee'] / 10**18,  # Fee is in nUSD/nETH
                     'to_token': to_token,
                     'from_token': _data['from_token'],
-                    'amount': _convert_amount(chain, to_token, data['amount']),
+                    'amount': data['amount'] / 10**18,  # Ditto.
                     'txhash': event['transactionHash'].hex(),
                 }
 
