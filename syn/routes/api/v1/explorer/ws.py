@@ -93,7 +93,7 @@ def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
                     'txhash': event['transactionHash'].hex(),
                 }
 
-                if method not in ['mint', 'TokenMint']:
+                if 'swapSuccess' in data:
                     json.update({'success': data['swapSuccess']})
 
                 socketio.emit('confirm', json, broadcast=True)
