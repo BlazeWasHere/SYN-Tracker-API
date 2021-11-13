@@ -85,7 +85,7 @@ def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
                     'fee': data['fee'] / 10**18,  # Fee is in nUSD/nETH
                     'to_token': to_token,
                     'from_token': _data['from_token'],
-                    'amount': data['amount'] / 10**18,  # Ditto.
+                    'amount': _convert_amount(chain, to_token, data['amount']),
                     'txhash': event['transactionHash'].hex(),
                 }
 
