@@ -59,7 +59,10 @@ else:
 # We use this for processes to interact w/ eachother.
 MESSAGE_QUEUE_REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/3'
 # We use this for storing eth_GetLogs and stuff related to that.
-LOGS_REDIS_URL = redis.Redis(REDIS_HOST, REDIS_PORT, db=4)
+LOGS_REDIS_URL = redis.Redis(REDIS_HOST,
+                             REDIS_PORT,
+                             db=4,
+                             decode_responses=True)
 
 _POPULATE_CACHE = os.getenv('POPULATE_CACHE')
 if _POPULATE_CACHE is not None:
