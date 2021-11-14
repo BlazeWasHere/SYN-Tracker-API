@@ -72,8 +72,7 @@ def pending_adminfees_chain(chain: str):
         block = int(block)
 
     # The tokens can be found here.
-    _chain = 'eth' if chain == 'ethereum' else chain
-    ret = get_treasury_erc20_balances(_chain)
+    ret = get_treasury_erc20_balances(chain)
     tokens = [Web3.toChecksumAddress(x) for x in ret.keys()]
 
     try:

@@ -69,7 +69,7 @@ def volume_eth():
     for x in ETH_TOKENS:
         x = 'address' if x == 'syn' else x
         jobs.append(
-            pool.spawn(get_chain_volume, address, 'eth',
+            pool.spawn(get_chain_volume, address, 'ethereum',
                        filter_factory(x, 'ethereum')))
 
     ret: List[Greenlet] = gevent.joinall(jobs)
@@ -92,7 +92,8 @@ def volume_eth_filter(token: str):
         token = 'address'
 
     address = BRIDGES['ethereum'][0]
-    ret = get_chain_volume(address, 'eth', filter_factory(token, 'ethereum'))
+    ret = get_chain_volume(address, 'ethereum',
+                           filter_factory(token, 'ethereum'))
     pool.spawn(store_volume_dict_to_redis, 'ethereum', ret)
 
     return jsonify(ret)

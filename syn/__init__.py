@@ -52,15 +52,19 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
                            url_prefix='/api/v1/analytics/treasury')
 
     if POPULATE_CACHE:
-        from .utils.wrappa.rpc import get_logs
+        from .utils.wrappa.rpc import get_logs, bridge_callback
 
         jobs: List[Greenlet] = []
 
         for chain in SYN_DATA:
             if chain in ['harmony', 'bsc', 'polygon']:
-                jobs.append(gevent.spawn(get_logs, chain, max_blocks=1024))
+                jobs.append(
+                    gevent.spawn(get_logs,
+                                 chain,
+                                 bridge_callback,
+                                 max_blocks=1024))
             else:
-                jobs.append(gevent.spawn(get_logs, chain))
+                jobs.append(gevent.spawn(get_logs, chain, bridge_callback))
 
     from .cron import update_caches
 

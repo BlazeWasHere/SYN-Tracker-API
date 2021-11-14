@@ -37,8 +37,6 @@ def get_admin_fees(chain: str,
                    block: Union[int, str] = 'latest',
                    handle_decimals: bool = False,
                    tokens: List[str] = None) -> Dict[str, float]:
-    _chain = 'eth' if chain == 'ethereum' else chain
-
     if tokens is None:
         tokens = get_all_tokens_in_pool(chain)
 
@@ -49,7 +47,7 @@ def get_admin_fees(chain: str,
             res[token] = get_admin_fee(chain, i, block)
 
             if handle_decimals:
-                res[token] /= 10**TOKEN_DECIMALS[_chain][token.lower()]
+                res[token] /= 10**TOKEN_DECIMALS[chain][token.lower()]
 
     return res
 
@@ -69,8 +67,6 @@ def get_pending_admin_fees(chain: str,
                            block: Union[int, str] = 'latest',
                            handle_decimals: bool = False,
                            tokens: List[str] = None) -> Dict[str, float]:
-    _chain = 'eth' if chain == 'ethereum' else chain
-
     if tokens is None:
         tokens = get_all_tokens_in_pool(chain)
 
@@ -81,7 +77,7 @@ def get_pending_admin_fees(chain: str,
             res[token] = get_pending_admin_fee(chain, token, block)
 
             if handle_decimals:
-                res[token] /= 10**TOKEN_DECIMALS[_chain][token.lower()]
+                res[token] /= 10**TOKEN_DECIMALS[chain][token.lower()]
 
     return res
 

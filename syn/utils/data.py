@@ -171,7 +171,7 @@ SYN_DATA = {
 }
 
 TREASURY = {
-    'eth': '0x67F60b0891EBD842Ebe55E4CCcA1098d7Aac1A55',
+    'ethereum': '0x67F60b0891EBD842Ebe55E4CCcA1098d7Aac1A55',
     'bsc': '0x0056580B0E8136c482b03760295F912279170D46',
     'polygon': '0xBdD38B2eaae34C9FCe187909e81e75CBec0dAA7A',
     'avalanche': '0xd7aDA77aa0f82E6B3CF5bF9208b0E5E1826CD79C',
@@ -212,7 +212,7 @@ for key, value in SYN_DATA.items():
         })
 
 TOKEN_DECIMALS = {
-    'eth': {
+    'ethereum': {
         '0x71ab77b7dbb4fa7e017bc15090b2163221420282': 18,
         '0x0f2d719407fdbeff09d87557abb7232601fd9f29': 18,
         '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 18,

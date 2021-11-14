@@ -147,6 +147,10 @@ class Moralis(object):
 			"value": "34422533639057896327970"
 		}
 		"""
+
+        if chain == 'ethereum':
+            chain == 'eth'
+
         return self._paginate('GET',
                               f'/{address}/erc20/transfers?chain={chain}',
                               offset=offset,

@@ -34,7 +34,7 @@ class CoingeckoIDS(Enum):
 
 
 CUSTOM = {
-    'eth': {
+    'ethereum': {
         # nUSD
         '0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f': 1,
     },
@@ -59,7 +59,7 @@ CUSTOM = {
 }
 
 ADDRESS_TO_CGID = {
-    'eth': {
+    'ethereum': {
         '0x71ab77b7dbb4fa7e017bc15090b2163221420282': CoingeckoIDS.HIGH,
         '0x0f2d719407fdbeff09d87557abb7232601fd9f29': CoingeckoIDS.SYN,
         '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': CoingeckoIDS.ETH,

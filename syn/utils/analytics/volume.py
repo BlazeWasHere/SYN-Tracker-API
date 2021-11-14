@@ -147,8 +147,7 @@ def get_chain_volume(
             key = str(dateutil.parser.parse(x['block_timestamp']).date())
             _address = x['address']
 
-            if x['address'] == SYN_DATA['ethereum' if chain ==
-                                        'eth' else chain]['address'].lower():
+            if x['address'] == SYN_DATA[chain]['address'].lower():
                 price = get_historic_price_syn(key)
             else:
                 price = get_historic_price_for_address(chain, x['address'],
@@ -196,11 +195,8 @@ def get_chain_volume(
 
 
 @timed_cache(360, maxsize=50)
-def get_chain_metapool_volume(
-            metapool: str,
-            nusd: str,
-            usdlp: str,
-            chain: str) -> Dict[str, Any]:
+def get_chain_metapool_volume(metapool: str, nusd: str, usdlp: str,
+                              chain: str) -> Dict[str, Any]:
     transfers_usdlp = covalent.transfers_v2(metapool, usdlp, chain)
     usdlp_is_to_mp: Dict[str, bool] = {}
 
@@ -220,9 +216,10 @@ def get_chain_metapool_volume(
                 for tx in y['transfers']:
                     is_nusd_to_mp = (tx['to_address'] == metapool)
                     if is_nusd_to_mp != usdlp_is_to_mp[tx['tx_hash']]:
-                        volume = int(tx['delta']) / 10 ** tx['contract_decimals']
+                        volume = int(tx['delta']) / 10**tx['contract_decimals']
                         key = str(
-                            dateutil.parser.parse(tx['block_signed_at']).date())
+                            dateutil.parser.parse(
+                                tx['block_signed_at']).date())
 
                         add_to_dict(res, key, volume)
                         volume_total += volume
@@ -231,9 +228,4 @@ def get_chain_metapool_volume(
 
     # total, total_usd, total_usd_current = create_totals(res, chain)
 
-    return {
-        'stats': {
-            'volume': volume_total
-        },
-        'data': res
-    }
+    return {'stats': {'volume': volume_total}, 'data': res}

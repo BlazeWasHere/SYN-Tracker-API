@@ -7,15 +7,19 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, List, Dict, TypeVar, cast
+from typing import Any, List, Dict, TypeVar, Union, cast
 from datetime import datetime, timedelta
 from collections import defaultdict
 import json
 
+from eth_typing.evm import ChecksumAddress
+from web3.types import LogReceipt
+from web3.main import Web3
 from redis import Redis
 import dateutil.parser
 
-from .data import REDIS
+from .explorer.data import Direction, TOKENS_IN_POOL
+from .data import REDIS, TOKEN_DECIMALS
 
 KT = TypeVar('KT')
 VT = TypeVar('VT')
@@ -116,3 +120,34 @@ def get_all_keys(pattern: str,
         res[key] = ret
 
     return res
+
+
+def get_address_from_log_data(
+    chain: str,
+    method: str,
+    log: LogReceipt,
+    data: dict,
+    direction: Direction,
+    lower: bool = True,
+) -> Union[str, ChecksumAddress]:
+    """Get from/to_token from searching through `data` and `log` depending 
+    on the `method`"""
+
+    if direction == Direction.OUT:
+        if method in ['TokenRedeem', 'TokenRedeemAndRemove', 'TokenDeposit']:
+            address = data['token']
+        else:
+            address = log['address']
+    elif direction == Direction.IN:
+        if method in ['TokenWithdraw', 'TokenMint']:
+            address = data['token']
+        elif method == 'TokenWithdrawAndRemove':
+            address = TOKENS_IN_POOL[chain][data['swapTokenIndex']]
+        else:
+            address = TOKENS_IN_POOL[chain][data['tokenIndexTo']]
+
+    return Web3.toChecksumAddress(address) if not lower else address.lower()
+
+
+def convert_amount(chain: str, token: str, amount: int) -> float:
+    return amount / 10**TOKEN_DECIMALS[chain][token.lower()]
