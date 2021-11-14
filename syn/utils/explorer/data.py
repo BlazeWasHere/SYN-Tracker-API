@@ -27,6 +27,9 @@ CHAINS = {
 
 
 class Direction(Enum):
+    def __str__(self) -> str:
+        return self.name
+
     OUT = 0
     IN = 1
 
