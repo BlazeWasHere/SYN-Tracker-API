@@ -34,6 +34,10 @@ with open(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), 'explorer',
                      'abis', 'bridge.json')) as f:
     BRIDGE_ABI = json.load(f)['abi']
+with open(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'explorer',
+                     'abis', 'oldBridge.json')) as f:
+    OLDBRIDGE_ABI = json.load(f)['abi']
 
 COVALENT_APIKEY = cast(str, os.getenv('COVALENT_APIKEY'))
 MORALIS_APIKEY = cast(str, os.getenv('MORALIS_APIKEY'))

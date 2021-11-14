@@ -17,7 +17,7 @@ from web3 import Web3
 import gevent
 
 from syn.utils.helpers import convert_amount, get_address_from_log_data
-from syn.utils.data import BRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL
+from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL
 from syn.utils.explorer.poll import figure_out_method
 from syn.utils.explorer.data import TOPICS, Direction
 
@@ -57,18 +57,19 @@ def _store_if_not_exists(chain: str, address: str, block: int, tx_index: int,
         LOGS_REDIS_URL.set(f'{chain}:logs:{address}:MAX_BLOCK_STORED', block)
 
 
-def bridge_callback(chain: str, address: str, log: LogReceipt) -> None:
+def bridge_callback(chain: str,
+                    address: str,
+                    log: LogReceipt,
+                    abi: str = BRIDGE_ABI) -> None:
     w3: Web3 = SYN_DATA[chain]['w3']
-    contract = w3.eth.contract(w3.toChecksumAddress(address), abi=BRIDGE_ABI)
+    contract = w3.eth.contract(w3.toChecksumAddress(address), abi=abi)
 
     receipt = w3.eth.wait_for_transaction_receipt(log['transactionHash'],
                                                   timeout=10)
 
     ret = figure_out_method(contract, receipt)
     if ret is None:
-        #print(chain, address, receipt)
-        return
-        #raise
+        return bridge_callback(chain, address, log, OLDBRIDGE_ABI)
 
     data, direction, method = ret
     data = data[0]['args']  # type: ignore
@@ -159,6 +160,8 @@ def get_logs(
             #                     log['transactionIndex'], data)
             #callback(chain, address, log)
             jobs.append(gevent.spawn(callback, chain, address, log))
+            LOGS_REDIS_URL.set(f'{chain}:logs:{address}:MAX_BLOCK_STORED',
+                               log['blockNumber'])
 
         start_block += max_blocks + 1
         y = round(time.time() - _start, 2)
