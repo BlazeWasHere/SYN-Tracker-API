@@ -31,6 +31,7 @@ class CoingeckoIDS(Enum):
     ETH = 'ethereum'
     DOG = 'the-doge-nft'
     NRV = 'nerve-finance'
+    MIM = 'magic-internet-money'
 
 
 CUSTOM = {
@@ -56,6 +57,18 @@ CUSTOM = {
         # nUSD
         '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46': 1,
     },
+    'arbitrum': {
+        # nUSD
+        '0x2913e812cf0dcca30fb28e6cac3d2dcff4497688': 1,
+    },
+    'fantom': {
+        # nUSD
+        '0xed2a7edd7413021d440b09d654f3b87712abab66': 1,
+    },
+    'harmony': {
+        # nUSD
+        '0xed2a7edd7413021d440b09d654f3b87712abab66': 1,
+    }
 }
 
 ADDRESS_TO_CGID = {
@@ -88,6 +101,25 @@ ADDRESS_TO_CGID = {
         '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664': CoingeckoIDS.USDC,
         '0xc7198437980c041c805a1edcba50c1ce5db95118': CoingeckoIDS.USDT,
     },
+    'arbitrum': {
+        '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,
+        '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e': CoingeckoIDS.ETH,
+        '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8': CoingeckoIDS.USDC,
+        '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': CoingeckoIDS.USDT,
+        '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': CoingeckoIDS.MIM,
+    },
+    'fantom': {
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
+        '0x82f0b8b456c1a451378467398982d4834b6829c1': CoingeckoIDS.MIM,
+        '0x04068da6c83afcfa0e13ba15a6696662335d5b75': CoingeckoIDS.USDC,
+        '0x049d68029688eabf473097a2fc38ef61633a3c7a': CoingeckoIDS.USDT,
+    },
+    'harmony': {
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
+        '0xef977d2f931c1978db5f6747666fa1eacb0d0339': CoingeckoIDS.DAI,
+        '0x985458e523db3d53125813ed68c274899e9dfab4': CoingeckoIDS.USDC,
+        '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f': CoingeckoIDS.USDT,
+    }
 }
 
 
