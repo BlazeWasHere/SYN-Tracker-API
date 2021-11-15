@@ -30,13 +30,12 @@ COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_c
 
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getVirtualPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
-with open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'explorer',
-                     'abis', 'bridge.json')) as f:
+
+_abis_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          'explorer', 'abis')
+with open(os.path.join(_abis_path, 'bridge.json')) as f:
     BRIDGE_ABI = json.load(f)['abi']
-with open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'explorer',
-                     'abis', 'oldBridge.json')) as f:
+with open(os.path.join(_abis_path, 'oldBridge.json')) as f:
     OLDBRIDGE_ABI = json.load(f)['abi']
 
 COVALENT_APIKEY = cast(str, os.getenv('COVALENT_APIKEY'))
@@ -284,6 +283,7 @@ TOKEN_DECIMALS = {
         '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000': 18,
         '0x96419929d7949d6a801a6909c145c8eef6a40431': 18,
         '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 18,
+        '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35': 18,
     },
 }
 

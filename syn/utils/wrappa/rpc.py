@@ -16,13 +16,14 @@ from hexbytes import HexBytes
 from web3 import Web3
 import gevent
 
-from syn.utils.helpers import convert_amount, get_address_from_log_data
+from syn.utils.helpers import convert_amount, get_address_from_log_data, \
+    get_gas_paid_for_tx
 from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL
 from syn.utils.explorer.poll import figure_out_method
 from syn.utils.explorer.data import TOPICS, Direction
 
 start_blocks = {
-    'ethereum': 13033669,
+    'ethereum': 13136427,
     'arbitrum': 657404,
     'avalanche': 3376709,
     'bsc': 10065475,
@@ -43,18 +44,6 @@ def convert(value: T) -> Union[T, str, List]:
         return [convert(item) for item in value]
     else:
         return value
-
-
-def _store_if_not_exists(chain: str, address: str, block: int, tx_index: int,
-                         data: Dict[str, Any]):
-    key = f'{chain}:logs:{address}:{block}-{tx_index}'
-    value = json.dumps({
-        'transactionHash': data['transactionHash'],
-        'topics': data['topics']
-    })
-
-    if LOGS_REDIS_URL.setnx(key, value):
-        LOGS_REDIS_URL.set(f'{chain}:logs:{address}:MAX_BLOCK_STORED', block)
 
 
 def bridge_callback(chain: str,
@@ -92,10 +81,14 @@ def bridge_callback(chain: str,
             'txCount': 1,
         }
     elif direction == Direction.IN:
+        # All `IN` txs are from the validator; let's track how much gas they pay.
+        gas = get_gas_paid_for_tx(chain, w3, log['transactionHash'])
+
         value = {
             'amount': convert_amount(chain, asset, data['amount']),
-            'fee': data['fee'] / 10**18,  # This is in nUSD/nETH
+            'fees': data['fee'] / 10**18,  # This is in nUSD/nETH
             'txCount': 1,
+            'validatorGas': gas,
         }
     else:
         raise RuntimeError(f'sanity check? got {direction}')
@@ -104,8 +97,8 @@ def bridge_callback(chain: str,
         ret = json.loads(ret)
 
         if direction == Direction.IN:
-            ret['fee'] += value['amount']
-            ret['txCount'] += 1
+            ret['validatorGas'] += value['validatorGas']
+            ret['fees'] += value['amount']
 
         ret['amount'] += value['amount']
         ret['txCount'] += 1
@@ -113,6 +106,10 @@ def bridge_callback(chain: str,
         LOGS_REDIS_URL.set(key, json.dumps(ret))
     else:
         LOGS_REDIS_URL.set(key, json.dumps(value))
+
+    # TODO: What if another thread saves later but is actually behind us?
+    LOGS_REDIS_URL.set(f'{chain}:logs:{address}:MAX_BLOCK_STORED',
+                       log['blockNumber'])
 
 
 def get_logs(
@@ -160,8 +157,6 @@ def get_logs(
             #                     log['transactionIndex'], data)
             #callback(chain, address, log)
             jobs.append(gevent.spawn(callback, chain, address, log))
-            LOGS_REDIS_URL.set(f'{chain}:logs:{address}:MAX_BLOCK_STORED',
-                               log['blockNumber'])
 
         start_block += max_blocks + 1
         y = round(time.time() - _start, 2)

@@ -12,8 +12,8 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 import json
 
+from web3.types import LogReceipt, _Hash32
 from eth_typing.evm import ChecksumAddress
-from web3.types import LogReceipt
 from web3.main import Web3
 from redis import Redis
 import dateutil.parser
@@ -105,7 +105,8 @@ def store_volume_dict_to_redis(chain: str, _dict: Dict[str, Any]) -> None:
 
 def get_all_keys(pattern: str,
                  serialize: bool = False,
-                 client: Redis = REDIS) -> Dict[str, Any]:
+                 client: Redis = REDIS,
+                 index: int = 1) -> Dict[str, Any]:
     res = cast(Dict[str, Any], defaultdict(dict))
 
     for key in client.keys(pattern):
@@ -115,7 +116,8 @@ def get_all_keys(pattern: str,
             if ret is not None:
                 ret = json.loads(ret)
 
-            key = key.split(':')[1]
+            if index:
+                key = key.split(':')[index]
 
         res[key] = ret
 
@@ -151,3 +153,21 @@ def get_address_from_log_data(
 
 def convert_amount(chain: str, token: str, amount: int) -> float:
     return amount / 10**TOKEN_DECIMALS[chain][token.lower()]
+
+
+def get_gas_paid_for_tx(chain: str, w3: Web3, txhash: _Hash32) -> float:
+    # Arbitrum has this crazy gas bidding system, this isn't some
+    # sort of auction now is it?
+    if chain == 'arbitrum':
+        receipt = w3.eth.get_transaction_receipt(txhash)
+
+        paid = receipt['feeStats']['paid']  # type: ignore
+        paid_for_gas = 0
+
+        for key in paid:
+            paid_for_gas += int(paid[key][2:], 16)
+
+        return paid_for_gas / (1e9 * receipt['gasUsed'])
+
+    ret = w3.eth.get_transaction(txhash)
+    return ret['gasPrice'] / 1e9  # type: ignore
