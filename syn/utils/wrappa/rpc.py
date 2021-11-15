@@ -57,7 +57,7 @@ def bridge_callback(chain: str,
     contract = w3.eth.contract(w3.toChecksumAddress(address), abi=abi)
 
     receipt = w3.eth.wait_for_transaction_receipt(log['transactionHash'],
-                                                  timeout=10)
+                                                  timeout=60)
 
     ret = figure_out_method(contract, receipt)
     if ret is None:
