@@ -13,12 +13,14 @@ import json
 
 from web3.types import FilterParams, LogReceipt
 from hexbytes import HexBytes
+from gevent.pool import Pool
 from web3 import Web3
 import gevent
 
 from syn.utils.helpers import convert_amount, get_address_from_log_data, \
     get_gas_paid_for_tx
-from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL
+from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
+    OLDERBRIDGE_ABI
 from syn.utils.explorer.poll import figure_out_method
 from syn.utils.explorer.data import TOPICS, Direction
 
@@ -33,6 +35,7 @@ start_blocks = {
     'boba': 16188,
 }
 
+pool = Pool(size=64)
 MAX_BLOCKS = 5000
 T = TypeVar('T')
 
@@ -58,7 +61,16 @@ def bridge_callback(chain: str,
 
     ret = figure_out_method(contract, receipt)
     if ret is None:
-        return bridge_callback(chain, address, log, OLDBRIDGE_ABI)
+        if abi == OLDERBRIDGE_ABI:
+            raise TypeError(receipt, chain)
+        elif abi == OLDBRIDGE_ABI:
+            abi = OLDERBRIDGE_ABI
+        elif abi == BRIDGE_ABI:
+            abi = OLDBRIDGE_ABI
+        else:
+            raise RuntimeError(f'sanity check? got invalid abi: {abi}')
+
+        return bridge_callback(chain, address, log, abi)
 
     data, direction, method = ret
     data = data[0]['args']  # type: ignore
@@ -156,7 +168,7 @@ def get_logs(
             #_store_if_not_exists(chain, address, log['blockNumber'],
             #                     log['transactionIndex'], data)
             #callback(chain, address, log)
-            jobs.append(gevent.spawn(callback, chain, address, log))
+            jobs.append(pool.spawn(callback, chain, address, log))
 
         start_block += max_blocks + 1
         y = round(time.time() - _start, 2)

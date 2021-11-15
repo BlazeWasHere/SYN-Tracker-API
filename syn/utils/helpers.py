@@ -10,6 +10,7 @@
 from typing import Any, List, Dict, TypeVar, Union, cast
 from datetime import datetime, timedelta
 from collections import defaultdict
+import logging
 import json
 
 from web3.types import LogReceipt, _Hash32
@@ -21,6 +22,7 @@ import dateutil.parser
 from .explorer.data import Direction, TOKENS_IN_POOL
 from .data import REDIS, TOKEN_DECIMALS
 
+logger = logging.Logger(__name__)
 KT = TypeVar('KT')
 VT = TypeVar('VT')
 
@@ -152,7 +154,11 @@ def get_address_from_log_data(
 
 
 def convert_amount(chain: str, token: str, amount: int) -> float:
-    return amount / 10**TOKEN_DECIMALS[chain][token.lower()]
+    try:
+        return amount / 10**TOKEN_DECIMALS[chain][token.lower()]
+    except KeyError:
+        logger.warning(f'return amount 0 for token {token} on {chain}')
+        return 0
 
 
 def get_gas_paid_for_tx(chain: str, w3: Web3, txhash: _Hash32) -> float:
