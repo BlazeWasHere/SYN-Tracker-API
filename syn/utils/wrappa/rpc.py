@@ -97,8 +97,8 @@ def bridge_callback(chain: str,
         gas = get_gas_paid_for_tx(chain, w3, log['transactionHash'])
 
         value = {
-            'amount': convert_amount(chain, asset, data['amount']),
-            'fees': data['fee'] / 10**18,  # This is in nUSD/nETH
+            'amount': data['amount'] / 10**18,  # This is in nUSD/nETH
+            'fees': data['fee'] / 10**18,  # Ditto.
             'txCount': 1,
             'validatorGas': gas,
         }
@@ -110,7 +110,7 @@ def bridge_callback(chain: str,
 
         if direction == Direction.IN:
             ret['validatorGas'] += value['validatorGas']
-            ret['fees'] += value['amount']
+            ret['fees'] += value['fees']
 
         ret['amount'] += value['amount']
         ret['txCount'] += 1
@@ -119,7 +119,6 @@ def bridge_callback(chain: str,
     else:
         LOGS_REDIS_URL.set(key, json.dumps(value))
 
-    # TODO: What if another thread saves later but is actually behind us?
     LOGS_REDIS_URL.set(f'{chain}:logs:{address}:MAX_BLOCK_STORED',
                        log['blockNumber'])
 
@@ -167,8 +166,8 @@ def get_logs(
             #data = {k: convert(v) for k, v in log.items()}
             #_store_if_not_exists(chain, address, log['blockNumber'],
             #                     log['transactionIndex'], data)
-            #callback(chain, address, log)
-            jobs.append(pool.spawn(callback, chain, address, log))
+            callback(chain, address, log)
+            #jobs.append(pool.spawn(callback, chain, address, log))
 
         start_block += max_blocks + 1
         y = round(time.time() - _start, 2)
