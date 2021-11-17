@@ -86,6 +86,9 @@ TOPICS = {
 TOKENS_IN_POOL: DefaultDict[str, Dict[int, str]] = defaultdict(dict)
 
 for chain in SYN_DATA.keys():
+    if chain == 'moonriver':
+        continue
+
     ret = get_all_tokens_in_pool(chain)
 
     for i, token in enumerate(ret):

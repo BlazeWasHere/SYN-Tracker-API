@@ -17,8 +17,7 @@ from gevent.pool import Pool
 from web3 import Web3
 import gevent
 
-from syn.utils.helpers import convert_amount, get_address_from_log_data, \
-    get_gas_paid_for_tx
+from syn.utils.helpers import get_address_from_log_data, get_gas_stats_for_tx
 from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
     OLDERBRIDGE_ABI
 from syn.utils.explorer.poll import figure_out_method
@@ -33,6 +32,7 @@ start_blocks = {
     'polygon': 18026806,
     'harmony': 18646320,
     'boba': 16188,
+    'moonriver': 890949,
 }
 
 pool = Pool(size=64)
@@ -94,13 +94,13 @@ def bridge_callback(chain: str,
         }
     elif direction == Direction.IN:
         # All `IN` txs are from the validator; let's track how much gas they pay.
-        gas = get_gas_paid_for_tx(chain, w3, log['transactionHash'])
+        gas_stats = get_gas_stats_for_tx(chain, w3, log['transactionHash'])
 
         value = {
             'amount': data['amount'] / 10**18,  # This is in nUSD/nETH
             'fees': data['fee'] / 10**18,  # Ditto.
             'txCount': 1,
-            'validatorGas': gas,
+            'validator': gas_stats,
         }
     else:
         raise RuntimeError(f'sanity check? got {direction}')
@@ -109,7 +109,8 @@ def bridge_callback(chain: str,
         ret = json.loads(ret)
 
         if direction == Direction.IN:
-            ret['validatorGas'] += value['validatorGas']
+            ret['validator']['gas_price'] += value['validator']['gas_price']
+            ret['validator']['gas_paid'] += value['validator']['gas_paid']
             ret['fees'] += value['fees']
 
         ret['amount'] += value['amount']

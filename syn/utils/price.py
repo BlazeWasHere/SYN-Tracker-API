@@ -32,6 +32,7 @@ class CoingeckoIDS(Enum):
     DOG = 'the-doge-nft'
     NRV = 'nerve-finance'
     MIM = 'magic-internet-money'
+    FRAX = 'frax'
 
 
 CUSTOM = {
@@ -68,7 +69,12 @@ CUSTOM = {
     'harmony': {
         # nUSD
         '0xed2a7edd7413021d440b09d654f3b87712abab66': 1,
-    }
+    },
+    'boba': {
+        # nUSD
+        '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 1,
+    },
+    'moonriver': {},
 }
 
 ADDRESS_TO_CGID = {
@@ -119,7 +125,17 @@ ADDRESS_TO_CGID = {
         '0xef977d2f931c1978db5f6747666fa1eacb0d0339': CoingeckoIDS.DAI,
         '0x985458e523db3d53125813ed68c274899e9dfab4': CoingeckoIDS.USDC,
         '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f': CoingeckoIDS.USDT,
-    }
+    },
+    'boba': {
+        '0xb554a55358ff0382fb21f0a478c3546d1106be8c': CoingeckoIDS.SYN,
+        '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35': CoingeckoIDS.DAI,
+        '0x5de1677344d3cb0d7d465c10b72a8f60699c062d': CoingeckoIDS.USDT,
+        '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc': CoingeckoIDS.USDC,
+    },
+    'moonriver': {
+        '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
+        '0xe96ac70907fff3efee79f502c985a7a21bce407d': CoingeckoIDS.FRAX,
+    },
 }
 
 

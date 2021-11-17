@@ -57,12 +57,18 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
         jobs: List[Greenlet] = []
 
         for chain in SYN_DATA:
-            if chain in ['harmony', 'bsc', 'polygon']:
+            if chain in ['harmony', 'bsc', 'polygon', 'ethereum', 'moonriver']:
                 jobs.append(
                     gevent.spawn(get_logs,
                                  chain,
                                  bridge_callback,
                                  max_blocks=1024))
+            elif chain == 'boba':
+                jobs.append(
+                    gevent.spawn(get_logs,
+                                 chain,
+                                 bridge_callback,
+                                 max_blocks=512))
             else:
                 jobs.append(gevent.spawn(get_logs, chain, bridge_callback))
 
@@ -78,7 +84,7 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     with app.app_context():
         from .routes.api.v1.explorer import ws
 
-    ws.start()
+    #ws.start()
 
     if POPULATE_CACHE:
         gevent.joinall(jobs)  # type: ignore

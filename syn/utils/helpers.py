@@ -161,19 +161,27 @@ def convert_amount(chain: str, token: str, amount: int) -> float:
         return 0
 
 
-def get_gas_paid_for_tx(chain: str, w3: Web3, txhash: _Hash32) -> float:
+def get_gas_stats_for_tx(chain: str, w3: Web3,
+                         txhash: _Hash32) -> Dict[str, float]:
+    receipt = w3.eth.get_transaction_receipt(txhash)
+
     # Arbitrum has this crazy gas bidding system, this isn't some
     # sort of auction now is it?
     if chain == 'arbitrum':
-        receipt = w3.eth.get_transaction_receipt(txhash)
-
         paid = receipt['feeStats']['paid']  # type: ignore
         paid_for_gas = 0
 
         for key in paid:
             paid_for_gas += int(paid[key][2:], 16)
 
-        return paid_for_gas / (1e9 * receipt['gasUsed'])
+        gas_price = paid_for_gas / (1e9 * receipt['gasUsed'])
+
+        return {'gas_paid': paid_for_gas / 1e18, 'gas_price': gas_price}
 
     ret = w3.eth.get_transaction(txhash)
-    return ret['gasPrice'] / 1e9  # type: ignore
+    gas_price = ret['gasPrice'] / 1e9  # type: ignore
+
+    return {
+        'gas_paid': gas_price * receipt['gasUsed'] / 1e9,
+        'gas_price': gas_price
+    }
