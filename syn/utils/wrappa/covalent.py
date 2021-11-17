@@ -25,6 +25,7 @@ if POPULATE_CACHE:
 pool = Pool()
 
 CHAIN_MAPPING = {
+    'ethereum': 1,
     'eth': 1,
     'polygon': 137,
     'bsc': 56,

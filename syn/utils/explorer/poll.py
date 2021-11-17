@@ -7,9 +7,10 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import List, Callable
+from typing import List, Callable, Tuple, Iterable, Optional
 
 from web3.datastructures import AttributeDict
+from web3.types import TxReceipt, EventData
 from web3.contract import Contract
 from web3.logs import DISCARD
 from gevent.pool import Pool
@@ -25,7 +26,9 @@ CB = Callable[
 pool = Pool()
 
 
-def figure_out_method(contract: Contract, receipt):
+def figure_out_method(
+    contract: Contract, receipt: TxReceipt
+) -> Optional[Tuple[Iterable[EventData], Direction, str]]:
     for k, v in EVENTS.items():
         ret = contract.events[k]().processReceipt(receipt, errors=DISCARD)
 
@@ -49,7 +52,7 @@ def handle_event(event: AttributeDict, chain: str, contract: Contract,
         print(chain, event)
         raise
 
-    data = data[0]['args']
+    data = data[0]['args']  # type: ignore
     cb(event, chain, data, method, direction, receipt.logs)
 
 

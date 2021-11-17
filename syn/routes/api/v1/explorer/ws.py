@@ -15,15 +15,11 @@ from flask_socketio import SocketIO
 
 from syn.utils.explorer.poll import AttributeDict, Direction, start as _start
 from syn.utils.explorer.data import CHAINS, TOKENS_IN_POOL
-from syn.utils.data import TOKEN_DECIMALS
+from syn.utils.helpers import convert_amount
 
 socketio: SocketIO = app.socketio  # type: ignore
 
 pending_addresses = defaultdict(dict)
-
-
-def _convert_amount(chain: str, token: str, amount: int) -> float:
-    return amount / 10**TOKEN_DECIMALS[chain][token.lower()]
 
 
 def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
@@ -89,7 +85,7 @@ def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
                     'fee': data['fee'] / 10**18,  # Fee is in nUSD/nETH
                     'to_token': to_token,
                     'from_token': _data['from_token'],
-                    'amount': _convert_amount(chain, to_token, data['amount']),
+                    'amount': convert_amount(chain, to_token, data['amount']),
                     'txhash': event['transactionHash'].hex(),
                 }
 

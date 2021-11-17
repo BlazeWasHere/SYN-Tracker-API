@@ -31,10 +31,12 @@ class CoingeckoIDS(Enum):
     ETH = 'ethereum'
     DOG = 'the-doge-nft'
     NRV = 'nerve-finance'
+    MIM = 'magic-internet-money'
+    FRAX = 'frax'
 
 
 CUSTOM = {
-    'eth': {
+    'ethereum': {
         # nUSD
         '0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f': 1,
     },
@@ -56,10 +58,27 @@ CUSTOM = {
         # nUSD
         '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46': 1,
     },
+    'arbitrum': {
+        # nUSD
+        '0x2913e812cf0dcca30fb28e6cac3d2dcff4497688': 1,
+    },
+    'fantom': {
+        # nUSD
+        '0xed2a7edd7413021d440b09d654f3b87712abab66': 1,
+    },
+    'harmony': {
+        # nUSD
+        '0xed2a7edd7413021d440b09d654f3b87712abab66': 1,
+    },
+    'boba': {
+        # nUSD
+        '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 1,
+    },
+    'moonriver': {},
 }
 
 ADDRESS_TO_CGID = {
-    'eth': {
+    'ethereum': {
         '0x71ab77b7dbb4fa7e017bc15090b2163221420282': CoingeckoIDS.HIGH,
         '0x0f2d719407fdbeff09d87557abb7232601fd9f29': CoingeckoIDS.SYN,
         '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': CoingeckoIDS.ETH,
@@ -87,6 +106,35 @@ ADDRESS_TO_CGID = {
         '0xd586e7f844cea2f87f50152665bcbc2c279d8d70': CoingeckoIDS.DAI,
         '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664': CoingeckoIDS.USDC,
         '0xc7198437980c041c805a1edcba50c1ce5db95118': CoingeckoIDS.USDT,
+    },
+    'arbitrum': {
+        '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,
+        '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e': CoingeckoIDS.ETH,
+        '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8': CoingeckoIDS.USDC,
+        '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': CoingeckoIDS.USDT,
+        '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': CoingeckoIDS.MIM,
+    },
+    'fantom': {
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
+        '0x82f0b8b456c1a451378467398982d4834b6829c1': CoingeckoIDS.MIM,
+        '0x04068da6c83afcfa0e13ba15a6696662335d5b75': CoingeckoIDS.USDC,
+        '0x049d68029688eabf473097a2fc38ef61633a3c7a': CoingeckoIDS.USDT,
+    },
+    'harmony': {
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
+        '0xef977d2f931c1978db5f6747666fa1eacb0d0339': CoingeckoIDS.DAI,
+        '0x985458e523db3d53125813ed68c274899e9dfab4': CoingeckoIDS.USDC,
+        '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f': CoingeckoIDS.USDT,
+    },
+    'boba': {
+        '0xb554a55358ff0382fb21f0a478c3546d1106be8c': CoingeckoIDS.SYN,
+        '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35': CoingeckoIDS.DAI,
+        '0x5de1677344d3cb0d7d465c10b72a8f60699c062d': CoingeckoIDS.USDT,
+        '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc': CoingeckoIDS.USDC,
+    },
+    'moonriver': {
+        '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
+        '0xe96ac70907fff3efee79f502c985a7a21bce407d': CoingeckoIDS.FRAX,
     },
 }
 
@@ -125,6 +173,8 @@ def get_historic_price_for_address(chain: str, address: str,
                                    date: str) -> float:
     if address in CUSTOM[chain]:
         return CUSTOM[chain][address]
+    elif ADDRESS_TO_CGID[chain][address] == CoingeckoIDS.SYN:
+        return get_historic_price_syn(date)
 
     return get_historic_price(ADDRESS_TO_CGID[chain][address], date)
 

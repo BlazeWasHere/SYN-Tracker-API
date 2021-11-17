@@ -7,14 +7,18 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Tuple
+from typing import Tuple, List
 
-from gevent import monkey
+from gevent import monkey, Greenlet
+import gevent
 
 monkey.patch_all()
 
 from flask_socketio import SocketIO
 from flask import Flask
+
+from syn.utils.data import cache, SCHEDULER_CONFIG, schedular, POPULATE_CACHE, \
+    SYN_DATA, MESSAGE_QUEUE_REDIS_URL
 
 
 def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
@@ -23,7 +27,6 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     from .utils.converters import register_converter
     register_converter(app, 'date')
 
-    from .utils.data import MESSAGE_QUEUE_REDIS_URL
     app.socketio = SocketIO(  # type: ignore
         app,
         logger=debug,
@@ -48,7 +51,27 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     app.register_blueprint(treasury_bp,
                            url_prefix='/api/v1/analytics/treasury')
 
-    from .utils.data import cache, SCHEDULER_CONFIG, schedular
+    if POPULATE_CACHE:
+        from .utils.wrappa.rpc import get_logs, bridge_callback
+
+        jobs: List[Greenlet] = []
+
+        for chain in SYN_DATA:
+            if chain in ['harmony', 'bsc', 'polygon', 'ethereum', 'moonriver']:
+                jobs.append(
+                    gevent.spawn(get_logs,
+                                 chain,
+                                 bridge_callback,
+                                 max_blocks=1024))
+            elif chain == 'boba':
+                jobs.append(
+                    gevent.spawn(get_logs,
+                                 chain,
+                                 bridge_callback,
+                                 max_blocks=512))
+            else:
+                jobs.append(gevent.spawn(get_logs, chain, bridge_callback))
+
     from .cron import update_caches
 
     app.config.from_mapping(SCHEDULER_CONFIG)
@@ -61,6 +84,9 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     with app.app_context():
         from .routes.api.v1.explorer import ws
 
-    ws.start()
+    #ws.start()
+
+    if POPULATE_CACHE:
+        gevent.joinall(jobs)  # type: ignore
 
     return app, app.socketio  # type: ignore

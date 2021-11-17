@@ -27,6 +27,9 @@ CHAINS = {
 
 
 class Direction(Enum):
+    def __str__(self) -> str:
+        return self.name
+
     OUT = 0
     IN = 1
 
@@ -83,6 +86,9 @@ TOPICS = {
 TOKENS_IN_POOL: DefaultDict[str, Dict[int, str]] = defaultdict(dict)
 
 for chain in SYN_DATA.keys():
+    if chain == 'moonriver':
+        continue
+
     ret = get_all_tokens_in_pool(chain)
 
     for i, token in enumerate(ret):

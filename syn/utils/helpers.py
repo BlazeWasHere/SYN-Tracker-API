@@ -7,16 +7,22 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, List, Dict, TypeVar, cast
+from typing import Any, List, Dict, TypeVar, Union, cast
 from datetime import datetime, timedelta
 from collections import defaultdict
+import logging
 import json
 
+from web3.types import LogReceipt, _Hash32
+from eth_typing.evm import ChecksumAddress
+from web3.main import Web3
 from redis import Redis
 import dateutil.parser
 
-from .data import REDIS
+from .explorer.data import Direction, TOKENS_IN_POOL
+from .data import REDIS, TOKEN_DECIMALS
 
+logger = logging.Logger(__name__)
 KT = TypeVar('KT')
 VT = TypeVar('VT')
 
@@ -101,7 +107,8 @@ def store_volume_dict_to_redis(chain: str, _dict: Dict[str, Any]) -> None:
 
 def get_all_keys(pattern: str,
                  serialize: bool = False,
-                 client: Redis = REDIS) -> Dict[str, Any]:
+                 client: Redis = REDIS,
+                 index: int = 1) -> Dict[str, Any]:
     res = cast(Dict[str, Any], defaultdict(dict))
 
     for key in client.keys(pattern):
@@ -111,8 +118,70 @@ def get_all_keys(pattern: str,
             if ret is not None:
                 ret = json.loads(ret)
 
-            key = key.split(':')[1]
+            if index:
+                key = key.split(':')[index]
 
         res[key] = ret
 
     return res
+
+
+def get_address_from_log_data(
+    chain: str,
+    method: str,
+    log: LogReceipt,
+    data: dict,
+    direction: Direction,
+    lower: bool = True,
+) -> Union[str, ChecksumAddress]:
+    """Get from/to_token from searching through `data` and `log` depending 
+    on the `method`"""
+
+    if direction == Direction.OUT:
+        if method in ['TokenRedeem', 'TokenRedeemAndRemove', 'TokenDeposit']:
+            address = data['token']
+        else:
+            address = log['address']
+    elif direction == Direction.IN:
+        if method in ['TokenWithdraw', 'TokenMint']:
+            address = data['token']
+        elif method == 'TokenWithdrawAndRemove':
+            address = TOKENS_IN_POOL[chain][data['swapTokenIndex']]
+        else:
+            address = TOKENS_IN_POOL[chain][data['tokenIndexTo']]
+
+    return Web3.toChecksumAddress(address) if not lower else address.lower()
+
+
+def convert_amount(chain: str, token: str, amount: int) -> float:
+    try:
+        return amount / 10**TOKEN_DECIMALS[chain][token.lower()]
+    except KeyError:
+        logger.warning(f'return amount 0 for token {token} on {chain}')
+        return 0
+
+
+def get_gas_stats_for_tx(chain: str, w3: Web3,
+                         txhash: _Hash32) -> Dict[str, float]:
+    receipt = w3.eth.get_transaction_receipt(txhash)
+
+    # Arbitrum has this crazy gas bidding system, this isn't some
+    # sort of auction now is it?
+    if chain == 'arbitrum':
+        paid = receipt['feeStats']['paid']  # type: ignore
+        paid_for_gas = 0
+
+        for key in paid:
+            paid_for_gas += int(paid[key][2:], 16)
+
+        gas_price = paid_for_gas / (1e9 * receipt['gasUsed'])
+
+        return {'gas_paid': paid_for_gas / 1e18, 'gas_price': gas_price}
+
+    ret = w3.eth.get_transaction(txhash)
+    gas_price = ret['gasPrice'] / 1e9  # type: ignore
+
+    return {
+        'gas_paid': gas_price * receipt['gasUsed'] / 1e9,
+        'gas_price': gas_price
+    }

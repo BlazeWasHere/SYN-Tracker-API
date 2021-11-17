@@ -30,10 +30,15 @@ COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_c
 
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getVirtualPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
-with open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'explorer',
-                     'abis', 'bridge.json')) as f:
+
+_abis_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          'explorer', 'abis')
+with open(os.path.join(_abis_path, 'bridge.json')) as f:
     BRIDGE_ABI = json.load(f)['abi']
+with open(os.path.join(_abis_path, 'oldBridge.json')) as f:
+    OLDBRIDGE_ABI = json.load(f)['abi']
+with open(os.path.join(_abis_path, 'olderBridge.json')) as f:
+    OLDERBRIDGE_ABI = json.load(f)['abi']
 
 COVALENT_APIKEY = cast(str, os.getenv('COVALENT_APIKEY'))
 MORALIS_APIKEY = cast(str, os.getenv('MORALIS_APIKEY'))
@@ -58,6 +63,11 @@ else:
 
 # We use this for processes to interact w/ eachother.
 MESSAGE_QUEUE_REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/3'
+# We use this for storing eth_GetLogs and stuff related to that.
+LOGS_REDIS_URL = redis.Redis(REDIS_HOST,
+                             REDIS_PORT,
+                             db=4,
+                             decode_responses=True)
 
 _POPULATE_CACHE = os.getenv('POPULATE_CACHE')
 if _POPULATE_CACHE is not None:
@@ -163,15 +173,22 @@ SYN_DATA = {
         "pool": "0x75ff037256b36f15919369ac58695550be72fead",
         "bridge": "0x432036208d2717394d2614d6697c46df3ed69540",
     },
+    "moonriver": {
+        "rpc": os.getenv('MOVR_RPC'),
+        "address": "0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445",
+        "bridge": "0xaed5b25be1c3163c907a471082640450f928ddfe",
+    },
 }
 
 TREASURY = {
-    'eth': '0x67F60b0891EBD842Ebe55E4CCcA1098d7Aac1A55',
+    'ethereum': '0x67F60b0891EBD842Ebe55E4CCcA1098d7Aac1A55',
     'bsc': '0x0056580B0E8136c482b03760295F912279170D46',
     'polygon': '0xBdD38B2eaae34C9FCe187909e81e75CBec0dAA7A',
     'avalanche': '0xd7aDA77aa0f82E6B3CF5bF9208b0E5E1826CD79C',
     'arbitrum': '0x940279D22EB27415F2b0A0Ee6287749b5B19F43D',
     'fantom': '0x224002428cF0BA45590e0022DF4b06653058F22F',
+    'boba': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
+    'moonriver': '0x4bA30618fDcb184eC01a9B3CAe258CFc5786E70E',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
@@ -207,7 +224,7 @@ for key, value in SYN_DATA.items():
         })
 
 TOKEN_DECIMALS = {
-    'eth': {
+    'ethereum': {
         '0x71ab77b7dbb4fa7e017bc15090b2163221420282': 18,
         '0x0f2d719407fdbeff09d87557abb7232601fd9f29': 18,
         '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 18,
@@ -275,6 +292,12 @@ TOKEN_DECIMALS = {
         '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000': 18,
         '0x96419929d7949d6a801a6909c145c8eef6a40431': 18,
         '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 18,
+        '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35': 18,
+    },
+    'moonriver': {
+        '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': 18,
+        '0xe96ac70907fff3efee79f502c985a7a21bce407d': 18,
+        '0x1a93b23281cc1cde4c4741353f3064709a16197d': 18,
     },
 }
 
