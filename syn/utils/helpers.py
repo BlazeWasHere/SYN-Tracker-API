@@ -13,8 +13,8 @@ from collections import defaultdict
 import logging
 import json
 
-from web3.types import LogReceipt, _Hash32
 from eth_typing.evm import ChecksumAddress
+from web3.types import _Hash32, TxReceipt
 from web3.main import Web3
 from redis import Redis
 import dateutil.parser
@@ -126,10 +126,9 @@ def get_all_keys(pattern: str,
     return res
 
 
-def get_address_from_log_data(
+def get_address_from_data(
     chain: str,
     method: str,
-    log: LogReceipt,
     data: dict,
     direction: Direction,
     lower: bool = True,
@@ -138,17 +137,12 @@ def get_address_from_log_data(
     on the `method`"""
 
     if direction == Direction.OUT:
-        if method in ['TokenRedeem', 'TokenRedeemAndRemove', 'TokenDeposit']:
-            address = data['token']
-        else:
-            address = log['address']
+        address = data['token']
     elif direction == Direction.IN:
         if method in ['TokenWithdraw', 'TokenMint']:
             address = data['token']
-        elif method == 'TokenWithdrawAndRemove':
-            address = TOKENS_IN_POOL[chain][data['swapTokenIndex']]
         else:
-            address = TOKENS_IN_POOL[chain][data['tokenIndexTo']]
+            address = TOKENS_IN_POOL[chain][data['tokenIndexFrom']]
 
     return Web3.toChecksumAddress(address) if not lower else address.lower()
 
@@ -161,9 +155,12 @@ def convert_amount(chain: str, token: str, amount: int) -> float:
         return 0
 
 
-def get_gas_stats_for_tx(chain: str, w3: Web3,
-                         txhash: _Hash32) -> Dict[str, float]:
-    receipt = w3.eth.get_transaction_receipt(txhash)
+def get_gas_stats_for_tx(chain: str,
+                         w3: Web3,
+                         txhash: _Hash32,
+                         receipt: TxReceipt = None) -> Dict[str, float]:
+    if receipt is None:
+        receipt = w3.eth.get_transaction_receipt(txhash)
 
     # Arbitrum has this crazy gas bidding system, this isn't some
     # sort of auction now is it?

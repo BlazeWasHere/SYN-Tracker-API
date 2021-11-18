@@ -17,7 +17,7 @@ from gevent.pool import Pool
 from web3 import Web3
 import gevent
 
-from syn.utils.helpers import get_address_from_log_data, get_gas_stats_for_tx
+from syn.utils.helpers import get_address_from_data, get_gas_stats_for_tx
 from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
     OLDERBRIDGE_ABI
 from syn.utils.explorer.poll import figure_out_method
@@ -75,8 +75,7 @@ def bridge_callback(chain: str,
     data, direction, method = ret
     data = data[0]['args']  # type: ignore
 
-    asset = get_address_from_log_data(chain, method, receipt['logs'][0], data,
-                                      direction)
+    asset = get_address_from_data(chain, method, data, direction)
     date = w3.eth.get_block(log['blockNumber'])['timestamp']  # type: ignore
     date = datetime.utcfromtimestamp(date).date()
 
@@ -94,7 +93,8 @@ def bridge_callback(chain: str,
         }
     elif direction == Direction.IN:
         # All `IN` txs are from the validator; let's track how much gas they pay.
-        gas_stats = get_gas_stats_for_tx(chain, w3, log['transactionHash'])
+        gas_stats = get_gas_stats_for_tx(chain, w3, log['transactionHash'],
+                                         receipt)
 
         value = {
             'amount': data['amount'] / 10**18,  # This is in nUSD/nETH
