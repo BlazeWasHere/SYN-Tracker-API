@@ -139,7 +139,7 @@ def get_address_from_data(
     if direction == Direction.OUT:
         address = data['token']
     elif direction == Direction.IN:
-        if method in ['TokenWithdraw', 'TokenMint']:
+        if method in ['TokenWithdraw', 'TokenMint', 'TokenWithdrawAndRemove']:
             address = data['token']
         else:
             address = TOKENS_IN_POOL[chain][data['tokenIndexFrom']]
