@@ -55,9 +55,9 @@ def bridge_callback(chain: str,
                     abi: str = BRIDGE_ABI) -> None:
     w3: Web3 = SYN_DATA[chain]['w3']
     contract = w3.eth.contract(w3.toChecksumAddress(address), abi=abi)
+    tx_hash = log['transactionHash']
 
-    receipt = w3.eth.wait_for_transaction_receipt(log['transactionHash'],
-                                                  timeout=60)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
 
     ret = figure_out_method(contract, receipt)
     if ret is None:
@@ -93,12 +93,15 @@ def bridge_callback(chain: str,
         }
     elif direction == Direction.IN:
         # All `IN` txs are from the validator; let's track how much gas they pay.
-        gas_stats = get_gas_stats_for_tx(chain, w3, log['transactionHash'],
-                                         receipt)
+        gas_stats = get_gas_stats_for_tx(chain, w3, tx_hash, receipt)
+
+        # For IN transactions the n-assets amounts are stored in the tx.input
+        tx_info = w3.eth.get_transaction(tx_hash)
+        _, args = contract.decode_function_input(tx_info['input'])
 
         value = {
-            'amount': data['amount'] / 10**18,  # This is in nUSD/nETH
-            'fees': data['fee'] / 10**18,  # Ditto.
+            'amount': args['amount'] / 10**18,  # This is in nUSD/nETH
+            'fees': args['fee'] / 10**18,  # Ditto.
             'txCount': 1,
             'validator': gas_stats,
         }
