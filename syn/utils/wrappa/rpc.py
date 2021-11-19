@@ -143,6 +143,8 @@ def bridge_callback(chain: str,
 
     LOGS_REDIS_URL.set(f'{chain}:logs:{address}:MAX_BLOCK_STORED',
                        log['blockNumber'])
+    LOGS_REDIS_URL.set(f'{chain}:logs:{address}:TX_INDEX',
+                       log['transactionIndex'])
 
 
 def get_logs(
@@ -156,14 +158,17 @@ def get_logs(
     w3: Web3 = SYN_DATA[chain]['w3']
     _chain = f'[{chain}]'
     chain_len = max(len(c) for c in SYN_DATA) + 2
+    tx_index = -1
 
     if start_block is None:
-        _key = f'{chain}:logs:{address}:MAX_BLOCK_STORED'
+        _key_block = f'{chain}:logs:{address}:MAX_BLOCK_STORED'
+        _key_index = f'{chain}:logs:{address}:TX_INDEX'
 
-        if (ret := LOGS_REDIS_URL.get(_key)) is not None:
+        if (ret := LOGS_REDIS_URL.get(_key_block)) is not None:
             start_block = max(int(ret), start_blocks[chain])
+            tx_index = int(LOGS_REDIS_URL.get(_key_index))
         else:
-            start_block = start_blocks[chain] + 1
+            start_block = start_blocks[chain]
 
     if till_block is None:
         till_block = w3.eth.block_number
@@ -173,11 +178,11 @@ def get_logs(
         f'{_chain:{chain_len}} starting from {start_block} with block height of {till_block}'
     )
     jobs: List[gevent.Greenlet] = []
-    # _start = time.time()
-    _start = time.thread_time()
-    x = _start
+    _start = time.time()
+    x = 0
 
     total_events = 0
+    initial_block = start_block
 
     while start_block < till_block:
         to_block = min(start_block + max_blocks, till_block)
@@ -194,13 +199,16 @@ def get_logs(
             #data = {k: convert(v) for k, v in log.items()}
             #_store_if_not_exists(chain, address, log['blockNumber'],
             #                     log['transactionIndex'], data)
+            # Skip transactions in the very first block that are already in the DB
+            if log['blockNumber'] == initial_block and log['transactionIndex'] <= tx_index:
+                continue
+
             callback(chain, address, log)
             #jobs.append(pool.spawn(callback, chain, address, log))
 
         start_block += max_blocks + 1
 
-        # y = time.time() - _start
-        y = time.thread_time() - _start
+        y = time.time() - _start
         total_events += len(logs)
 
         print(
@@ -210,4 +218,4 @@ def get_logs(
         x = y
 
     gevent.joinall(jobs)
-    print(f'{_chain:{chain_len}} it took {time.thread_time() - _start:.1f}s!')
+    print(f'{_chain:{chain_len}} it took {time.time() - _start:.1f}s!')
