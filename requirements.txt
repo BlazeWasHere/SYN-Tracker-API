@@ -11,6 +11,3 @@ Flask-APScheduler
 python-redis-lock
 flask-socketio
 gevent-websocket
-hexbytes
-APScheduler
-Werkzeug
