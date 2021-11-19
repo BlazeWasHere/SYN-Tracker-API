@@ -179,7 +179,9 @@ def get_logs(
 
         if (ret := LOGS_REDIS_URL.get(_key_block)) is not None:
             start_block = max(int(ret), start_blocks[chain])
-            tx_index = int(cast(str, LOGS_REDIS_URL.get(_key_index)))
+
+            if (ret := LOGS_REDIS_URL.get(_key_index)) is not None:
+                tx_index = int(ret)
         else:
             start_block = start_blocks[chain]
 
