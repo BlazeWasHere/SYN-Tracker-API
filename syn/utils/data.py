@@ -194,6 +194,7 @@ TREASURY = {
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
 for key, value in SYN_DATA.items():
     w3 = Web3(Web3.HTTPProvider(value['rpc']))
+    print(f'Checking: {key}')
     assert w3.isConnected()
 
     if key != 'ethereum':
@@ -222,6 +223,7 @@ for key, value in SYN_DATA.items():
             w3.eth.contract(Web3.toChecksumAddress(value['bridge']),
                             abi=BRIDGE_ABI)
         })
+print(f'All chains are connected!')
 
 TOKEN_DECIMALS = {
     'ethereum': {

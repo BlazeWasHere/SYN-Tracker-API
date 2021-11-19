@@ -62,21 +62,25 @@ def esc_filter_factory(chain: str,
 @volume_bp.route('/ethereum', methods=['GET'])
 @cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
 def volume_eth():
-    address = BRIDGES['ethereum'][0]
-    resps: List[Dict[str, Any]] = []
-    jobs: List[Greenlet] = []
+    # address = BRIDGES['ethereum'][0]
+    # resps: List[Dict[str, Any]] = []
+    # jobs: List[Greenlet] = []
+    #
+    # for x in ETH_TOKENS:
+    #     x = 'address' if x == 'syn' else x
+    #     jobs.append(
+    #         pool.spawn(get_chain_volume, address, 'ethereum',
+    #                    filter_factory(x, 'ethereum')))
+    #
+    # ret: List[Greenlet] = gevent.joinall(jobs)
+    # for x in ret:
+    #     resps.append(raise_if(x.get(), None))
+    #
+    # return jsonify(merge_many_dicts(resps, is_price_dict=True))
 
-    for x in ETH_TOKENS:
-        x = 'address' if x == 'syn' else x
-        jobs.append(
-            pool.spawn(get_chain_volume, address, 'ethereum',
-                       filter_factory(x, 'ethereum')))
+    # Something is not right here, let's ignore that for a while
+    return jsonify(dict())
 
-    ret: List[Greenlet] = gevent.joinall(jobs)
-    for x in ret:
-        resps.append(raise_if(x.get(), None))
-
-    return jsonify(merge_many_dicts(resps, is_price_dict=True))
 
 
 symbol_to_address = {

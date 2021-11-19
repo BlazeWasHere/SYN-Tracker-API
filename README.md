@@ -6,7 +6,7 @@ View the site: [here](https://synapse.dorime.org)
 
 ```sh
 $ pip3 install -r requirements.txt
-$ gunicorn --worker-class=gevent -w 4 -b 0.0.0.0:1337 main:app --capture-output
+$ gunicorn --worker-class=gevent -w 1 -b 0.0.0.0:1337 main:app --capture-output
 [2021-10-11 19:30:17 +0000] [1] [INFO] Starting gunicorn 20.1.0
 [...]
 ```
