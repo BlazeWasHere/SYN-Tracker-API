@@ -245,6 +245,7 @@ TOKEN_DECIMALS = {
         '0x55d398326f99059ff775485246999027b3197955': 18,
         '0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63': 18,
         '0xa4080f1778e69467e905b8d6f72f6e441f9e9484': 18,
+        '0x42f6f551ae042cbe50c739158b4f0cac0edb9096': 18,
     },
     'polygon': {
         '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': 18,

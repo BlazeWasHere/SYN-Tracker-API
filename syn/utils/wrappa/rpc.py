@@ -101,6 +101,9 @@ def bridge_callback(chain: str,
     else:
         _chain = ''
 
+    if asset not in TOKEN_DECIMALS[chain]:
+        raise RuntimeError(f'Decimals? token = {asset}, tx_hash = {convert(tx_hash)}')
+
     decimals = TOKEN_DECIMALS[chain][asset]
     value = {
         'amount': args['amount'] / 10 ** decimals,  # This is in nUSD/nETH/SYN/etc
