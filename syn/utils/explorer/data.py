@@ -23,6 +23,8 @@ CHAINS = {
     56: 'bsc',
     1: 'ethereum',
     288: 'boba',
+    1285: 'moonriver',
+    10: 'optimism',
 }
 
 

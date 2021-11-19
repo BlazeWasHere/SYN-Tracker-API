@@ -75,6 +75,7 @@ CUSTOM = {
         '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 1,
     },
     'moonriver': {},
+    'optimism': {},
 }
 
 ADDRESS_TO_CGID = {
@@ -136,6 +137,10 @@ ADDRESS_TO_CGID = {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
         '0xe96ac70907fff3efee79f502c985a7a21bce407d': CoingeckoIDS.FRAX,
     },
+    'optimism': {
+        '0x809dc529f07651bd43a172e8db6f4a7a0d771036': CoingeckoIDS.SYN,
+        '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': CoingeckoIDS.ETH,
+    }
 }
 
 
