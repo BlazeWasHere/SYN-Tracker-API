@@ -178,6 +178,11 @@ SYN_DATA = {
         "address": "0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445",
         "bridge": "0xaed5b25be1c3163c907a471082640450f928ddfe",
     },
+    "optimism": {
+        "rpc": os.getenv('OPTIMISM_RPC'),
+        "address": "0x5a5fff6f753d7c11a56a52fe47a177a87e431655",
+        "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
+    }
 }
 
 TREASURY = {
@@ -189,6 +194,7 @@ TREASURY = {
     'fantom': '0x224002428cF0BA45590e0022DF4b06653058F22F',
     'boba': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
     'moonriver': '0x4bA30618fDcb184eC01a9B3CAe258CFc5786E70E',
+    'optimism': '0x2431CBdc0792F5485c4cb0a9bEf06C4f21541D52',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
@@ -298,6 +304,10 @@ TOKEN_DECIMALS = {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': 18,
         '0xe96ac70907fff3efee79f502c985a7a21bce407d': 18,
         '0x1a93b23281cc1cde4c4741353f3064709a16197d': 18,
+    },
+    'optimism': {
+        '0x809dc529f07651bd43a172e8db6f4a7a0d771036': 18,
+        '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': 18,
     },
 }
 
