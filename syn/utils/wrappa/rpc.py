@@ -19,7 +19,7 @@ import gevent
 
 from syn.utils.helpers import get_address_from_data, get_gas_stats_for_tx
 from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
-    OLDERBRIDGE_ABI
+    OLDERBRIDGE_ABI, TOKEN_DECIMALS
 from syn.utils.explorer.poll import figure_out_method
 from syn.utils.explorer.data import TOPICS, Direction
 
@@ -94,16 +94,16 @@ def bridge_callback(chain: str,
     if 'token' not in args:
         raise RuntimeError(f'No token: chain = {chain}, tx_hash = {convert(tx_hash)}')
 
-    asset = args['token']
+    asset = args['token'].lower()
 
     if 'chainId' in args:
-        _chain = f'{args["chainId"]}'
+        _chain = f':{args["chainId"]}'
     else:
         _chain = ''
 
-    # TODO(Chi): Store decimals for bridged tokens, in case we ever support bridging of <18 decimals token
+    decimals = TOKEN_DECIMALS[chain][asset]
     value = {
-        'amount': args['amount'] / 10 ** 18,  # This is in nUSD/nETH/SYN/etc
+        'amount': args['amount'] / 10 ** decimals,  # This is in nUSD/nETH/SYN/etc
         'txCount': 1
     }
 
@@ -115,6 +115,7 @@ def bridge_callback(chain: str,
         # Let's also track how much fees the user paid for the bridge tx
         value['fees'] = args['fee'] / 10 ** 18
 
+    # TODO(Chi): don't store the hashes after the double storing bug is fixed
     value['txs'] = f'[{convert(tx_hash)}]'
 
     key = f'{chain}:bridge:{date}:{asset}:{direction}{_chain}'
