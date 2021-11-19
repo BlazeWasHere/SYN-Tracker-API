@@ -118,8 +118,8 @@ def bridge_callback(chain: str,
         # Let's also track how much fees the user paid for the bridge tx
         value['fees'] = args['fee'] / 10 ** 18
 
-    # TODO(Chi): don't store the hashes after the double storing bug is fixed
-    value['txs'] = f'[{convert(tx_hash)}]'
+    # Just in case we ever need that later for debugging
+    # value['txs'] = f'[{convert(tx_hash)}]'
 
     key = f'{chain}:bridge:{date}:{asset}:{direction}{_chain}'
 
@@ -138,7 +138,8 @@ def bridge_callback(chain: str,
 
         ret['amount'] += value['amount']
         ret['txCount'] += 1
-        ret['txs'] += ' ' + value['txs']
+        # Just in case we ever need that later for debugging
+        # ret['txs'] += ' ' + value['txs']
 
         LOGS_REDIS_URL.set(key, json.dumps(ret))
     else:
