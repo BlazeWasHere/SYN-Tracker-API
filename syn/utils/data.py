@@ -314,8 +314,8 @@ TOKEN_DECIMALS = {
         '0x1a93b23281cc1cde4c4741353f3064709a16197d': 18,  # FRAX
     },
     'optimism': {
-        '0x809dc529f07651bd43a172e8db6f4a7a0d771036': 18,
-        '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': 18,
+        '0x809dc529f07651bd43a172e8db6f4a7a0d771036': 18,  # nETH
+        '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': 18,  # SYN
     },
 }
 
