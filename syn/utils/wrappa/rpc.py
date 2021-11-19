@@ -7,8 +7,9 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Callable, Dict, List, TypeVar, Union
+from typing import Callable, cast, List, TypeVar, Union
 from datetime import datetime
+from pprint import pformat
 import json
 
 from web3.types import FilterParams, LogReceipt
@@ -17,11 +18,11 @@ from gevent.pool import Pool
 from web3 import Web3
 import gevent
 
-from syn.utils.helpers import get_address_from_data, get_gas_stats_for_tx
 from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
     OLDERBRIDGE_ABI, TOKEN_DECIMALS
 from syn.utils.explorer.poll import figure_out_method
 from syn.utils.explorer.data import TOPICS, Direction
+from syn.utils.helpers import get_gas_stats_for_tx
 
 start_blocks = {
     'ethereum': 13136427,
@@ -61,7 +62,7 @@ def bridge_callback(chain: str,
     date = w3.eth.get_block(log['blockNumber'])['timestamp']  # type: ignore
     date = datetime.utcfromtimestamp(date).date()
 
-    topic = convert(log['topics'][0])
+    topic = cast(str, convert(log['topics'][0]))
     if topic not in TOPICS:
         raise RuntimeError(f'sanity check? got invalid topic: {topic}')
 
@@ -87,12 +88,14 @@ def bridge_callback(chain: str,
         # For IN transactions the bridged asset and its amount are stored in the tx.input
         tx_info = w3.eth.get_transaction(tx_hash)
         # All IN transactions are guaranteed to be from validators to Bridge contract
-        _, args = contract.decode_function_input(tx_info['input'])
+        _, args = contract.decode_function_input(
+            tx_info['input'])  # type: ignore
     else:
         raise RuntimeError(f'sanity check? got {direction}')
 
     if 'token' not in args:
-        raise RuntimeError(f'No token: chain = {chain}, tx_hash = {convert(tx_hash)}')
+        raise RuntimeError(
+            f'No token: chain = {chain}, tx_hash = {convert(tx_hash)}')
 
     asset = args['token'].lower()
 
@@ -102,11 +105,13 @@ def bridge_callback(chain: str,
         _chain = ''
 
     if asset not in TOKEN_DECIMALS[chain]:
-        raise RuntimeError(f'Decimals? token = {asset}, tx_hash = {convert(tx_hash)}')
+        raise RuntimeError(
+            f'Decimals? token = {asset}, tx_hash = {convert(tx_hash)}')
 
     decimals = TOKEN_DECIMALS[chain][asset]
     value = {
-        'amount': args['amount'] / 10 ** decimals,  # This is in nUSD/nETH/SYN/etc
+        'amount':
+        args['amount'] / 10**decimals,  # This is in nUSD/nETH/SYN/etc
         'txCount': 1
     }
 
@@ -116,7 +121,7 @@ def bridge_callback(chain: str,
         value['validator'] = gas_stats
 
         # Let's also track how much fees the user paid for the bridge tx
-        value['fees'] = args['fee'] / 10 ** 18
+        value['fees'] = args['fee'] / 10**18
 
     # Just in case we ever need that later for debugging
     # value['txs'] = f'[{convert(tx_hash)}]'
@@ -128,9 +133,13 @@ def bridge_callback(chain: str,
 
         if direction == Direction.IN:
             if 'validator' not in ret:
-                raise RuntimeError(f'No validator for key = {key}, ret = {json.dumps(ret, indent=2)}')
+                raise RuntimeError(
+                    f'No validator for key = {key}, ret = {pformat(ret, indent=2)}'
+                )
             if 'validator' not in value:
-                raise RuntimeError(f'No validator: chain = {chain}, tx_hash = {convert(tx_hash)}')
+                raise RuntimeError(
+                    f'No validator: chain = {chain}, tx_hash = {convert(tx_hash)}'
+                )
 
             ret['validator']['gas_price'] += value['validator']['gas_price']
             ret['validator']['gas_paid'] += value['validator']['gas_paid']
@@ -170,7 +179,7 @@ def get_logs(
 
         if (ret := LOGS_REDIS_URL.get(_key_block)) is not None:
             start_block = max(int(ret), start_blocks[chain])
-            tx_index = int(LOGS_REDIS_URL.get(_key_index))
+            tx_index = int(cast(str, LOGS_REDIS_URL.get(_key_index)))
         else:
             start_block = start_blocks[chain]
 
@@ -200,25 +209,20 @@ def get_logs(
 
         logs: List[LogReceipt] = w3.eth.get_logs(params)
         for log in logs:
-            #data = {k: convert(v) for k, v in log.items()}
-            #_store_if_not_exists(chain, address, log['blockNumber'],
-            #                     log['transactionIndex'], data)
             # Skip transactions in the very first block that are already in the DB
-            if log['blockNumber'] == initial_block and log['transactionIndex'] <= tx_index:
+            if log['blockNumber'] == initial_block \
+              and log['transactionIndex'] <= tx_index:
                 continue
 
             callback(chain, address, log)
-            #jobs.append(pool.spawn(callback, chain, address, log))
 
         start_block += max_blocks + 1
 
         y = time.time() - _start
         total_events += len(logs)
 
-        print(
-            f'{_chain:{chain_len}} elapsed {y:5.1f}s ({y - x:4.2f}s),'
-            f' found {total_events:5} events, so far at block {start_block}'
-        )
+        print(f'{_chain:{chain_len}} elapsed {y:5.1f}s ({y - x:4.2f}s),'
+              f' found {total_events:5} events, so far at block {start_block}')
         x = y
 
     gevent.joinall(jobs)

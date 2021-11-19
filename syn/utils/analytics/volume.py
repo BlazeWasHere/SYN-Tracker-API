@@ -7,16 +7,15 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from typing import Any, DefaultDict, Dict, Tuple, overload
 from collections import defaultdict
-from typing import Any, Callable, Dict, Literal, Tuple
 
 import dateutil.parser
 
-from syn.utils.data import MORALIS_APIKEY, SYN_DATA, TOKEN_DECIMALS, \
-    COVALENT_APIKEY, POPULATE_CACHE, LOGS_REDIS_URL
+from syn.utils.data import MORALIS_APIKEY, COVALENT_APIKEY, LOGS_REDIS_URL
 from syn.utils.price import get_historic_price_for_address, \
-    get_price_for_address, get_historic_price_syn
-from syn.utils.helpers import add_to_dict, get_all_keys, merge_dict
+    get_price_for_address
+from syn.utils.helpers import add_to_dict, get_all_keys
 from syn.utils.wrappa.covalent import Covalent
 from syn.utils.wrappa.moralis import Moralis
 from syn.utils.explorer.data import CHAINS
@@ -27,45 +26,46 @@ covalent = Covalent(COVALENT_APIKEY)
 moralis = Moralis(MORALIS_APIKEY)
 
 
-def _always_true(*args, **kwargs) -> Literal[True]:
-    return True
-
-
-def create_totals(res: Dict[str, Any],
-                  chain: str,
-                  address: str,
-                  nested: bool = True) -> Tuple[float, float, float]:
-    # Create a `total` key for each day.
-    for v in res.values():
-        total_usd: float = 0
-
-        if nested:
-            for _v in v.values():
-                total_usd += _v['price_usd']
-        else:
-            total_usd += v['price_usd']
-
-        v['total'] = {'usd': total_usd}
-
-    total_volume: float = 0
+def create_totals(
+        res: Dict[str, Any],
+        chain: str,
+        address: str,
+        is_out: bool = True) -> Tuple[Dict[str, float], float, float]:
+    total_volume: DefaultDict[str, float] = defaultdict(float)
     total_usd_current: float = 0
+    total_txcount: int = 0
     # Total adjusted.
     total_usd: float = 0
 
-    # Now create a `total` including every day.
+    # Create a `total` key which aggregates all the other stats on other keys.
     for v in res.values():
-        total_usd += v['total']['usd']
+        # Reset the variables on each iteration.
+        _total_volume = defaultdict(float)
+        _total_txcount: int = 0
+        _total_usd: float = 0
 
-        for _v in v.values():
-            if nested:
-                if 'volume' in _v:
-                    total_volume += _v['volume']
-            else:
-                if type(_v) != dict:
-                    total_volume += _v
+        if is_out:
+            for _k, _v in v.items():
+                total_volume[_k] += _v['volume']
+                _total_volume[_k] += _v['volume']
+                _total_txcount += _v['tx_count']
+                _total_usd += _v['price_usd']
+
+            v['total'] = {'usd': _total_usd, 'tx_count': _total_txcount}
+        else:
+            total_volume[chain] += v['volume']
+            total_txcount += v['tx_count']
+            total_usd += v['price_usd']
+
+    # Now create a `total` including every day.
+    if is_out:
+        for v in res.values():
+            total_usd += v['total']['usd']
+            total_txcount += v['total']['tx_count']
 
     price = get_price_for_address(chain, address)
-    total_usd_current += (price * total_volume)
+    for volume in total_volume.values():
+        total_usd_current += (price * volume)
 
     return total_volume, total_usd, total_usd_current
 
@@ -106,7 +106,7 @@ def get_chain_volume(address: str,
 
             res[date][to_chain] = {
                 'volume': v['amount'],
-                'txCount': v['txCount'],
+                'tx_count': v['txCount'],
                 'price_usd': v['amount'] * price,
             }
     else:

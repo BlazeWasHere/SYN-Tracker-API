@@ -87,8 +87,8 @@ TOPICS = {
 #: }
 TOKENS_IN_POOL: DefaultDict[str, Dict[int, str]] = defaultdict(dict)
 
-for chain in SYN_DATA.keys():
-    if chain == 'moonriver':
+for chain, v in SYN_DATA.items():
+    if not v.get('pool_contract'):
         continue
 
     ret = get_all_tokens_in_pool(chain)

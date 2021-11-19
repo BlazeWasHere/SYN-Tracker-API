@@ -7,20 +7,10 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Callable, Dict, List
-
 from flask import Blueprint, jsonify
-from gevent.greenlet import Greenlet
-from gevent.pool import Pool
-import gevent
 
 from syn.utils.analytics.volume import get_chain_volume, get_chain_metapool_volume
-from syn.utils.data import BRIDGES, NULL_ADDR, SYN_DATA, cache, DEFAULT_TIMEOUT, \
-    _forced_update
-from syn.utils.helpers import merge_many_dicts, raise_if, \
-    store_volume_dict_to_redis
-
-pool = Pool()
+from syn.utils.data import SYN_DATA, cache, DEFAULT_TIMEOUT, _forced_update
 
 volume_bp = Blueprint('volume_bp', __name__)
 
