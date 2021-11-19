@@ -55,10 +55,6 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
         from .utils.helpers import dispatch_get_logs
 
         dispatch_get_logs(bridge_callback, join_all=True)
-    else:
-        # Run this ONLY if the above isn't running.
-        from .cron import update_getlogs
-        update_getlogs()
 
     from .cron import update_caches
 
@@ -68,6 +64,11 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     # First run.
     update_caches()
     schedular.start()
+
+    if not POPULATE_CACHE:
+        # Run this ONLY if the above isn't running.
+        from .cron import update_getlogs
+        update_getlogs()
 
     with app.app_context():
         from .routes.api.v1.explorer import ws
