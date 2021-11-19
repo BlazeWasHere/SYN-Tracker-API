@@ -7,20 +7,22 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, List, Dict, TypeVar, Union, cast
+from typing import Any, List, Dict, Optional, TypeVar, Union, cast, Callable
 from datetime import datetime, timedelta
 from collections import defaultdict
 import logging
 import json
 
+from web3.types import _Hash32, TxReceipt, LogReceipt
 from eth_typing.evm import ChecksumAddress
-from web3.types import _Hash32, TxReceipt
+from gevent import Greenlet
 from web3.main import Web3
 from redis import Redis
 import dateutil.parser
+import gevent
 
 from .explorer.data import Direction, TOKENS_IN_POOL
-from .data import REDIS, TOKEN_DECIMALS
+from .data import REDIS, TOKEN_DECIMALS, SYN_DATA
 
 logger = logging.Logger(__name__)
 KT = TypeVar('KT')
@@ -182,3 +184,29 @@ def get_gas_stats_for_tx(chain: str,
         'gas_paid': gas_price * receipt['gasUsed'] / 1e9,
         'gas_price': gas_price
     }
+
+
+def dispatch_get_logs(cb: Callable[[str, str, LogReceipt], None],
+                      join_all: bool = True) -> Optional[List[Greenlet]]:
+    from .wrappa.rpc import get_logs
+
+    jobs: List[Greenlet] = []
+
+    for chain in SYN_DATA:
+        if chain in [
+                'harmony',
+                'bsc',
+                'polygon',
+                'ethereum',
+                'moonriver',
+        ]:
+            jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=1024))
+        elif chain == 'boba':
+            jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=512))
+        else:
+            jobs.append(gevent.spawn(get_logs, chain, cb))
+
+    if join_all:
+        gevent.joinall(jobs)
+    else:
+        return jobs

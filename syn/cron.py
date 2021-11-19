@@ -7,6 +7,7 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from typing import Literal, Union
 from datetime import datetime
 import time
 import os
@@ -17,6 +18,8 @@ import redis_lock
 from syn.routes.api.v1.analytics.pools import metapools, basepools
 from syn.utils.data import REDIS, schedular, MORALIS_APIKEY
 from syn.utils.analytics.nusd import get_virtual_price
+from syn.utils.wrappa.rpc import bridge_callback
+from syn.utils.helpers import dispatch_get_logs
 from syn.utils.wrappa.moralis import Moralis
 
 moralis = Moralis(MORALIS_APIKEY)
@@ -60,19 +63,28 @@ routes = [
 ]
 
 
-@schedular.task("cron", id="update_caches", minute="*/15")
-def update_caches():
-    r: Redis = schedular._scheduler._jobstores['default'].redis
-    lock = redis_lock.Lock(r, 'CRON_UPDATE_CACHES_LOCK', id=str(os.getpid()))
+def lock_ownership(r: Redis, name: str,
+                   _id: int) -> Union[Literal[False], redis_lock.Lock]:
+    lock = redis_lock.Lock(r, name, id=str(os.getpid()))
 
     # Some logic to prevent multiple cron jobs running when we are scaling the
     # app with more workers.
     if not lock.acquire(blocking=False):
-        print(f'(0) It seems pid({lock.get_owner_id()}) got to the lock '
+        print(f'({_id}) It seems pid({lock.get_owner_id()}) got to the lock '
               'first. Skipping the job...')
-        return
+        return False
 
-    assert lock.locked()
+    if not lock.locked():
+        return False
+
+    return lock
+
+
+@schedular.task("cron", id="update_caches", minute="*/15")
+def update_caches():
+    r: Redis = schedular._scheduler._jobstores['default'].redis
+    if not (lock := lock_ownership(r, 'CRON_UPDATE_CACHES_LOCK', 0)):
+        return
 
     start = time.time()
     print(f'(0) [{start}] Cron job start.')
@@ -82,7 +94,22 @@ def update_caches():
             print(f'(0) Updating cache for route ~> {route}')
             c.get(route)
 
-    print(f'(0) Cron job done. Elapsed: {round(time.time() - start, 2)}s')
+    print(f'(0) Cron job done. Elapsed: {time.time() - start:.2f}s')
+    lock.release()
+
+
+@schedular.task("interval", id="update_getlogs", hours=1)
+def update_getlogs():
+    r: Redis = schedular._scheduler._jobstores['default'].redis
+    if not (lock := lock_ownership(r, 'CRON_UPDATE_GETLOGS_LOCK', 2)):
+        return
+
+    start = time.time()
+    print(f'(2) [{start}] Cron job start.')
+
+    dispatch_get_logs(bridge_callback, join_all=True)
+
+    print(f'(2) Cron job done. Elapsed: {time.time() - start:.2f}s')
     lock.release()
 
 
@@ -90,14 +117,9 @@ def update_caches():
 @schedular.task("cron", id="set_today_vp", hour=0, minute=1)
 def set_virtual_price():
     r: Redis = schedular._scheduler._jobstores['default'].redis
-    lock1 = redis_lock.Lock(r, 'CRON_UPDATE_VP_LOCK', id=str(os.getpid()))
 
-    if not lock1.acquire(blocking=False):
-        print(f'(1) It seems pid({lock1.get_owner_id()}) got to the lock '
-              'first. Skipping the job...')
+    if not (lock := lock_ownership(r, 'CRON_UPDATE_VP_LOCK', 2)):
         return
-
-    assert lock1.locked()
 
     start = time.time()
     print(f'(1) [{start}] Cron job start.')
@@ -115,5 +137,5 @@ def set_virtual_price():
                                func='basepool_contract')
         REDIS.set(f'basepool:{chain}:vp:{date}', vp[chain])
 
-    print(f'(1) Cron job done. Elapsed: {round(time.time() - start, 2)}s')
-    lock1.release()
+    print(f'(1) Cron job done. Elapsed: {time.time() - start:.2f}s')
+    lock.release()

@@ -7,10 +7,9 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Tuple, List
+from typing import Tuple
 
-from gevent import monkey, Greenlet
-import gevent
+from gevent import monkey
 
 monkey.patch_all()
 
@@ -18,7 +17,7 @@ from flask_socketio import SocketIO
 from flask import Flask
 
 from syn.utils.data import cache, SCHEDULER_CONFIG, schedular, POPULATE_CACHE, \
-    SYN_DATA, MESSAGE_QUEUE_REDIS_URL
+    MESSAGE_QUEUE_REDIS_URL
 
 
 def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
@@ -52,25 +51,14 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
                            url_prefix='/api/v1/analytics/treasury')
 
     if POPULATE_CACHE:
-        from .utils.wrappa.rpc import get_logs, bridge_callback
+        from .utils.wrappa.rpc import bridge_callback
+        from .utils.helpers import dispatch_get_logs
 
-        jobs: List[Greenlet] = []
-
-        for chain in SYN_DATA:
-            if chain in ['harmony', 'bsc', 'polygon', 'ethereum', 'moonriver']:
-                jobs.append(
-                    gevent.spawn(get_logs,
-                                 chain,
-                                 bridge_callback,
-                                 max_blocks=1024))
-            elif chain == 'boba':
-                jobs.append(
-                    gevent.spawn(get_logs,
-                                 chain,
-                                 bridge_callback,
-                                 max_blocks=512))
-            else:
-                jobs.append(gevent.spawn(get_logs, chain, bridge_callback))
+        dispatch_get_logs(bridge_callback, join_all=True)
+    else:
+        # Run this ONLY if the above isn't running.
+        from .cron import update_getlogs
+        update_getlogs()
 
     from .cron import update_caches
 
@@ -85,8 +73,5 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
         from .routes.api.v1.explorer import ws
 
     #ws.start()
-
-    if POPULATE_CACHE:
-        gevent.joinall(jobs)  # type: ignore
 
     return app, app.socketio  # type: ignore

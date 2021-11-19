@@ -34,6 +34,7 @@ start_blocks = {
     'harmony': 18646320,
     'boba': 16188,
     'moonriver': 890949,
+    'optimism': 30718,
 }
 
 pool = Pool(size=64)
