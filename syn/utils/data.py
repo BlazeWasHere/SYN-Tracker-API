@@ -231,84 +231,91 @@ for key, value in SYN_DATA.items():
 
 TOKEN_DECIMALS = {
     'ethereum': {
-        '0x71ab77b7dbb4fa7e017bc15090b2163221420282': 18,
-        '0x0f2d719407fdbeff09d87557abb7232601fd9f29': 18,
-        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 18,
-        '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 6,
-        '0x6b175474e89094c44da98b954eedeac495271d0f': 18,
-        '0xdac17f958d2ee523a2206206994597c13d831ec7': 6,
-        '0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f': 18,
-        '0xbaac2b4491727d78d2b78815144570b9f2fe8899': 18,
+        '0x71ab77b7dbb4fa7e017bc15090b2163221420282': 18,  # HIGH
+        '0x0f2d719407fdbeff09d87557abb7232601fd9f29': 18,  # SYN
+        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 18,  # WETH
+        '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48':  6,  # USDC
+        '0x6b175474e89094c44da98b954eedeac495271d0f': 18,  # DAI
+        '0xdac17f958d2ee523a2206206994597c13d831ec7':  6,  # USDT
+        '0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f': 18,  # nUSD
+        '0xbaac2b4491727d78d2b78815144570b9f2fe8899': 18,  # DOG
+        '0x853d955acef822db058eb8505911ed77f175b99e': 18,  # FRAX
+        '0xca76543cf381ebbb277be79574059e32108e3e65': 18,  # wsOHM
     },
     'bsc': {
-        '0x23b891e5c62e0955ae2bd185990103928ab817b3': 18,
-        '0xf0b8b631145d393a767b4387d08aa09969b2dfed': 18,
-        '0xe9e7cea3dedca5984780bafc599bd69add087d56': 18,
-        '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 18,
-        '0xaa88c603d142c371ea0eac8756123c5805edee03': 18,
-        '0x55d398326f99059ff775485246999027b3197955': 18,
-        '0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63': 18,
-        '0xa4080f1778e69467e905b8d6f72f6e441f9e9484': 18,
-        '0x42f6f551ae042cbe50c739158b4f0cac0edb9096': 18,
+        '0x23b891e5c62e0955ae2bd185990103928ab817b3': 18,  # nUSD
+        '0xf0b8b631145d393a767b4387d08aa09969b2dfed': 18,  # USD-LP
+        '0xe9e7cea3dedca5984780bafc599bd69add087d56': 18,  # BUSD
+        '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 18,  # USDC
+        '0xaa88c603d142c371ea0eac8756123c5805edee03': 18,  # DOG
+        '0x55d398326f99059ff775485246999027b3197955': 18,  # USDT
+        '0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63': 18,  # HIGH
+        '0xa4080f1778e69467e905b8d6f72f6e441f9e9484': 18,  # SYN
+        '0x42f6f551ae042cbe50c739158b4f0cac0edb9096': 18,  # NRV
+        '0x130025ee738a66e691e6a7a62381cb33c6d9ae83': 18,  # JUMP
+        '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51': 18,  # NFD
     },
     'polygon': {
-        '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': 18,
-        '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': 18,
-        '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': 6,
-        '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 6,
-        '0xb6c473756050de474286bed418b77aeac39b02af': 18,
-        '0x128a587555d1148766ef4327172129b50ec66e5d': 18,
+        '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': 18,  # SYN
+        '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': 18,  # DAI
+        '0x2791bca1f2de4661ed88a30c99a7a9449aa84174':  6,  # USDC
+        '0xc2132d05d31c914a87c6611c10748aeb04b58e8f':  6,  # USDT
+        '0xb6c473756050de474286bed418b77aeac39b02af': 18,  # nUSD
+        '0x128a587555d1148766ef4327172129b50ec66e5d': 18,  # USD-LP
+        '0x0a5926027d407222f8fe20f24cb16e103f617046': 18,  # NFD
     },
     'avalanche': {
-        '0xd586e7f844cea2f87f50152665bcbc2c279d8d70': 18,
-        '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664': 6,
-        '0xc7198437980c041c805a1edcba50c1ce5db95118': 6,
-        '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46': 18,
-        '0x55904f416586b5140a0f666cf5acf320adf64846': 18,
-        '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': 18,
+        '0xd586e7f844cea2f87f50152665bcbc2c279d8d70': 18,  # DAI
+        '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664':  6,  # USDC
+        '0xc7198437980c041c805a1edcba50c1ce5db95118':  6,  # USDT
+        '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46': 18,  # nUSD
+        '0x55904f416586b5140a0f666cf5acf320adf64846': 18,  # USD-LP
+        '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': 18,  # SYN
+        '0xf1293574ee43950e7a8c9f1005ff097a9a713959': 18,  # NFD
     },
     'arbitrum': {
-        '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': 18,
-        '0x080f6aed32fc474dd5717105dba5ea57268f46eb': 18,
-        '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8': 6,
-        '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': 6,
-        '0x2913e812cf0dcca30fb28e6cac3d2dcff4497688': 18,
-        '0xe264cb5a941f98a391b9d5244378edf79bf5c19e': 18,
-        '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': 18,
-        '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e': 18,
+        '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': 18,  # DAI
+        '0x080f6aed32fc474dd5717105dba5ea57268f46eb': 18,  # SYN
+        '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8':  6,  # USDC
+        '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9':  6,  # USDT
+        '0x2913e812cf0dcca30fb28e6cac3d2dcff4497688': 18,  # nUSD
+        '0xe264cb5a941f98a391b9d5244378edf79bf5c19e': 18,  # USD-LP
+        '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': 18,  # MIM
+        '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e': 18,  # nETH
     },
     'fantom': {
-        '0x04068da6c83afcfa0e13ba15a6696662335d5b75': 6,
-        '0x049d68029688eabf473097a2fc38ef61633a3c7a': 6,
-        '0x43cf58380e69594fa2a5682de484ae00edd83e94': 18,
-        '0x82f0b8b456c1a451378467398982d4834b6829c1': 18,
-        '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,
-        '0xe55e19fb4f2d85af758950957714292dac1e25b2': 18,
+        '0x04068da6c83afcfa0e13ba15a6696662335d5b75':  6,  # USDC
+        '0x049d68029688eabf473097a2fc38ef61633a3c7a':  6,  # fUSDT
+        '0x43cf58380e69594fa2a5682de484ae00edd83e94': 18,  # USD-LP
+        '0x82f0b8b456c1a451378467398982d4834b6829c1': 18,  # MIM
+        '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,  # nUSD
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2': 18,  # SYN
+        '0x78de9326792ce1d6eca0c978753c6953cdeedd73': 18,  # JUMP
     },
     'harmony': {
-        '0xe55e19fb4f2d85af758950957714292dac1e25b2': 18,
-        '0xef977d2f931c1978db5f6747666fa1eacb0d0339': 18,
-        '0x985458e523db3d53125813ed68c274899e9dfab4': 6,
-        '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f': 6,
-        '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2': 18,  # SYN
+        '0xef977d2f931c1978db5f6747666fa1eacb0d0339': 18,  # 1DAI
+        '0x985458e523db3d53125813ed68c274899e9dfab4':  6,  # 1USDC
+        '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f':  6,  # 1USDT
+        '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,  # nUSD
     },
     'boba': {
-        '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc': 6,
-        '0xb554a55358ff0382fb21f0a478c3546d1106be8c': 18,
-        '0x5de1677344d3cb0d7d465c10b72a8f60699c062d': 6,
-        '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000': 18,
-        '0x96419929d7949d6a801a6909c145c8eef6a40431': 18,
-        '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 18,
-        '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35': 18,
+        '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc':  6,  # USDC
+        '0xb554a55358ff0382fb21f0a478c3546d1106be8c': 18,  # SYN
+        '0x5de1677344d3cb0d7d465c10b72a8f60699c062d':  6,  # USDT
+        '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000': 18,  # WETH
+        '0x96419929d7949d6a801a6909c145c8eef6a40431': 18,  # nETH
+        '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 18,  # nUSD
+        '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35': 18,  # DAI
     },
     'moonriver': {
-        '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': 18,
-        '0xe96ac70907fff3efee79f502c985a7a21bce407d': 18,
-        '0x1a93b23281cc1cde4c4741353f3064709a16197d': 18,
+        '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': 18,  # SYN
+        '0xe96ac70907fff3efee79f502c985a7a21bce407d': 18,  # synFRAX
+        '0x1a93b23281cc1cde4c4741353f3064709a16197d': 18,  # FRAX
     },
     'optimism': {
-        '0x809dc529f07651bd43a172e8db6f4a7a0d771036': 18,
-        '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': 18,
+        '0x809dc529f07651bd43a172e8db6f4a7a0d771036': 18,  # nETH
+        '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': 18,  # SYN
     },
 }
 
