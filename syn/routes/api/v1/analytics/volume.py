@@ -23,65 +23,6 @@ from syn.utils.helpers import merge_many_dicts, raise_if, \
 pool = Pool()
 
 volume_bp = Blueprint('volume_bp', __name__)
-ETH_TOKENS = ['nusd', 'syn', 'high', 'dog', 'usdt', 'usdc', 'dai']
-BSC_TOKENS = ['nusd', 'syn', 'high', 'dog']
-POLYGON_TOKENS = ['nusd', 'syn']
-
-
-def filter_factory(key: str,
-                   chain: str,
-                   address: str = '') -> Callable[[Dict[str, str]], bool]:
-    if not address:
-        if chain == 'ethereum':
-            address = BRIDGES[chain][0]
-        else:
-            address = SYN_DATA[chain]['pool']
-
-    def filter(x: Dict[str, str]) -> bool:
-        return x['to_address'] == address.lower() \
-            and x['address'] == SYN_DATA[chain][key].lower()
-
-    return filter
-
-
-def esc_filter_factory(chain: str,
-                       c_address: str) -> Callable[[Dict[str, Any]], bool]:
-    def filter(data: Dict[str, Any]) -> bool:
-        if data['to_address'] not in BRIDGES[chain]:
-            return False
-
-        for x in data['transfers']:
-            if x['contract_address'] == c_address.lower():
-                return True
-
-        return False
-
-    return filter
-
-
-@volume_bp.route('/ethereum', methods=['GET'])
-@cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
-def volume_eth():
-    # address = BRIDGES['ethereum'][0]
-    # resps: List[Dict[str, Any]] = []
-    # jobs: List[Greenlet] = []
-    #
-    # for x in ETH_TOKENS:
-    #     x = 'address' if x == 'syn' else x
-    #     jobs.append(
-    #         pool.spawn(get_chain_volume, address, 'ethereum',
-    #                    filter_factory(x, 'ethereum')))
-    #
-    # ret: List[Greenlet] = gevent.joinall(jobs)
-    # for x in ret:
-    #     resps.append(raise_if(x.get(), None))
-    #
-    # return jsonify(merge_many_dicts(resps, is_price_dict=True))
-
-    # Something is not right here, let's ignore that for a while
-    return jsonify(dict())
-
-
 
 symbol_to_address = {
     'ethereum': {
