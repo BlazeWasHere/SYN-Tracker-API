@@ -11,9 +11,10 @@ from web3.exceptions import BadFunctionCallOutput
 from flask import Blueprint, jsonify, request
 from web3 import Web3
 
-from syn.utils.analytics.fees import get_admin_fees, get_pending_admin_fees, \
+from syn.utils.analytics.fees import get_admin_fees, get_chain_bridge_fees, get_pending_admin_fees, \
     get_chain_validator_gas_fees
 from syn.utils.analytics.treasury import get_treasury_erc20_balances
+from syn.routes.api.v1.analytics.volume import symbol_to_address
 from syn.utils.data import SYN_DATA, cache, _forced_update
 from syn.utils import verify
 
@@ -90,6 +91,7 @@ def pending_adminfees_chain(chain: str):
 
 
 @fees_bp.route('/validator/<chain>')
+@cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def chain_validator_gas_fees(chain: str):
     if chain not in SYN_DATA:
         return (jsonify({
@@ -98,3 +100,21 @@ def chain_validator_gas_fees(chain: str):
         }), 400)
 
     return jsonify(get_chain_validator_gas_fees(chain))
+
+
+@fees_bp.route('/bridge/<chain>/<token>')
+@cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
+def chain_bridge_fees(chain: str, token: str):
+    if chain not in SYN_DATA:
+        return (jsonify({
+            'error': 'invalid chain',
+            'valids': list(SYN_DATA),
+        }), 400)
+    elif token not in symbol_to_address[chain]:
+        return (jsonify({
+            'error': 'invalid token',
+            'valids': list(symbol_to_address[chain]),
+        }), 400)
+
+    return jsonify(
+        get_chain_bridge_fees(chain, symbol_to_address[chain][token]))

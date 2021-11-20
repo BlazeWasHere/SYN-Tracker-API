@@ -13,7 +13,8 @@ from collections import defaultdict
 from syn.utils.data import SYN_DATA, TOKEN_DECIMALS, LOGS_REDIS_URL
 from syn.utils.helpers import add_to_dict, raise_if, get_all_keys
 from syn.utils.contract import get_all_tokens_in_pool, call_abi
-from syn.utils.price import CoingeckoIDS, get_historic_price
+from syn.utils.price import CoingeckoIDS, get_historic_price, \
+    get_historic_price_for_address
 from syn.utils.analytics.volume import create_totals
 from syn.utils.cache import timed_cache
 
@@ -139,3 +140,38 @@ def get_chain_validator_gas_fees(
         add_to_dict(res[k], 'tx_count', v['txCount'])
 
     return res
+
+
+def get_chain_bridge_fees(chain: str, address: str):
+    # We aggregate bridge fees on `IN` txs
+    ret = get_all_keys(f'{chain}:bridge:*:{address}:IN',
+                       client=LOGS_REDIS_URL,
+                       index=2,
+                       serialize=True)
+
+    res = defaultdict(dict)
+
+    for k, v in ret.items():
+        price = get_historic_price_for_address(chain, address, k)
+
+        res[k] = {
+            'volume': v['amount'],
+            'price_usd': v['amount'] * price,
+            'tx_count': v['txCount'],
+        }
+
+    total, total_usd, total_usd_current = create_totals(res,
+                                                        chain,
+                                                        address,
+                                                        is_out=False)
+
+    return {
+        'stats': {
+            'volume': total,
+            'usd': {
+                'adjusted': total_usd,
+                'current': total_usd_current,
+            },
+        },
+        'data': res,
+    }
