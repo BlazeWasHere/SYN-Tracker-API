@@ -30,7 +30,8 @@ def create_totals(
         res: Dict[str, Any],
         chain: str,
         address: str,
-        is_out: bool = True) -> Tuple[Dict[str, float], float, float]:
+        is_out: bool = True,
+        key: str = 'volume') -> Tuple[Dict[str, float], float, float]:
     total_volume: DefaultDict[str, float] = defaultdict(float)
     total_usd_current: float = 0
     total_txcount: int = 0
@@ -46,14 +47,14 @@ def create_totals(
 
         if is_out:
             for _k, _v in v.items():
-                total_volume[_k] += _v['volume']
-                _total_volume[_k] += _v['volume']
+                total_volume[_k] += _v[key]
+                _total_volume[_k] += _v[key]
                 _total_txcount += _v['tx_count']
                 _total_usd += _v['price_usd']
 
             v['total'] = {'usd': _total_usd, 'tx_count': _total_txcount}
         else:
-            total_volume[chain] += v['volume']
+            total_volume[chain] += v[key]
             total_txcount += v['tx_count']
             total_usd += v['price_usd']
 

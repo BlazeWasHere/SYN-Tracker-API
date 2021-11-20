@@ -155,7 +155,7 @@ def get_chain_bridge_fees(chain: str, address: str):
         price = get_historic_price_for_address(chain, address, k)
 
         res[k] = {
-            'volume': v['amount'],
+            'fees': v['fees'],
             'price_usd': v['amount'] * price,
             'tx_count': v['txCount'],
         }
@@ -163,7 +163,8 @@ def get_chain_bridge_fees(chain: str, address: str):
     total, total_usd, total_usd_current = create_totals(res,
                                                         chain,
                                                         address,
-                                                        is_out=False)
+                                                        is_out=False,
+                                                        key='fees')
 
     return {
         'stats': {
