@@ -63,12 +63,13 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     cache.init_app(app)
     # First run.
     update_caches()
-    schedular.start()
 
     if not POPULATE_CACHE:
         # Run this ONLY if the above isn't running.
         from .cron import update_getlogs
         update_getlogs()
+
+    schedular.start()
 
     with app.app_context():
         from .routes.api.v1.explorer import ws
