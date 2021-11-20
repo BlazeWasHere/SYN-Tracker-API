@@ -22,7 +22,10 @@
           "polygon",
           "arbitrum",
           "fantom",
-          "harmony"
+          "harmony",
+          "arbitrum",
+          "optimism",
+          "moonriver"
         ]
       },
       "MetapoolChains": {
@@ -81,38 +84,48 @@
           }
         }
       },
-      "BridgeFilter": {
+      "VolumeResponse1": {
         "type": "object",
         "properties": {
           "data": {
             "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "properties": {
-                "total": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": {
                   "type": "object",
                   "properties": {
-                    "usd": {
+                    "price_usd": {
                       "type": "number",
                       "format": "float"
+                    },
+                    "volume": {
+                      "type": "number",
+                      "format": "float"
+                    },
+                    "tx_count": {
+                      "type": "number"
                     }
                   }
                 }
               },
-              "additionalProperties": {
+              {
                 "type": "object",
                 "properties": {
-                  "usd": {
+                  "price_usd": {
                     "type": "number",
                     "format": "float"
                   },
                   "volume": {
                     "type": "number",
                     "format": "float"
+                  },
+                  "tx_count": {
+                    "type": "number"
                   }
                 }
               }
-            }
+            ]
           },
           "stats": {
             "type": "object",
@@ -381,149 +394,43 @@
         "tags": ["Metapool Volume"]
       }
     },
-    "/api/v1/analytics/volume/bsc": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
-              }
-            },
-            "description": "Successful response"
-          }
-        },
-        "summary": "volume of all tokens on the BSC bridge",
-        "tags": ["Bridge Volume"]
-      }
-    },
-    "/api/v1/analytics/volume/bsc/filter/{token}": {
+    "/api/v1/analytics/volume/{chain}/filter/{token}/{direction}": {
       "get": {
         "parameters": [
           {
             "in": "path",
-            "name": "token",
+            "name": "chain",
             "required": true,
             "schema": {
-              "type": "string",
-              "enum": ["nusd", "syn", "high", "dog"]
+              "$ref": "#/components/schemas/Chains"
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
-              }
-            },
-            "description": "Successful response"
           },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InvalidError"
-                }
-              }
-            },
-            "description": "Not found"
-          }
-        },
-        "summary": "volume of a token on the BSC bridge",
-        "tags": ["Bridge Volume"]
-      }
-    },
-    "/api/v1/analytics/volume/ethereum": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
-              }
-            },
-            "description": "Successful response"
-          }
-        },
-        "summary": "volume of all tokens on the ETH bridge",
-        "tags": ["Bridge Volume"]
-      }
-    },
-    "/api/v1/analytics/volume/ethereum/filter/{token}": {
-      "get": {
-        "parameters": [
           {
             "in": "path",
             "name": "token",
             "required": true,
-            "schema": {
-              "type": "string",
-              "enum": ["nusd", "syn", "high", "dog", "usdt", "usdc", "dai"]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
-              }
-            },
-            "description": "Successful response"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InvalidError"
-                }
-              }
-            },
-            "description": "Not found"
-          }
-        },
-        "summary": "volume of a token on the ETH bridge",
-        "tags": ["Bridge Volume"]
-      }
-    },
-    "/api/v1/analytics/volume/polygon": {
-      "get": {
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
-              }
-            },
-            "description": "Successful response"
-          }
-        },
-        "summary": "volume of all tokens on the MATIC/Polygon bridge",
-        "tags": ["Bridge Volume"]
-      }
-    },
-    "/api/v1/analytics/volume/polygon/filter/{token}": {
-      "get": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "token",
-            "required": true,
+            "description": "some chains support more tokens such as neth, synfrax, dog, high, etc.",
             "schema": {
               "type": "string",
               "enum": ["nusd", "syn"]
             }
+          },
+          {
+            "in": "path",
+            "name": "direction",
+            "required": true,
+            "description": "count the asset going IN or OUT of the chain",
+            "schema": {
+              "type": "string",
+              "enum": ["in", "out"]
+            }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/BridgeFilter" }
+                "schema": { "$ref": "#/components/schemas/VolumeResponse1" }
               }
             },
             "description": "Successful response"
@@ -539,7 +446,7 @@
             "description": "Not found"
           }
         },
-        "summary": "volume of a token on the MATIC/Polygon bridge",
+        "summary": "volume of a token on a bridge going in a direction",
         "tags": ["Bridge Volume"]
       }
     },
