@@ -155,10 +155,10 @@ def get_historic_price(_id: CoingeckoIDS,
     if POPULATE_CACHE:
         time.sleep(randint(5, 20))
 
-    r = requests.get(COINGECKO_HISTORIC_URL.format(_id.value, date))
+    r = requests.get(COINGECKO_HISTORIC_URL.format(_id.value, date)).json()
 
     try:
-        return r.json()['market_data']['current_price'][currency]
+        return r['market_data']['current_price'][currency]
     except KeyError:
         # CG doesn't have the price.
         return 0
