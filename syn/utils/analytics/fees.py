@@ -156,7 +156,7 @@ def get_chain_bridge_fees(chain: str, address: str):
 
         res[k] = {
             'fees': v['fees'],
-            'price_usd': v['amount'] * price,
+            'price_usd': v['fees'] * price,
             'tx_count': v['txCount'],
         }
 
