@@ -11,7 +11,8 @@ from web3.exceptions import BadFunctionCallOutput
 from flask import Blueprint, jsonify, request
 from web3 import Web3
 
-from syn.utils.analytics.fees import get_admin_fees, get_pending_admin_fees
+from syn.utils.analytics.fees import get_admin_fees, get_pending_admin_fees, \
+    get_chain_validator_gas_fees
 from syn.utils.analytics.treasury import get_treasury_erc20_balances
 from syn.utils.data import SYN_DATA, cache, _forced_update
 from syn.utils import verify
@@ -86,3 +87,14 @@ def pending_adminfees_chain(chain: str):
         # Contract didn't exist then basically, this happens in blocks
         # before the metapool contract deployment.
         return (jsonify({'error': 'contract not deployed'}), 400)
+
+
+@fees_bp.route('/validator/<chain>')
+def chain_validator_gas_fees(chain: str):
+    if chain not in SYN_DATA:
+        return (jsonify({
+            'error': 'invalid chain',
+            'valids': list(SYN_DATA),
+        }), 400)
+
+    return jsonify(get_chain_validator_gas_fees(chain))

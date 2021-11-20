@@ -33,6 +33,12 @@ class CoingeckoIDS(Enum):
     NRV = 'nerve-finance'
     MIM = 'magic-internet-money'
     FRAX = 'frax'
+    BNB = 'binancecoin'
+    AVAX = 'avalanche-2'
+    ONE = 'harmony'
+    MATIC = 'matic-network'
+    FTM = 'fantom'
+    MOVR = 'moonriver'
 
 
 CUSTOM = {

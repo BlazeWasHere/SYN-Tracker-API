@@ -8,17 +8,34 @@
 """
 
 from typing import Dict, Union, List
+from collections import defaultdict
 
+from syn.utils.data import SYN_DATA, TOKEN_DECIMALS, LOGS_REDIS_URL
+from syn.utils.helpers import add_to_dict, raise_if, get_all_keys
 from syn.utils.contract import get_all_tokens_in_pool, call_abi
-from syn.utils.data import SYN_DATA, TOKEN_DECIMALS
+from syn.utils.price import CoingeckoIDS, get_historic_price
+from syn.utils.analytics.volume import create_totals
 from syn.utils.cache import timed_cache
-from syn.utils.helpers import raise_if
 
 from gevent.greenlet import Greenlet
 from gevent.pool import Pool
 import gevent
 
 pool = Pool()
+
+# Map the chain to their native token (what gas is paid in).
+_chain_to_cgid = {
+    'ethereum': CoingeckoIDS.ETH,
+    'avalanche': CoingeckoIDS.AVAX,
+    'bsc': CoingeckoIDS.BNB,
+    'polygon': CoingeckoIDS.MATIC,
+    'arbitrum': CoingeckoIDS.ETH,
+    'fantom': CoingeckoIDS.FTM,
+    'harmony': CoingeckoIDS.ONE,
+    'boba': CoingeckoIDS.ETH,
+    'moonriver': CoingeckoIDS.MOVR,
+    'optimism': CoingeckoIDS.ETH,
+}
 
 
 @timed_cache(60, maxsize=50)
@@ -98,5 +115,27 @@ def get_admin_and_pending_fees(chain: str,
     ret: List[Greenlet] = gevent.joinall(jobs)
     for x in ret:
         res.update(raise_if(x.get(), None))
+
+    return res
+
+
+def get_chain_validator_gas_fees(
+        chain: str) -> Dict[str, Dict[str, Union[str, float]]]:
+    # We aggregate validator gas fees on `IN` txs.
+    ret = get_all_keys(f'{chain}:bridge:*:IN',
+                       client=LOGS_REDIS_URL,
+                       index=2,
+                       serialize=True)
+
+    res: Dict[str, Dict[str, Union[str, float]]] = defaultdict(dict)
+
+    for k, v in ret.items():
+        price = get_historic_price(_chain_to_cgid[chain], k)
+        x = v['validator']
+
+        add_to_dict(res[k], 'gas_price', x['gas_price'])
+        add_to_dict(res[k], 'transaction_fee', x['gas_paid'])
+        add_to_dict(res[k], 'price_usd', x['gas_paid'] * price)
+        add_to_dict(res[k], 'tx_count', v['txCount'])
 
     return res
