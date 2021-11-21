@@ -58,6 +58,7 @@ symbol_to_address = {
     'boba': {
         'syn': '0xb554a55358ff0382fb21f0a478c3546d1106be8c',
         'nusd': '0x6b4712ae9797c199edd44f897ca09bc57628a1cf',
+        'neth': '0x96419929d7949d6a801a6909c145c8eef6a40431',
     },
     'moonriver': {
         'syn': '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445',
