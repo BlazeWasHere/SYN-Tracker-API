@@ -26,12 +26,12 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     from .utils.converters import register_converter
     register_converter(app, 'date')
 
-    app.socketio = SocketIO(  # type: ignore
-        app,
-        logger=debug,
-        engineio_logger=debug,
-        asnyc_mode='gevent',
-        message_queue=MESSAGE_QUEUE_REDIS_URL)
+    #app.socketio = SocketIO(  # type: ignore
+    #    app,
+    #    logger=debug,
+    #    engineio_logger=debug,
+    #    asnyc_mode='gevent',
+    #    message_queue=MESSAGE_QUEUE_REDIS_URL)
 
     from .routes.api.v1.analytics.treasury import treasury_bp
     from .routes.api.v1.analytics.volume import volume_bp
@@ -71,9 +71,9 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
 
     schedular.start()
 
-    with app.app_context():
-        from .routes.api.v1.explorer import ws
+    #with app.app_context():
+    #    from .routes.api.v1.explorer import ws
 
     #ws.start()
 
-    return app, app.socketio  # type: ignore
+    return app, None  # type: ignore
