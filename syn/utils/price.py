@@ -9,6 +9,7 @@
 
 from datetime import datetime
 from enum import Enum
+import logging
 
 import dateutil.parser
 import requests
@@ -19,6 +20,8 @@ from .cache import timed_cache, redis_cache
 if POPULATE_CACHE:
     from random import randint
     import time
+
+logger = logging.Logger(__name__)
 
 
 class CoingeckoIDS(Enum):
@@ -40,8 +43,9 @@ class CoingeckoIDS(Enum):
     FTM = 'fantom'
     MOVR = 'moonriver'
     NFD = 'feisty-doge-nft'
-    JUMP = 'highjumpthe'
+    JUMP = 'hyperjump'
     OHM = 'olympus'
+    JGN = 'juggernaut'
 
 
 CUSTOM = {
@@ -64,10 +68,14 @@ CUSTOM = {
         # nUSD
         '0xb6c473756050de474286bed418b77aeac39b02af': 1,
         '0x81067076dcb7d3168ccf7036117b9d72051205e2': 0,
+        # USD-LP
+        '0x128a587555d1148766ef4327172129b50ec66e5d': 1,
     },
     'avalanche': {
         # nUSD
         '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46': 1,
+        # USD-LP
+        '0x55904f416586b5140a0f666cf5acf320adf64846': 1,
     },
     'arbitrum': {
         # nUSD
@@ -76,6 +84,8 @@ CUSTOM = {
     'fantom': {
         # nUSD
         '0xed2a7edd7413021d440b09d654f3b87712abab66': 1,
+        # JUMP, not really it's price but oh well.
+        '0x78de9326792ce1d6eca0c978753c6953cdeedd73': 0.01,
     },
     'harmony': {
         # nUSD
@@ -110,6 +120,7 @@ ADDRESS_TO_CGID = {
         '0x55d398326f99059ff775485246999027b3197955': CoingeckoIDS.USDT,
         '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51': CoingeckoIDS.NFD,
         '0x42f6f551ae042cbe50c739158b4f0cac0edb9096': CoingeckoIDS.NRV,
+        '0xc13b7a43223bb9bf4b69bd68ab20ca1b79d81c75': CoingeckoIDS.JGN,
     },
     'polygon': {
         '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': CoingeckoIDS.SYN,
@@ -149,6 +160,7 @@ ADDRESS_TO_CGID = {
         '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35': CoingeckoIDS.DAI,
         '0x5de1677344d3cb0d7d465c10b72a8f60699c062d': CoingeckoIDS.USDT,
         '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc': CoingeckoIDS.USDC,
+        '0x96419929d7949d6a801a6909c145c8eef6a40431': CoingeckoIDS.ETH,
     },
     'moonriver': {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
@@ -204,6 +216,10 @@ def get_historic_price_for_address(chain: str, address: str,
 def get_price_for_address(chain: str, address: str) -> float:
     if address in CUSTOM[chain]:
         return CUSTOM[chain][address]
+
+    if address not in ADDRESS_TO_CGID[chain]:
+        logger.warning(f'returning amount 0 for token {address} on {chain}')
+        return 0
 
     return get_price_coingecko(ADDRESS_TO_CGID[chain][address])
 
