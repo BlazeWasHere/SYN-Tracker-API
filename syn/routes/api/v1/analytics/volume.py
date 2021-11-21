@@ -9,7 +9,8 @@
 
 from flask import Blueprint, jsonify
 
-from syn.utils.analytics.volume import get_chain_volume, get_chain_metapool_volume
+from syn.utils.analytics.volume import get_chain_volume_for_address, \
+    get_chain_metapool_volume, get_chain_volume
 from syn.utils.data import SYN_DATA, cache, DEFAULT_TIMEOUT, _forced_update
 
 volume_bp = Blueprint('volume_bp', __name__)
@@ -22,6 +23,7 @@ symbol_to_address = {
         'weth': '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
         'high': '0x71ab77b7dbb4fa7e017bc15090b2163221420282',
         'frax': '0x853d955acef822db058eb8505911ed77f175b99e',
+        'sohm': '0xca76543cf381ebbb277be79574059e32108e3e65',
     },
     'bsc': {
         'syn': '0xa4080f1778e69467e905b8d6f72f6e441f9e9484',
@@ -30,6 +32,7 @@ symbol_to_address = {
         'jump': '0x130025ee738a66e691e6a7a62381cb33c6d9ae83',
         'nfd': '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51',
         'dog': '0xaa88c603d142c371ea0eac8756123c5805edee03',
+        'nrv': '0x42f6f551ae042cbe50c739158b4f0cac0edb9096',
     },
     'polygon': {
         'syn': '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695',
@@ -71,7 +74,7 @@ symbol_to_address = {
 }
 
 
-@volume_bp.route('/<chain>/filter/<token>/<direction>')
+@volume_bp.route('/<chain>/filter/<token>/<direction>', methods=['GET'])
 def chain_filter_token_direction(chain: str, token: str, direction: str):
     if chain not in SYN_DATA:
         return (jsonify({
@@ -92,9 +95,29 @@ def chain_filter_token_direction(chain: str, token: str, direction: str):
     if direction.upper() == 'OUT':
         direction = 'OUT:*'
 
-    ret = get_chain_volume(symbol_to_address[chain][token], chain,
-                           direction.upper())
+    ret = get_chain_volume_for_address(symbol_to_address[chain][token], chain,
+                                       direction.upper())
     return jsonify(ret)
+
+
+@volume_bp.route('/<chain>/', defaults={'direction': ''}, methods=['GET'])
+@volume_bp.route('/<chain>/<direction>', methods=['GET'])
+def chain_volume(chain: str, direction: str):
+    if chain not in SYN_DATA:
+        return (jsonify({
+            'error': 'invalid chain',
+            'valids': list(SYN_DATA),
+        }), 400)
+    elif direction.upper() not in ['IN', 'OUT']:
+        return (jsonify({
+            'error': 'invalid direction',
+            'valids': ['in', 'out'],
+        }), 400)
+
+    if direction.upper() == 'OUT':
+        direction = 'OUT:*'
+
+    return jsonify(get_chain_volume(chain, direction.upper()))
 
 
 @volume_bp.route('/metapool/', defaults={'chain': ''}, methods=['GET'])

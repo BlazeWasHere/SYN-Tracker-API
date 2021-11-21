@@ -7,15 +7,17 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, DefaultDict, Dict, Tuple, overload
+from typing import Any, DefaultDict, Dict, Tuple, Union
 from collections import defaultdict
 
+from gevent.greenlet import Greenlet
 import dateutil.parser
+import gevent
 
 from syn.utils.data import MORALIS_APIKEY, COVALENT_APIKEY, LOGS_REDIS_URL
 from syn.utils.price import get_historic_price_for_address, \
     get_price_for_address
-from syn.utils.helpers import add_to_dict, get_all_keys
+from syn.utils.helpers import add_to_dict, get_all_keys, raise_if
 from syn.utils.wrappa.covalent import Covalent
 from syn.utils.wrappa.moralis import Moralis
 from syn.utils.explorer.data import CHAINS
@@ -71,9 +73,9 @@ def create_totals(
     return total_volume, total_usd, total_usd_current
 
 
-def get_chain_volume(address: str,
-                     chain: str,
-                     direction: str = '*') -> Dict[str, Any]:
+def get_chain_volume_for_address(address: str,
+                                 chain: str,
+                                 direction: str = '*') -> Dict[str, Any]:
     res = defaultdict(dict)
 
     if 'IN' in direction:
@@ -124,6 +126,53 @@ def get_chain_volume(address: str,
             'volume': total,
             'usd': {
                 'adjusted': total_usd,
+                'current': total_usd_current,
+            },
+        },
+        'data': res,
+    }
+
+
+def get_chain_volume(chain: str, direction: str = '*') -> Dict[str, Any]:
+    from syn.routes.api.v1.analytics.volume import symbol_to_address
+
+    # Get all tokens for the chain which we have stored.
+    ret = get_all_keys(f'{chain}:bridge:*:{direction}',
+                       serialize=True,
+                       client=LOGS_REDIS_URL,
+                       index=3)
+    tokens = ret.keys()
+
+    jobs: Dict[str, Greenlet] = {}
+
+    for token in tokens:
+        jobs[token] = gevent.spawn(get_chain_volume_for_address, token, chain,
+                                   direction)
+
+    addresses = list(symbol_to_address[chain].values())
+    symbols = list(symbol_to_address[chain].keys())
+    res = defaultdict(dict)
+
+    for token, job in jobs.items():
+        assert token not in res
+        res[token] = raise_if(job.get(), None)
+
+    # Create totals including everything.
+    volume: Dict[str, Dict[str, Union[float, str]]] = {}
+    total_usd_current: int = 0
+    total_usd_adj: int = 0
+
+    for token, v in res.items():
+        total_usd_current += v['stats']['usd']['current']
+        total_usd_adj += v['stats']['usd']['adjusted']
+        volume[token] = v['stats']['volume']
+        volume[token].update({'token': symbols[addresses.index(token)]})
+
+    return {
+        'stats': {
+            'volume': volume,
+            'usd': {
+                'adjusted': total_usd_adj,
                 'current': total_usd_current,
             },
         },

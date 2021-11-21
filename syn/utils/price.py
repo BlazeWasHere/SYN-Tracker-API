@@ -41,6 +41,7 @@ class CoingeckoIDS(Enum):
     MOVR = 'moonriver'
     NFD = 'feisty-doge-nft'
     JUMP = 'highjumpthe'
+    OHM = 'olympus'
 
 
 CUSTOM = {
@@ -98,6 +99,7 @@ ADDRESS_TO_CGID = {
         '0xdac17f958d2ee523a2206206994597c13d831ec7': CoingeckoIDS.USDT,
         '0xbaac2b4491727d78d2b78815144570b9f2fe8899': CoingeckoIDS.DOG,
         '0x853d955acef822db058eb8505911ed77f175b99e': CoingeckoIDS.FRAX,
+        '0xca76543cf381ebbb277be79574059e32108e3e65': CoingeckoIDS.OHM,
     },
     'bsc': {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': CoingeckoIDS.BUSD,
@@ -107,6 +109,7 @@ ADDRESS_TO_CGID = {
         '0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63': CoingeckoIDS.HIGH,
         '0x55d398326f99059ff775485246999027b3197955': CoingeckoIDS.USDT,
         '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51': CoingeckoIDS.NFD,
+        '0x42f6f551ae042cbe50c739158b4f0cac0edb9096': CoingeckoIDS.NRV,
     },
     'polygon': {
         '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': CoingeckoIDS.SYN,
