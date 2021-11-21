@@ -39,6 +39,8 @@ class CoingeckoIDS(Enum):
     MATIC = 'matic-network'
     FTM = 'fantom'
     MOVR = 'moonriver'
+    NFD = 'feisty-doge-nft'
+    JUMP = 'highjumpthe'
 
 
 CUSTOM = {
@@ -54,6 +56,8 @@ CUSTOM = {
         # BSC-USD
         '0x55d398326f99059ff775485246999027b3197955': 1,
         '0xdfd717f4e942931c98053d5453f803a1b52838db': 0,
+        # JUMP, not really it's price but oh well.
+        '0x130025ee738a66e691e6a7a62381cb33c6d9ae83': 0.01,
     },
     'polygon': {
         # nUSD
@@ -93,6 +97,7 @@ ADDRESS_TO_CGID = {
         '0x6b175474e89094c44da98b954eedeac495271d0f': CoingeckoIDS.DAI,
         '0xdac17f958d2ee523a2206206994597c13d831ec7': CoingeckoIDS.USDT,
         '0xbaac2b4491727d78d2b78815144570b9f2fe8899': CoingeckoIDS.DOG,
+        '0x853d955acef822db058eb8505911ed77f175b99e': CoingeckoIDS.FRAX,
     },
     'bsc': {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': CoingeckoIDS.BUSD,
@@ -101,18 +106,21 @@ ADDRESS_TO_CGID = {
         '0xa4080f1778e69467e905b8d6f72f6e441f9e9484': CoingeckoIDS.SYN,
         '0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63': CoingeckoIDS.HIGH,
         '0x55d398326f99059ff775485246999027b3197955': CoingeckoIDS.USDT,
+        '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51': CoingeckoIDS.NFD,
     },
     'polygon': {
         '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': CoingeckoIDS.SYN,
         '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': CoingeckoIDS.DAI,
         '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': CoingeckoIDS.USDC,
         '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': CoingeckoIDS.USDT,
+        '0x0a5926027d407222f8fe20f24cb16e103f617046': CoingeckoIDS.NFD,
     },
     'avalanche': {
         '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': CoingeckoIDS.SYN,
         '0xd586e7f844cea2f87f50152665bcbc2c279d8d70': CoingeckoIDS.DAI,
         '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664': CoingeckoIDS.USDC,
         '0xc7198437980c041c805a1edcba50c1ce5db95118': CoingeckoIDS.USDT,
+        '0xf1293574ee43950e7a8c9f1005ff097a9a713959': CoingeckoIDS.NFD,
     },
     'arbitrum': {
         '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,
