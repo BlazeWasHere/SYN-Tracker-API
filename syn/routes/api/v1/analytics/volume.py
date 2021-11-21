@@ -33,6 +33,7 @@ symbol_to_address = {
         'nfd': '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51',
         'dog': '0xaa88c603d142c371ea0eac8756123c5805edee03',
         'nrv': '0x42f6f551ae042cbe50c739158b4f0cac0edb9096',
+        'jgn': '0xc13b7a43223bb9bf4b69bd68ab20ca1b79d81c75',
     },
     'polygon': {
         'syn': '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695',

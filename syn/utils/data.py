@@ -254,6 +254,7 @@ TOKEN_DECIMALS = {
         '0x42f6f551ae042cbe50c739158b4f0cac0edb9096': 18,  # NRV
         '0x130025ee738a66e691e6a7a62381cb33c6d9ae83': 18,  # JUMP
         '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51': 18,  # NFD
+        '0xc13b7a43223bb9bf4b69bd68ab20ca1b79d81c75': 18,  # JGN
     },
     'polygon': {
         '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': 18,  # SYN
