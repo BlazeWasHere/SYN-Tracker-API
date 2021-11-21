@@ -23,7 +23,7 @@
           "arbitrum",
           "fantom",
           "harmony",
-          "arbitrum",
+          "boba",
           "optimism",
           "moonriver"
         ]
@@ -84,73 +84,82 @@
           }
         }
       },
-      "VolumeResponse1": {
+      "VolumeResponseIN": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "price_usd": {
+              "type": "number",
+              "format": "float"
+            },
+            "volume": {
+              "type": "number",
+              "format": "float"
+            },
+            "tx_count": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "VolumeResponseOUT": {
+        "type": "object",
+        "properties": {
+          "price_usd": {
+            "type": "number",
+            "format": "float"
+          },
+          "volume": {
+            "type": "number",
+            "format": "float"
+          },
+          "tx_count": {
+            "type": "number"
+          }
+        }
+      },
+      "VolumeResponseStats": {
+        "type": "object",
+        "properties": {
+          "usd": {
+            "type": "object",
+            "properties": {
+              "adjusted": {
+                "type": "number",
+                "format": "float"
+              },
+              "current": {
+                "type": "number",
+                "format": "float"
+              }
+            }
+          },
+          "volume": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "float"
+            }
+          }
+        }
+      },
+      "VolumeResponse": {
         "type": "object",
         "properties": {
           "data": {
             "type": "object",
             "anyOf": [
               {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "object",
-                  "properties": {
-                    "price_usd": {
-                      "type": "number",
-                      "format": "float"
-                    },
-                    "volume": {
-                      "type": "number",
-                      "format": "float"
-                    },
-                    "tx_count": {
-                      "type": "number"
-                    }
-                  }
-                }
+                "$ref": "#/components/schemas/VolumeResponseIN"
               },
               {
-                "type": "object",
-                "properties": {
-                  "price_usd": {
-                    "type": "number",
-                    "format": "float"
-                  },
-                  "volume": {
-                    "type": "number",
-                    "format": "float"
-                  },
-                  "tx_count": {
-                    "type": "number"
-                  }
-                }
+                "$ref": "#/components/schemas/VolumeResponseOUT"
               }
             ]
           },
           "stats": {
-            "type": "object",
-            "properties": {
-              "usd": {
-                "type": "object",
-                "properties": {
-                  "adjusted": {
-                    "type": "number",
-                    "format": "float"
-                  },
-                  "current": {
-                    "type": "number",
-                    "format": "float"
-                  }
-                }
-              },
-              "volume": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "number",
-                  "format": "float"
-                }
-              }
-            }
+            "$ref": "#/components/schemas/VolumeResponseStats"
           }
         },
         "example": {
@@ -430,7 +439,7 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/VolumeResponse1" }
+                "schema": { "$ref": "#/components/schemas/VolumeResponse" }
               }
             },
             "description": "Successful response"
@@ -448,6 +457,202 @@
         },
         "summary": "volume of a token on a bridge going in a direction",
         "tags": ["Bridge Volume"]
+      }
+    },
+    "/api/v1/analytics/volume/{chain}/{direction}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          },
+          {
+            "in": "path",
+            "name": "direction",
+            "required": true,
+            "description": "count the asset going IN or OUT of the chain",
+            "schema": {
+              "type": "string",
+              "enum": ["in", "out"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/VolumeResponse"
+                    },
+                    "stats": {
+                      "type": "object",
+                      "properties": {
+                        "usd": {
+                          "type": "object",
+                          "properties": {
+                            "adjusted": {
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "current": {
+                              "type": "number",
+                              "format": "float"
+                            }
+                          }
+                        },
+                        "volume": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "properties": {
+                              "token": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "volume of all tokens on a bridge going in a direction",
+        "tags": ["Bridge Volume"]
+      }
+    },
+    "/api/v1/analytics/fees/bridge/{chain}/{token}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          },
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "description": "some chains support more tokens such as neth, synfrax, dog, high, etc.",
+            "schema": {
+              "type": "string",
+              "enum": ["nusd", "syn"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "price_usd": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "fees": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "tx_count": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "stats": {
+                      "$ref": "#/components/schemas/VolumeResponseStats"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "bridge fees paid for a token on a chain",
+        "tags": ["Bridge Fees"]
+      }
+    },
+    "/api/v1/analytics/fees/validator/{chain}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "gas_price": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "price_usd": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "tx_count": {
+                        "type": "number"
+                      },
+                      "transaction_fee": {
+                        "type": "number",
+                        "format": "float"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "validator gas fees paid on a chain",
+        "tags": ["Validator Gas Fees"]
       }
     },
     "/api/v1/circ/": {

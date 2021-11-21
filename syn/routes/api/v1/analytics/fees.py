@@ -90,7 +90,8 @@ def pending_adminfees_chain(chain: str):
         return (jsonify({'error': 'contract not deployed'}), 400)
 
 
-@fees_bp.route('/validator/<chain>')
+@fees_bp.route('/validator/', defaults={'chain': ''}, methods=['GET'])
+@fees_bp.route('/validator/<chain>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def chain_validator_gas_fees(chain: str):
     if chain not in SYN_DATA:
@@ -102,7 +103,8 @@ def chain_validator_gas_fees(chain: str):
     return jsonify(get_chain_validator_gas_fees(chain))
 
 
-@fees_bp.route('/bridge/<chain>/<token>')
+@fees_bp.route('/bridge/<chain>/', defaults={'token': ''}, methods=['GET'])
+@fees_bp.route('/bridge/<chain>/<token>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def chain_bridge_fees(chain: str, token: str):
     if chain not in SYN_DATA:

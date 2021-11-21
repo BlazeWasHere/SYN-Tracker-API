@@ -23,7 +23,9 @@ def get_treasury_erc20_balances(chain: str,
                                 to_block: int = 0,
                                 filter: bool = True) -> Dict[str, float]:
     res = defaultdict(dict)
-    ret = moralis.erc20_balances(TREASURY[chain], chain, to_block)
+
+    _chain = 'eth' if chain == 'ethereum' else chain
+    ret = moralis.erc20_balances(TREASURY[chain], _chain, to_block)
 
     if ret:
         for x in ret:
