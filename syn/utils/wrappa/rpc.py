@@ -37,6 +37,32 @@ start_blocks = {
     'optimism': 30718,
 }
 
+aidrop_ranges = {
+    'polygon': {
+        # +------------------------- The airdrop value in the chain's native
+        # |                           token (used for paying gas fees).
+        # |
+        # |       +----------------- Shows this is the bridge's initial fee.
+        # |       |
+        # |       |    +------------ Fee was 0.0003 till this block
+        # |       |    |              (including this block).
+        # |       |    |
+        # v       v    v
+        0.0003: [None, 20335948],
+        #      +--------------------- Fee was 0.02 start from this block
+        #      |                       (including this block).
+        #      |
+        #      |         +---------- Shows this is the fee till the present.
+        #      |         |
+        #      v         v
+        0.02: [20335949, None],
+    },
+    'bsc': {
+        0.001: [None, 12038426],
+        0.002: [12038427, None],
+    },
+}
+
 pool = Pool(size=64)
 MAX_BLOCKS = 5000
 T = TypeVar('T')
