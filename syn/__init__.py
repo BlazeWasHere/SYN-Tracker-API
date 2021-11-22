@@ -50,24 +50,14 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     app.register_blueprint(treasury_bp,
                            url_prefix='/api/v1/analytics/treasury')
 
-    if POPULATE_CACHE:
-        from .utils.wrappa.rpc import bridge_callback
-        from .utils.helpers import dispatch_get_logs
-
-        dispatch_get_logs(bridge_callback, join_all=True)
-
-    from .cron import update_caches
+    from .cron import update_caches, update_getlogs
 
     app.config.from_mapping(SCHEDULER_CONFIG)
     schedular.init_app(app)
     cache.init_app(app)
     # First run.
+    update_getlogs()
     update_caches()
-
-    if not POPULATE_CACHE:
-        # Run this ONLY if the above isn't running.
-        from .cron import update_getlogs
-        update_getlogs()
 
     schedular.start()
 
