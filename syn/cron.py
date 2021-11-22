@@ -89,13 +89,13 @@ def update_caches():
     start = time.time()
     print(f'(0) [{start}] Cron job start.')
 
-    with schedular.app.test_client() as c:  # type: ignore
-        for route in routes:
-            print(f'(0) Updating cache for route ~> {route}')
-            c.get(route)
+    with lock:
+        with schedular.app.test_client() as c:  # type: ignore
+            for route in routes:
+                print(f'(0) Updating cache for route ~> {route}')
+                c.get(route)
 
     print(f'(0) Cron job done. Elapsed: {time.time() - start:.2f}s')
-    lock.release()
 
 
 @schedular.task("interval", id="update_getlogs", hours=1)
@@ -107,11 +107,8 @@ def update_getlogs():
     start = time.time()
     print(f'(2) [{start}] Cron job start.')
 
-    try:
+    with lock:
         dispatch_get_logs(bridge_callback, join_all=True)
-    except:
-        lock.release()
-        raise
 
     print(f'(2) Cron job done. Elapsed: {time.time() - start:.2f}s')
 
