@@ -8,6 +8,5 @@ python-dotenv
 redis
 flask-caching
 Flask-APScheduler
-python-redis-lock
 flask-socketio
 gevent-websocket
