@@ -107,10 +107,13 @@ def update_getlogs():
     start = time.time()
     print(f'(2) [{start}] Cron job start.')
 
-    dispatch_get_logs(bridge_callback, join_all=True)
+    try:
+        dispatch_get_logs(bridge_callback, join_all=True)
+    except:
+        lock.release()
+        raise
 
     print(f'(2) Cron job done. Elapsed: {time.time() - start:.2f}s')
-    lock.release()
 
 
 # Run at 00:01, it is sufficient enough to wait for the first block of the current day.
