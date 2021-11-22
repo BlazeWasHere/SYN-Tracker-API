@@ -17,7 +17,7 @@ import redis_lock
 
 from syn.routes.api.v1.analytics.pools import metapools, basepools
 from syn.utils.data import REDIS, schedular, MORALIS_APIKEY
-from syn.utils.analytics.nusd import get_virtual_price
+from syn.utils.contract import get_virtual_price
 from syn.utils.wrappa.rpc import bridge_callback
 from syn.utils.helpers import dispatch_get_logs
 from syn.utils.wrappa.moralis import Moralis

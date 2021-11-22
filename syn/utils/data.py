@@ -152,6 +152,7 @@ SYN_DATA = {
         "nusd": "0x2913e812cf0dcca30fb28e6cac3d2dcff4497688",
         "usdlp": "0xe264cb5a941f98a391b9d5244378edf79bf5c19e",
         "bridge": "0x6f4e8eba4d337f874ab57478acc2cb5bacdc19c9",
+        "ethpool": "0xa067668661c84476afcdc6fa5d758c4c01c34352",
     },
     "fantom": {
         "rpc": os.getenv('FTM_RPC'),
@@ -172,6 +173,7 @@ SYN_DATA = {
         "address": '0xb554A55358fF0382Fb21F0a478C3546d1106Be8c',
         "pool": "0x75ff037256b36f15919369ac58695550be72fead",
         "bridge": "0x432036208d2717394d2614d6697c46df3ed69540",
+        "ethpool": "0x753bb855c8fe814233d26bb23af61cb3d2022be5",
     },
     "moonriver": {
         "rpc": os.getenv('MOVR_RPC'),
@@ -182,6 +184,7 @@ SYN_DATA = {
         "rpc": os.getenv('OPTIMISM_RPC'),
         "address": "0x5a5fff6f753d7c11a56a52fe47a177a87e431655",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
+        "ethpool": "0xe27bff97ce92c3e1ff7aa9f86781fdd6d48f5ee9",
     }
 }
 
@@ -219,6 +222,13 @@ for key, value in SYN_DATA.items():
         value.update({
             'pool_contract':
             w3.eth.contract(Web3.toChecksumAddress(value['pool']),
+                            abi=BASEPOOL_ABI)
+        })
+
+    if value.get('ethpool') is not None:
+        value.update({
+            'ethpool_contract':
+            w3.eth.contract(Web3.toChecksumAddress(value['ethpool']),
                             abi=BASEPOOL_ABI)
         })
 

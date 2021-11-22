@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Union, Dict
 
 import web3.exceptions
 
@@ -54,3 +54,17 @@ def get_all_tokens_in_pool(
             break
 
     return res
+
+
+@timed_cache(60, maxsize=50)
+def get_virtual_price(
+        chain: str,
+        block: Union[int, str] = 'latest',
+        func: str = 'pool_contract') -> Dict[str, Dict[str, float]]:
+    ret = call_abi(SYN_DATA[chain],
+                   func,
+                   'getVirtualPrice',
+                   call_args={'block_identifier': block})
+
+    # 18 Decimals.
+    return {chain: {func: ret / 10**18}}

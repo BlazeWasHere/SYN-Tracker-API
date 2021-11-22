@@ -849,39 +849,43 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {
-                    "arbitrum": {
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": {
                       "type": "number",
-                      "format": "boolean"
-                    },
-                    "avalanche": {
-                      "type": "number",
-                      "format": "boolean"
-                    },
-                    "bsc": {
-                      "type": "number",
-                      "format": "boolean"
-                    },
-                    "fantom": {
-                      "type": "number",
-                      "format": "boolean"
-                    },
-                    "harmony": {
-                      "type": "number",
-                      "format": "boolean"
-                    },
-                    "polygon": {
-                      "type": "number",
-                      "format": "boolean"
+                      "format": "float"
                     }
                   },
                   "example": {
-                    "arbitrum": 1.0011167756727486,
-                    "avalanche": 1.0028641935641684,
-                    "bsc": 1.0025708033110725,
-                    "fantom": 1.001627324577733,
-                    "harmony": 1.0005758175665005,
-                    "polygon": 1.0032059899444061
+                    "arbitrum": {
+                      "neth": 1.0024016963118136,
+                      "nusd": 1.0007232850597254
+                    },
+                    "avalanche": {
+                      "nusd": 1.000687521718383
+                    },
+                    "boba": {
+                      "neth": 1.000661770020243,
+                      "nusd": 1.0013625523269205
+                    },
+                    "bsc": {
+                      "nusd": 1.0010311457156893
+                    },
+                    "ethereum": {
+                      "nusd": 1.0012024894041562
+                    },
+                    "fantom": {
+                      "nusd": 1.0007057177482686
+                    },
+                    "harmony": {
+                      "nusd": 1.0011017801869486
+                    },
+                    "optimism": {
+                      "neth": 1.0004906234797655
+                    },
+                    "polygon": {
+                      "nusd": 1.0003717551698186
+                    }
                   }
                 }
               }
@@ -901,15 +905,7 @@
             "name": "chain",
             "required": true,
             "schema": {
-              "type": "string",
-              "enum": [
-                "arbitrum",
-                "bsc",
-                "polygon",
-                "avalanche",
-                "harmony",
-                "fantom"
-              ]
+              "$ref": "#/components/schemas/Chains"
             }
           },
           {
@@ -934,7 +930,8 @@
                     "format": "float"
                   },
                   "example": {
-                    "arbitrum": 1.0011167756727486
+                    "neth": 1.0006612407063795,
+                    "nusd": 1.0013568399877644
                   }
                 }
               }
