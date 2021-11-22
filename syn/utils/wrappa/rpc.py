@@ -44,15 +44,15 @@ aidrop_ranges = {
         # |
         # |       +----------------- Shows this is the bridge's initial fee.
         # |       |
-        # |       |    +------------ Fee was 0.0003 till this block
+        # |       |    +------------ Airdrop was 0.0003 till this block
         # |       |    |              (including this block).
         # |       |    |
         # v       v    v
         0.0003: [None, 20335948],
-        #      +--------------------- Fee was 0.02 start from this block
-        #      |                       (including this block).
+        #      +--------------------- Airdrop was 0.02 starting from this
+        #      |                       block (including this block).
         #      |
-        #      |         +---------- Shows this is the fee till the present.
+        #      |         +---------- Shows this is the airdrop value currently.
         #      |         |
         #      v         v
         0.02: [20335949, None],
