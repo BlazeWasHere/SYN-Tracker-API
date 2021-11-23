@@ -128,27 +128,6 @@ def get_all_keys(pattern: str,
     return res
 
 
-def get_address_from_data(
-    chain: str,
-    method: str,
-    data: dict,
-    direction: Direction,
-    lower: bool = True,
-) -> Union[str, ChecksumAddress]:
-    """Get from/to_token from searching through `data` and `log` depending 
-    on the `method`"""
-
-    if direction == Direction.OUT:
-        address = data['token']
-    elif direction == Direction.IN:
-        if 'token' in data:
-            address = data['token']
-        else:
-            address = TOKENS_IN_POOL[chain][data['tokenIndexFrom']]
-
-    return Web3.toChecksumAddress(address) if not lower else address.lower()
-
-
 def convert_amount(chain: str, token: str, amount: int) -> float:
     try:
         return amount / 10**TOKEN_DECIMALS[chain][token.lower()]

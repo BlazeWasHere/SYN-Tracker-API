@@ -22,8 +22,11 @@ socketio: SocketIO = app.socketio  # type: ignore
 pending_addresses = defaultdict(dict)
 
 
+# TODO: this whole thing should be deprecated.
 def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
               method: str, direction: Direction, logs: AttributeDict) -> None:
+    raise PendingDeprecationWarning
+
     chain = 'eth' if _chain == 'ethereum' else _chain
 
     if direction == Direction.OUT:
@@ -32,12 +35,14 @@ def _callback(event: AttributeDict, _chain: str, data: AttributeDict,
         try:
             if method not in ['TokenRedeem', 'TokenRedeemAndRemove']:
                 from_token = logs[0].address
-                to_token = TOKENS_IN_POOL[to_chain][data['tokenIndexTo']]
+                to_token = TOKENS_IN_POOL[to_chain]['nusd'][
+                    data['tokenIndexTo']]
             elif method == 'TokenRedeem':
                 to_token = from_token = data['token']
             else:
                 from_token = data['token']
-                to_token = TOKENS_IN_POOL[to_chain][data['swapTokenIndex']]
+                to_token = TOKENS_IN_POOL[to_chain]['nusd'][
+                    data['swapTokenIndex']]
 
             _time = datetime.now().timestamp()
 

@@ -23,10 +23,9 @@ def call_abi(data, key: str, func_name: str, *args, **kwargs) -> Any:
 
 
 @timed_cache(60)
-def get_all_tokens_in_pool(
-    chain: str,
-    max_index: Optional[int] = None,
-) -> List[str]:
+def get_all_tokens_in_pool(chain: str,
+                           max_index: Optional[int] = None,
+                           func: str = 'pool_contract') -> List[str]:
     """
     Get all tokens by calling `getToken` by iterating from 0 till a
     contract error or `max_index` and implicitly sorted by index.
@@ -47,7 +46,7 @@ def get_all_tokens_in_pool(
 
     for i in range(max_index or MAX_UINT8):
         try:
-            res.append(call_abi(data, 'pool_contract', 'getToken', i))
+            res.append(call_abi(data, func, 'getToken', i))
         except (web3.exceptions.ContractLogicError,
                 web3.exceptions.BadFunctionCallOutput):
             # Out of range.
