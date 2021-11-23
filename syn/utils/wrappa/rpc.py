@@ -20,9 +20,9 @@ import gevent
 
 from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
     OLDERBRIDGE_ABI, TOKEN_DECIMALS
+from syn.utils.helpers import get_gas_stats_for_tx, get_airdrop_value_for_block
 from syn.utils.explorer.poll import figure_out_method
 from syn.utils.explorer.data import TOPICS, Direction
-from syn.utils.helpers import get_gas_stats_for_tx
 
 start_blocks = {
     'ethereum': 13136427,
@@ -37,7 +37,7 @@ start_blocks = {
     'optimism': 30718,
 }
 
-aidrop_ranges = {
+airdrop_ranges = {
     'polygon': {
         # +------------------------- The airdrop value in the chain's native
         # |                           token (used for paying gas fees).
@@ -49,7 +49,7 @@ aidrop_ranges = {
         # |       |    |
         # v       v    v
         0.0003: [None, 20335948],
-        #      +--------------------- Airdrop was 0.02 starting from this
+        #      +-------------------- Airdrop was 0.02 starting from this
         #      |                       block (including this block).
         #      |
         #      |         +---------- Shows this is the airdrop value currently.
@@ -61,11 +61,30 @@ aidrop_ranges = {
         0.001: [None, 12038426],
         0.002: [12038427, None],
     },
+    'avalanche': {
+        0.05: [None, 7164612],
+        0.025: [7164613, None],
+    },
+    'fantom': {
+        0.4: [None, None],
+    },
+    'moonriver': {
+        0.1: [None, 914404],
+        0.002: [914403, None],
+    },
+    # TODO: finish the other chains.
 }
 
 pool = Pool(size=64)
 MAX_BLOCKS = 5000
 T = TypeVar('T')
+
+assert get_airdrop_value_for_block(airdrop_ranges['polygon'], 1) == 0.0003
+assert get_airdrop_value_for_block(airdrop_ranges['polygon'],
+                                   20335948) == 0.0003
+assert get_airdrop_value_for_block(airdrop_ranges['polygon'], 20335949) == 0.02
+assert get_airdrop_value_for_block(airdrop_ranges['polygon'],
+                                   20321335949) == 0.02
 
 
 def convert(value: T) -> Union[T, str, List]:
@@ -86,7 +105,8 @@ def bridge_callback(chain: str,
     tx_hash = log['transactionHash']
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
 
-    date = w3.eth.get_block(log['blockNumber'])['timestamp']  # type: ignore
+    block_n = log['blockNumber']
+    date = w3.eth.get_block(block_n)['timestamp']  # type: ignore
     date = datetime.utcfromtimestamp(date).date()
 
     topic = cast(str, convert(log['topics'][0]))
@@ -150,6 +170,11 @@ def bridge_callback(chain: str,
         # Let's also track how much fees the user paid for the bridge tx
         value['fees'] = args['fee'] / 10**18
 
+        # All `IN` txs give some airdrop amounts, well on most chains at least.
+        if chain in airdrop_ranges:
+            value['airdrops'] = get_airdrop_value_for_block(
+                airdrop_ranges[chain], block_n)
+
     # Just in case we ever need that later for debugging
     # value['txs'] = f'[{convert(tx_hash)}]'
 
@@ -167,6 +192,9 @@ def bridge_callback(chain: str,
                 raise RuntimeError(
                     f'No validator: chain = {chain}, tx_hash = {convert(tx_hash)}'
                 )
+
+            if chain in airdrop_ranges:
+                ret['airdrops'] += value['airdrops']
 
             ret['validator']['gas_price'] += value['validator']['gas_price']
             ret['validator']['gas_paid'] += value['validator']['gas_paid']
