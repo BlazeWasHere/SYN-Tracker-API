@@ -198,6 +198,7 @@ TREASURY = {
     'boba': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
     'moonriver': '0x4bA30618fDcb184eC01a9B3CAe258CFc5786E70E',
     'optimism': '0x2431CBdc0792F5485c4cb0a9bEf06C4f21541D52',
+    'harmony': '0x0172e7190Bbc0C2Aa98E4d1281d41D0c07178605',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
@@ -293,6 +294,7 @@ TOKEN_DECIMALS = {
         '0xe264cb5a941f98a391b9d5244378edf79bf5c19e': 18,  # USD-LP
         '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': 18,  # MIM
         '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e': 18,  # nETH
+        '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': 18,  # WETH
     },
     'fantom': {
         '0x04068da6c83afcfa0e13ba15a6696662335d5b75': 6,  # USDC
@@ -309,6 +311,7 @@ TOKEN_DECIMALS = {
         '0x985458e523db3d53125813ed68c274899e9dfab4': 6,  # 1USDC
         '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f': 6,  # 1USDT
         '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,  # nUSD
+        '0xcf664087a5bb0237a0bad6742852ec6c8d69a27a': 18,  # ONE
     },
     'boba': {
         '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc': 6,  # USDC
@@ -318,6 +321,7 @@ TOKEN_DECIMALS = {
         '0x96419929d7949d6a801a6909c145c8eef6a40431': 18,  # nETH
         '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 18,  # nUSD
         '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35': 18,  # DAI
+        '0xd203de32170130082896b4111edf825a4774c18e': 18,  # WETH
     },
     'moonriver': {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': 18,  # SYN
@@ -327,6 +331,7 @@ TOKEN_DECIMALS = {
     'optimism': {
         '0x809dc529f07651bd43a172e8db6f4a7a0d771036': 18,  # nETH
         '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': 18,  # SYN
+        '0x121ab82b49b2bc4c7901ca46b8277962b4350204': 18,  # WETH
     },
 }
 

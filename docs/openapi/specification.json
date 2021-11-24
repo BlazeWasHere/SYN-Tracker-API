@@ -34,6 +34,12 @@
       },
       "TreasuryResponse": {
         "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "format": "float"
+          }
+        },
         "additionalProperties": {
           "type": "object",
           "properties": {
@@ -51,16 +57,23 @@
           }
         },
         "example": {
-          "0x1f1e7c893855525b303f99bdf5c3c05be09ca251": {
-            "amount": 11976.962548325106,
-            "symbol": "SYN",
-            "usd": 43476.374050420134
+          "0x0f2D719407FdBeFF09D87557AbB7232601FD9F29": {
+            "amount": 37719.06644798972,
+            "usd": 79210.03954077841
           },
-          "0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46": {
-            "amount": 4395.289912532142,
-            "symbol": "nUSD",
-            "usd": 4395.289912532142
-          }
+          "0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f": {
+            "amount": 38851.32649526727,
+            "usd": 38851.32649526727
+          },
+          "0x71ab77b7dbb4fa7e017bc15090b2163221420282": {
+            "amount": 1468,
+            "usd": 38402.88
+          },
+          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": {
+            "amount": 0.003229816033669681,
+            "usd": 13.716867204193452
+          },
+          "total": 156477.96290324986
         }
       },
       "MetapoolVolumeResponse": {
@@ -801,8 +814,7 @@
             "name": "chain",
             "required": true,
             "schema": {
-              "type": "string",
-              "enum": ["eth", "bsc", "polygon", "avalanche"]
+              "$ref": "#/components/schemas/Chains"
             }
           },
           {

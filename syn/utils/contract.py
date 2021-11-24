@@ -7,9 +7,11 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Optional, List, Any, Union, Dict
+from typing import Optional, List, Any, Union, Dict, overload
 
+from web3.types import BlockIdentifier
 import web3.exceptions
+from web3 import Web3
 
 from .data import SYN_DATA, MAX_UINT8
 from .cache import timed_cache
@@ -67,3 +69,19 @@ def get_virtual_price(
 
     # 18 Decimals.
     return {chain: {func: ret / 10**18}}
+
+
+def get_balance_of(w3: Web3,
+                   token: str,
+                   target: str,
+                   decimals: int = None,
+                   block: BlockIdentifier = 'latest') -> Union[float, int]:
+    ABI = """[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
+    contract = w3.eth.contract(w3.toChecksumAddress(token), abi=ABI)
+
+    ret = contract.functions.balanceOf(target).call(block_identifier=block)
+
+    if decimals is not None:
+        return ret / 10**decimals
+
+    return ret

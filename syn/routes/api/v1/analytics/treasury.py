@@ -9,7 +9,7 @@
 
 from flask import Blueprint, jsonify, request
 
-from syn.utils.analytics.treasury import get_treasury_erc20_balances
+from syn.utils.analytics.treasury import get_treasury_erc20_balances, get_treasury_erc20_balances_usd
 from syn.utils.data import TREASURY, cache, _forced_update
 from syn.utils import verify
 
@@ -23,22 +23,20 @@ TIMEOUT = 60 * 15
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
 def treasury_chain(chain: str):
     _list = list(TREASURY.keys())
-    _list.remove('arbitrum')
-    _list.remove('fantom')
-
-    if chain not in _list:
+    if chain not in TREASURY:
         return (jsonify({
             'error': 'invalid chain',
-            'valids': _list,
+            'valids': list(TREASURY.keys()),
         }), 400)
 
-    block = request.args.get('block', None)
-    if block is not None:
+    block = request.args.get('block', 'latest')
+    if block != 'latest':
         if not verify.isdigit(block):
             return (jsonify({'error': 'invalid block num'}), 400)
 
         block = int(block)
-    else:
-        block = 0
 
-    return jsonify(get_treasury_erc20_balances(chain, block))
+    ret = get_treasury_erc20_balances_usd(chain, block)
+    ret['total'] = sum([x['usd'] for x in ret.values()])  # type: ignore
+
+    return jsonify(ret)
