@@ -139,6 +139,7 @@ ADDRESS_TO_CGID = {
         '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664': CoingeckoIDS.USDC,
         '0xc7198437980c041c805a1edcba50c1ce5db95118': CoingeckoIDS.USDT,
         '0xf1293574ee43950e7a8c9f1005ff097a9a713959': CoingeckoIDS.NFD,
+        '0x19e1ae0ee35c0404f835521146206595d37981ae': CoingeckoIDS.ETH,
     },
     'arbitrum': {
         '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,

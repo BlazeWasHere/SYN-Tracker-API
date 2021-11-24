@@ -284,6 +284,7 @@ TOKEN_DECIMALS = {
         '0x55904f416586b5140a0f666cf5acf320adf64846': 18,  # USD-LP
         '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': 18,  # SYN
         '0xf1293574ee43950e7a8c9f1005ff097a9a713959': 18,  # NFD
+        '0x19e1ae0ee35c0404f835521146206595d37981ae': 18,  # nETH
     },
     'arbitrum': {
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': 18,  # DAI
