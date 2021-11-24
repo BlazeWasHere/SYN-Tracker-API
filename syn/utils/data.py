@@ -28,6 +28,7 @@ load_dotenv(override=True)
 COINGECKO_HISTORIC_URL = "https://api.coingecko.com/api/v3/coins/{0}/history?date={1}&localization=false"
 COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_currencies={1}"
 
+MINICHEF_ABI = """[{"inputs":[],"name":"synapsePerSecond","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getVirtualPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
 
@@ -115,6 +116,7 @@ SYN_DATA = {
         "usdc": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         "dai": "0x6b175474e89094c44da98b954eedeac495271d0f",
         "bridge": "0x2796317b0ff8538f253012862c06787adfb8ceb6",
+        "minichef": "0xd10eF2A513cEE0Db54E959eF16cAc711470B62cF",
     },
     "avalanche": {
         "rpc": os.getenv('AVAX_RPC'),
@@ -217,6 +219,9 @@ for key, value in SYN_DATA.items():
                         abi=TOTAL_SUPPLY_ABI),
         'w3':
         w3,
+        'minichef_contract':
+        w3.eth.contract(Web3.toChecksumAddress(value['minichef']),
+                        abi=MINICHEF_ABI)
     })
 
     if value.get('pool') is not None:

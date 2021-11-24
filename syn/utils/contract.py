@@ -13,7 +13,7 @@ from web3.types import BlockIdentifier
 import web3.exceptions
 from web3 import Web3
 
-from .data import SYN_DATA, MAX_UINT8
+from .data import SYN_DATA, MAX_UINT8, SYN_DECIMALS
 from .cache import timed_cache
 
 
@@ -85,3 +85,16 @@ def get_balance_of(w3: Web3,
         return ret / 10**decimals
 
     return ret
+
+
+def get_synapse_per_second(chain: str,
+                           block: BlockIdentifier = 'latest',
+                           multiplier: int = None) -> float:
+    contract = SYN_DATA[chain]['minichef_contract']
+    ret = contract.functions.synapsePerSecond().call(block_indentifier=block)
+    ret /= 10**SYN_DECIMALS
+
+    if multiplier is not None:
+        return ret
+
+    return ret * multiplier
