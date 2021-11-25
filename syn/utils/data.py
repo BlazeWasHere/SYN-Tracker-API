@@ -217,7 +217,6 @@ for key, value in SYN_DATA.items():
         print(w3.eth.syncing)
     except Exception as e:
         print(e)
-        continue
 
     value.update({
         'contract':
