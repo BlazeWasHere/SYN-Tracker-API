@@ -8,26 +8,25 @@
 """
 
 from collections import defaultdict
+from decimal import Decimal
 from typing import Dict
 
 from web3.types import BlockIdentifier
 
-from syn.utils.data import SYN_DATA, TOKEN_DECIMALS, TREASURY, MORALIS_APIKEY
+from syn.utils.price import get_price_coingecko, get_price_for_address
+from syn.utils.data import SYN_DATA, TOKEN_DECIMALS, TREASURY
 from syn.utils.analytics.fees import _chain_to_cgid
 from syn.utils.explorer.data import TOKENS_IN_POOL
-from syn.utils.price import get_price_coingecko, get_price_for_address
 from syn.utils.contract import get_balance_of
-from syn.utils.wrappa.moralis import Moralis
+from syn.utils.helpers import handle_decimals
 from syn.utils.cache import timed_cache
-
-moralis = Moralis(MORALIS_APIKEY)
 
 
 @timed_cache(60, maxsize=50)
 def get_treasury_erc20_balances(chain: str,
                                 block: BlockIdentifier = 'latest'
-                                ) -> Dict[str, float]:
-    res: Dict[str, float] = defaultdict(float)
+                                ) -> Dict[str, Decimal]:
+    res: Dict[str, Decimal] = defaultdict(Decimal)
     w3 = SYN_DATA[chain]['w3']
 
     _tokens = TOKENS_IN_POOL[chain]
@@ -56,22 +55,23 @@ def get_treasury_erc20_balances(chain: str,
     # TODO(blaze): thread this with gevent?
     for tokens in _tokens.values():
         for token in tokens.values():
-            res[token] = get_balance_of(w3,
-                                        token,
-                                        TREASURY[chain],
-                                        TOKEN_DECIMALS[chain][token.lower()],
-                                        block=block)
+            res[token] = get_balance_of(  # type: ignore
+                w3,
+                token,
+                TREASURY[chain],
+                TOKEN_DECIMALS[chain][token.lower()],
+                block=block)
 
     # Let's bet its 18 decimals.
-    res['native'] = w3.eth.get_balance(TREASURY[chain],
-                                       block_identifier=block) / 1e18
+    res['native'] = handle_decimals(
+        w3.eth.get_balance(TREASURY[chain], block_identifier=block), 18)
 
     return res
 
 
 def get_treasury_erc20_balances_usd(
         chain: str,
-        block: BlockIdentifier = 'latest') -> Dict[str, Dict[str, float]]:
+        block: BlockIdentifier = 'latest') -> Dict[str, Dict[str, Decimal]]:
     res = defaultdict(dict)
     ret = get_treasury_erc20_balances(chain, block)
 

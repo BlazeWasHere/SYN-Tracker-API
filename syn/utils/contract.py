@@ -8,12 +8,14 @@
 """
 
 from typing import Optional, List, Any, Union, Dict, overload
+from decimal import Decimal
 
 from web3.types import BlockIdentifier
 import web3.exceptions
 from web3 import Web3
 
 from .data import SYN_DATA, MAX_UINT8, SYN_DECIMALS
+from .helpers import handle_decimals
 from .cache import timed_cache
 
 
@@ -61,40 +63,44 @@ def get_all_tokens_in_pool(chain: str,
 def get_virtual_price(
         chain: str,
         block: Union[int, str] = 'latest',
-        func: str = 'pool_contract') -> Dict[str, Dict[str, float]]:
+        func: str = 'pool_contract') -> Dict[str, Dict[str, Decimal]]:
     ret = call_abi(SYN_DATA[chain],
                    func,
                    'getVirtualPrice',
                    call_args={'block_identifier': block})
 
     # 18 Decimals.
-    return {chain: {func: ret / 10**18}}
+    return {chain: {func: handle_decimals(ret, 18)}}
 
 
 def get_balance_of(w3: Web3,
                    token: str,
                    target: str,
                    decimals: int = None,
-                   block: BlockIdentifier = 'latest') -> Union[float, int]:
+                   block: BlockIdentifier = 'latest') -> Union[Decimal, int]:
     ABI = """[{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
     contract = w3.eth.contract(w3.toChecksumAddress(token), abi=ABI)
 
     ret = contract.functions.balanceOf(target).call(block_identifier=block)
 
     if decimals is not None:
-        return ret / 10**decimals
+        return handle_decimals(ret, decimals)
 
     return ret
 
 
 def get_synapse_per_second(chain: str,
                            block: BlockIdentifier = 'latest',
-                           multiplier: int = None) -> float:
+                           multiplier: int = None) -> Decimal:
     contract = SYN_DATA[chain]['minichef_contract']
     ret = contract.functions.synapsePerSecond().call(block_indentifier=block)
-    ret /= 10**SYN_DECIMALS
+    ret = handle_decimals(ret, SYN_DECIMALS)
 
-    if multiplier is not None:
+    if multiplier is None:
         return ret
+    elif not isinstance(multiplier, Decimal):
+        _multiplier = Decimal(multiplier)
+    else:
+        _multiplier = multiplier
 
-    return ret * multiplier
+    return ret * _multiplier

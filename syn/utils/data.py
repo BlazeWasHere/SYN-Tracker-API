@@ -212,6 +212,12 @@ for key, value in SYN_DATA.items():
         w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     w3.middleware_onion.add(local_filter_middleware)
+    print(key)
+    try:
+        print(w3.eth.syncing)
+    except Exception as e:
+        print(e)
+        continue
 
     value.update({
         'contract':
@@ -219,9 +225,9 @@ for key, value in SYN_DATA.items():
                         abi=TOTAL_SUPPLY_ABI),
         'w3':
         w3,
-        'minichef_contract':
-        w3.eth.contract(Web3.toChecksumAddress(value['minichef']),
-                        abi=MINICHEF_ABI)
+        #     'minichef_contract':
+        #     w3.eth.contract(Web3.toChecksumAddress(value['minichef']),
+        #                     abi=MINICHEF_ABI)
     })
 
     if value.get('pool') is not None:

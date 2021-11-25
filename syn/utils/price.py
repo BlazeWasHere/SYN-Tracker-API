@@ -8,6 +8,7 @@
 """
 
 from datetime import datetime
+from decimal import Decimal
 from enum import Enum
 import logging
 
@@ -184,7 +185,7 @@ ADDRESS_TO_CGID = {
 @redis_cache()
 def get_historic_price(_id: CoingeckoIDS,
                        date: str,
-                       currency: str = "usd") -> float:
+                       currency: str = "usd") -> Decimal:
     # Assume we got `date` as yyyy-mm-dd and we need as dd-mm-yyyy.
     date = datetime.strptime(date, '%Y-%m-%d').strftime('%d-%m-%Y')
 
@@ -198,21 +199,22 @@ def get_historic_price(_id: CoingeckoIDS,
         return r['market_data']['current_price'][currency]
     except KeyError:
         # CG doesn't have the price.
-        return 0
+        return Decimal(0)
 
 
-def get_historic_price_syn(date: str, currency: str = "usd") -> float:
+def get_historic_price_syn(date: str, currency: str = "usd") -> Decimal:
     dt = dateutil.parser.parse(date)
 
     # SYN price didn't exist here on CG but was pegged 1:2.5 to NRV.
     if dt < datetime(year=2021, month=8, day=30):
-        return get_historic_price(CoingeckoIDS.NRV, date, currency) / 2.5
+        return get_historic_price(CoingeckoIDS.NRV, date,
+                                  currency) / Decimal('2.5')
 
     return get_historic_price(CoingeckoIDS.SYN, date, currency)
 
 
 def get_historic_price_for_address(chain: str, address: str,
-                                   date: str) -> float:
+                                   date: str) -> Decimal:
     if address in CUSTOM[chain]:
         return CUSTOM[chain][address]
     elif ADDRESS_TO_CGID[chain][address] == CoingeckoIDS.SYN:
@@ -221,25 +223,25 @@ def get_historic_price_for_address(chain: str, address: str,
     return get_historic_price(ADDRESS_TO_CGID[chain][address], date)
 
 
-def get_price_for_address(chain: str, address: str) -> float:
+def get_price_for_address(chain: str, address: str) -> Decimal:
     if address in CUSTOM[chain]:
         return CUSTOM[chain][address]
 
     if address not in ADDRESS_TO_CGID[chain]:
         logger.warning(f'returning amount 0 for token {address} on {chain}')
-        return 0
+        return Decimal(0)
 
     return get_price_coingecko(ADDRESS_TO_CGID[chain][address])
 
 
 @timed_cache(60 * 10, maxsize=500)
-def get_price_coingecko(_id: CoingeckoIDS, currency: str = "usd") -> float:
+def get_price_coingecko(_id: CoingeckoIDS, currency: str = "usd") -> Decimal:
     # CG rate limits us @ 10-50 r/m, let's hope this makes us not trigger it.
     if POPULATE_CACHE:
         time.sleep(randint(5, 20))
 
     r = requests.get(COINGECKO_BASE_URL.format(_id.value, currency))
-    return r.json()[_id.value][currency]
+    return Decimal(r.json()[_id.value][currency])
 
 
 def init() -> None:

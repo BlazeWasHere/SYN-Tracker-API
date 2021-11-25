@@ -10,21 +10,21 @@
 from typing import Any, List, Dict, Optional, TypeVar, Union, cast, Callable
 from datetime import datetime, timedelta
 from collections import defaultdict
+import decimal
 import logging
-import json
 
 from web3.types import _Hash32, TxReceipt, LogReceipt
-from eth_typing.evm import ChecksumAddress
 from gevent import Greenlet
 from web3.main import Web3
+import simplejson as json
 from redis import Redis
 import dateutil.parser
 import gevent
 
-from .explorer.data import Direction, TOKENS_IN_POOL
 from .data import REDIS, TOKEN_DECIMALS, SYN_DATA
 
 logger = logging.Logger(__name__)
+D = decimal.Decimal
 KT = TypeVar('KT')
 VT = TypeVar('VT')
 
@@ -118,7 +118,7 @@ def get_all_keys(pattern: str,
 
         if serialize:
             if ret is not None:
-                ret = json.loads(ret)
+                ret = json.loads(ret, use_decimal=True)
 
             if index:
                 key = key.split(':')[index]
@@ -128,18 +128,18 @@ def get_all_keys(pattern: str,
     return res
 
 
-def convert_amount(chain: str, token: str, amount: int) -> float:
+def convert_amount(chain: str, token: str, amount: int) -> D:
     try:
-        return amount / 10**TOKEN_DECIMALS[chain][token.lower()]
+        return handle_decimals(amount, TOKEN_DECIMALS[chain][token.lower()])
     except KeyError:
         logger.warning(f'return amount 0 for token {token} on {chain}')
-        return 0
+        return D(0)
 
 
 def get_gas_stats_for_tx(chain: str,
                          w3: Web3,
                          txhash: _Hash32,
-                         receipt: TxReceipt = None) -> Dict[str, float]:
+                         receipt: TxReceipt = None) -> Dict[str, D]:
     if receipt is None:
         receipt = w3.eth.get_transaction_receipt(txhash)
 
@@ -152,15 +152,18 @@ def get_gas_stats_for_tx(chain: str,
         for key in paid:
             paid_for_gas += int(paid[key][2:], 16)
 
-        gas_price = paid_for_gas / (1e9 * receipt['gasUsed'])
+        gas_price = D(paid_for_gas) / (D(1e9) * D(receipt['gasUsed']))
 
-        return {'gas_paid': paid_for_gas / 1e18, 'gas_price': gas_price}
+        return {
+            'gas_paid': handle_decimals(paid_for_gas, 18),
+            'gas_price': gas_price
+        }
 
     ret = w3.eth.get_transaction(txhash)
-    gas_price = ret['gasPrice'] / 1e9  # type: ignore
+    gas_price = handle_decimals(ret['gasPrice'], 9)  # type: ignore
 
     return {
-        'gas_paid': gas_price * receipt['gasUsed'] / 1e9,
+        'gas_paid': handle_decimals(gas_price * receipt['gasUsed'], 9),
         'gas_price': gas_price
     }
 
@@ -189,3 +192,15 @@ def dispatch_get_logs(cb: Callable[[str, str, LogReceipt], None],
         gevent.joinall(jobs)
     else:
         return jobs
+
+
+def handle_decimals(num: Union[str, int, float, decimal.Decimal],
+                    decimals: int,
+                    *,
+                    precision: int = None) -> decimal.Decimal:
+    res: decimal.Decimal = D(num) / D(10**decimals)
+
+    if precision is not None:
+        return res.quantize(decimal.Decimal(10)**-precision)
+
+    return res

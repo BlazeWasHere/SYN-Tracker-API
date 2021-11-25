@@ -7,11 +7,13 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Dict, Union, List
+from typing import Dict, Union, List, overload
 from collections import defaultdict
+from decimal import Decimal
 
 from syn.utils.data import SYN_DATA, TOKEN_DECIMALS, LOGS_REDIS_URL
-from syn.utils.helpers import add_to_dict, raise_if, get_all_keys
+from syn.utils.helpers import add_to_dict, raise_if, get_all_keys, \
+    handle_decimals
 from syn.utils.contract import get_all_tokens_in_pool, call_abi
 from syn.utils.price import CoingeckoIDS, get_historic_price, \
     get_historic_price_for_address
@@ -51,21 +53,23 @@ def get_admin_fee(chain: str,
                     call_args={'block_identifier': block})
 
 
-def get_admin_fees(chain: str,
-                   block: Union[int, str] = 'latest',
-                   handle_decimals: bool = False,
-                   tokens: List[str] = None) -> Dict[str, float]:
+def get_admin_fees(
+        chain: str,
+        block: Union[int, str] = 'latest',
+        _handle_decimals: bool = False,
+        tokens: List[str] = None) -> Dict[str, Union[Decimal, float]]:
     if tokens is None:
         tokens = get_all_tokens_in_pool(chain)
 
-    res: Dict[str, float] = {}
+    res: Dict[str, Union[Decimal, float]] = {}
 
     if tokens:
         for i, token in enumerate(tokens):
             res[token] = get_admin_fee(chain, i, block)
 
-            if handle_decimals:
-                res[token] /= 10**TOKEN_DECIMALS[chain][token.lower()]
+            if _handle_decimals:
+                res[token] = handle_decimals(
+                    res[token], TOKEN_DECIMALS[chain][token.lower()])
 
     return res
 
@@ -81,21 +85,23 @@ def get_pending_admin_fee(chain: str,
                     call_args={'block_identifier': block})
 
 
-def get_pending_admin_fees(chain: str,
-                           block: Union[int, str] = 'latest',
-                           handle_decimals: bool = False,
-                           tokens: List[str] = None) -> Dict[str, float]:
+def get_pending_admin_fees(
+        chain: str,
+        block: Union[int, str] = 'latest',
+        _handle_decimals: bool = False,
+        tokens: List[str] = None) -> Dict[str, Union[Decimal, float]]:
     if tokens is None:
         tokens = get_all_tokens_in_pool(chain)
 
-    res: Dict[str, float] = {}
+    res: Dict[str, Union[Decimal, float]] = {}
 
     if tokens:
         for token in tokens:
             res[token] = get_pending_admin_fee(chain, token, block)
 
-            if handle_decimals:
-                res[token] /= 10**TOKEN_DECIMALS[chain][token.lower()]
+            if _handle_decimals:
+                res[token] = handle_decimals(
+                    res[token], TOKEN_DECIMALS[chain][token.lower()])
 
     return res
 

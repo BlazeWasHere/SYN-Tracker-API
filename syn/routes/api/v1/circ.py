@@ -7,6 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from decimal import Decimal
 from typing import List
 
 from flask import jsonify, Blueprint
@@ -15,6 +16,7 @@ from gevent.pool import Pool
 import gevent
 
 from syn.utils.data import SYN_DATA, SYN_DECIMALS
+from syn.utils.helpers import handle_decimals
 from syn.utils.cache import timed_cache
 
 circ_bp = Blueprint('circ_bp', __name__)
@@ -22,16 +24,18 @@ pool = Pool()
 
 
 @timed_cache(60)
-def get_chain_circ_cupply(chain: str) -> float:
+def get_chain_circ_cupply(chain: str) -> Decimal:
     assert (chain in SYN_DATA)
-    return SYN_DATA[chain]['contract'].functions.totalSupply(  # type: ignore
-    ).call() / 10**SYN_DECIMALS
+    return handle_decimals(
+        SYN_DATA[chain]['contract'].functions.totalSupply(  # type: ignore
+        ).call(),
+        SYN_DECIMALS)
 
 
 @timed_cache(60 * 30)
-def get_all_chains_circ_supply() -> float:
+def get_all_chains_circ_supply() -> Decimal:
     jobs: List[Greenlet] = []
-    total: float = 0
+    total: Decimal = Decimal(0)
 
     for chain in SYN_DATA:
         jobs.append(pool.spawn(get_chain_circ_cupply, chain))

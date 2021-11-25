@@ -9,6 +9,7 @@
 
 from typing import Any, DefaultDict, Dict, Tuple, Union
 from collections import defaultdict
+from decimal import Decimal
 
 from gevent.greenlet import Greenlet
 import dateutil.parser
@@ -33,8 +34,8 @@ def create_totals(
         chain: str,
         address: str,
         is_out: bool = True,
-        key: str = 'volume') -> Tuple[Dict[str, float], float, float]:
-    total_volume: DefaultDict[str, float] = defaultdict(float)
+        key: str = 'volume') -> Tuple[Dict[str, Decimal], float, float]:
+    total_volume: DefaultDict[str, Decimal] = defaultdict(Decimal)
     total_usd_current: float = 0
     total_txcount: int = 0
     # Total adjusted.
@@ -43,7 +44,7 @@ def create_totals(
     # Create a `total` key which aggregates all the other stats on other keys.
     for v in res.values():
         # Reset the variables on each iteration.
-        _total_volume = defaultdict(float)
+        _total_volume = defaultdict(Decimal)
         _total_txcount: int = 0
         _total_usd: float = 0
 
@@ -68,7 +69,7 @@ def create_totals(
 
     price = get_price_for_address(chain, address)
     for volume in total_volume.values():
-        total_usd_current += (price * volume)
+        total_usd_current += (price * Decimal(volume))
 
     return total_volume, total_usd, total_usd_current
 
@@ -79,7 +80,7 @@ def get_chain_volume_for_address(address: str,
     res = defaultdict(dict)
 
     if 'IN' in direction:
-        ret: Dict[str, Dict[str, float]] = get_all_keys(
+        ret: Dict[str, Dict[str, str]] = get_all_keys(
             f'{chain}:bridge:*:{address}:{direction}',
             client=LOGS_REDIS_URL,
             index=2,
@@ -89,12 +90,12 @@ def get_chain_volume_for_address(address: str,
             price = get_historic_price_for_address(chain, address, k)
 
             res[k] = {
-                'volume': v['amount'],
-                'price_usd': v['amount'] * price,
+                'volume': Decimal(v['amount']),
+                'price_usd': Decimal(v['amount']) * price,
                 'tx_count': v['txCount'],
             }
     elif 'OUT' in direction:
-        ret: Dict[str, Dict[str, float]] = get_all_keys(
+        ret: Dict[str, Dict[str, str]] = get_all_keys(
             f'{chain}:bridge:*:{address}:{direction}',
             client=LOGS_REDIS_URL,
             serialize=True,
@@ -108,9 +109,9 @@ def get_chain_volume_for_address(address: str,
             price = get_historic_price_for_address(chain, address, date)
 
             res[date][to_chain] = {
-                'volume': v['amount'],
+                'volume': Decimal(v['amount']),
                 'tx_count': v['txCount'],
-                'price_usd': v['amount'] * price,
+                'price_usd': Decimal(v['amount']) * price,
             }
     else:
         raise TypeError(f'{direction!r} is invalid.')
