@@ -178,13 +178,14 @@ def dispatch_get_logs(cb: Callable[[str, str, LogReceipt], None],
         if chain in [
                 'harmony',
                 'bsc',
-                'polygon',
                 'ethereum',
                 'moonriver',
         ]:
             jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=1024))
         elif chain == 'boba':
             jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=512))
+        elif chain == 'polygon':
+            jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=2048))
         else:
             jobs.append(gevent.spawn(get_logs, chain, cb))
 
