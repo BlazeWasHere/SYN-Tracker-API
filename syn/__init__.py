@@ -10,18 +10,21 @@
 from typing import Tuple
 
 from gevent import monkey
+import gevent
 
 monkey.patch_all()
 
 from flask_socketio import SocketIO
+import simplejson as json
 from flask import Flask
 
-from syn.utils.data import cache, SCHEDULER_CONFIG, schedular, POPULATE_CACHE, \
-    MESSAGE_QUEUE_REDIS_URL
+from syn.utils.data import cache, SCHEDULER_CONFIG, schedular
 
 
 def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     app = Flask(__name__)
+    app.json_encoder = json.JSONEncoder  # type: ignore
+    app.json_decoder = json.JSONDecoder  # type: ignore
 
     from .utils.converters import register_converter
     register_converter(app, 'date')
@@ -56,8 +59,8 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     schedular.init_app(app)
     cache.init_app(app)
     # First run.
-    update_getlogs()
-    update_caches()
+    gevent.spawn(update_getlogs)
+    gevent.spawn(update_caches)
 
     schedular.start()
 
