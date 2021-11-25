@@ -136,6 +136,13 @@ def convert_amount(chain: str, token: str, amount: int) -> D:
         return D(0)
 
 
+def hex_to_int(str_hex: str) -> int:
+    """
+    Convert 0xdead1234 into integer
+    """
+    return int(str_hex[2:], 16)
+
+
 def get_gas_stats_for_tx(chain: str,
                          w3: Web3,
                          txhash: _Hash32,
@@ -150,7 +157,7 @@ def get_gas_stats_for_tx(chain: str,
         paid_for_gas = 0
 
         for key in paid:
-            paid_for_gas += int(paid[key][2:], 16)
+            paid_for_gas += hex_to_int(paid[key])
 
         gas_price = D(paid_for_gas) / (D(1e9) * D(receipt['gasUsed']))
 
@@ -160,6 +167,21 @@ def get_gas_stats_for_tx(chain: str,
         }
 
     ret = w3.eth.get_transaction(txhash)
+
+    # Optimism seems to be pricing gas on both L1 and L2,
+    # so we aggregate these and use gas_spent on L1 to
+    # determine the "gas price", as L1 gas >>> L2 gas
+    if chain == 'optimism':
+        paid_for_gas = receipt['gasUsed'] * ret['gasPrice']
+        paid_for_gas += hex_to_int(receipt['l1Fee'])
+        gas_used = hex_to_int(receipt['l1GasUsed'])
+        gas_price = D(paid_for_gas) / (D(1e9) * D(gas_used))
+
+        return {
+            'gas_paid': handle_decimals(paid_for_gas, 18),
+            'gas_price': gas_price
+        }
+
     gas_price = handle_decimals(ret['gasPrice'], 9)  # type: ignore
 
     return {
