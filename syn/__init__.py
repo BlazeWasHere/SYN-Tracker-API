@@ -59,8 +59,8 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     schedular.init_app(app)
     cache.init_app(app)
     # First run.
-    gevent.spawn(update_getlogs)
-    gevent.spawn(update_caches)
+    update_getlogs()
+    update_caches()
 
     schedular.start()
 
