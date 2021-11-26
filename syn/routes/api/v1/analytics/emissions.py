@@ -15,8 +15,8 @@ from flask import Blueprint, jsonify, request
 from gevent import Greenlet
 import gevent
 
+from syn.utils.data import SYN_DATA, DEFAULT_TIMEOUT, _forced_update, cache
 from syn.utils.contract import get_synapse_emissions
-from syn.utils.data import SYN_DATA
 from syn.utils import verify
 
 emissions_bp = Blueprint('emissions_bp', __name__)
@@ -24,6 +24,9 @@ emissions_bp = Blueprint('emissions_bp', __name__)
 
 @emissions_bp.route('/weekly/', defaults={'chain': ''}, methods=['GET'])
 @emissions_bp.route('/weekly/<chain>', methods=['GET'])
+@cache.cached(timeout=DEFAULT_TIMEOUT,
+              forced_update=_forced_update,
+              query_string=True)
 def weekly_emissions_chain(chain: str):
     if chain not in SYN_DATA:
         return (jsonify({
@@ -52,6 +55,7 @@ def weekly_emissions_chain(chain: str):
 
 
 @emissions_bp.route('/weekly', methods=['GET'])
+@cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
 def weekly_emissions():
     res: Dict[str, Decimal] = {}
     jobs: List[Greenlet] = []
