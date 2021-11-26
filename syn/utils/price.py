@@ -225,7 +225,7 @@ def get_historic_price_for_address(chain: str, address: str,
 
 def get_price_for_address(chain: str, address: str) -> Decimal:
     if address in CUSTOM[chain]:
-        return CUSTOM[chain][address]
+        return Decimal(CUSTOM[chain][address])
 
     if address not in ADDRESS_TO_CGID[chain]:
         logger.warning(f'returning amount 0 for token {address} on {chain}')
