@@ -216,7 +216,7 @@ def get_historic_price_syn(date: str, currency: str = "usd") -> Decimal:
 def get_historic_price_for_address(chain: str, address: str,
                                    date: str) -> Decimal:
     if address in CUSTOM[chain]:
-        return CUSTOM[chain][address]
+        return Decimal(CUSTOM[chain][address])
     elif ADDRESS_TO_CGID[chain][address] == CoingeckoIDS.SYN:
         return get_historic_price_syn(date)
 
