@@ -196,7 +196,7 @@ def get_historic_price(_id: CoingeckoIDS,
     r = requests.get(COINGECKO_HISTORIC_URL.format(_id.value, date)).json()
 
     try:
-        return r['market_data']['current_price'][currency]
+        return Decimal(r['market_data']['current_price'][currency])
     except KeyError:
         # CG doesn't have the price.
         return Decimal(0)
