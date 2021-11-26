@@ -127,23 +127,24 @@ def get_admin_and_pending_fees(chain: str,
 
 
 def get_chain_validator_gas_fees(
-        chain: str) -> Dict[str, Dict[str, Union[str, float]]]:
+        chain: str) -> Dict[str, Dict[str, Union[str, Decimal]]]:
     # We aggregate validator gas fees on `IN` txs.
     ret = get_all_keys(f'{chain}:bridge:*:IN',
                        client=LOGS_REDIS_URL,
-                       index=2,
+                       index=[2, 4],
                        serialize=True)
 
-    res: Dict[str, Dict[str, Union[str, float]]] = defaultdict(dict)
+    res: Dict[str, Dict[str, Union[str, Decimal]]] = defaultdict(dict)
 
     for k, v in ret.items():
-        price = get_historic_price(_chain_to_cgid[chain], k)
+        date, _ = k.split(':')
+        price = get_historic_price(_chain_to_cgid[chain], date)
         x = v['validator']
 
-        add_to_dict(res[k], 'gas_price', x['gas_price'])
-        add_to_dict(res[k], 'transaction_fee', x['gas_paid'])
-        add_to_dict(res[k], 'price_usd', x['gas_paid'] * price)
-        add_to_dict(res[k], 'tx_count', v['txCount'])
+        add_to_dict(res[date], 'gas_price', x['gas_price'])
+        add_to_dict(res[date], 'transaction_fee', x['gas_paid'])
+        add_to_dict(res[date], 'price_usd', x['gas_paid'] * price)
+        add_to_dict(res[date], 'tx_count', v['txCount'])
 
     return res
 

@@ -110,8 +110,9 @@ def store_volume_dict_to_redis(chain: str, _dict: Dict[str, Any]) -> None:
 def get_all_keys(pattern: str,
                  serialize: bool = False,
                  client: Redis = REDIS,
-                 index: int = 1) -> Dict[str, Any]:
+                 index: Union[List[int], int] = 1) -> Dict[str, Any]:
     res = cast(Dict[str, Any], defaultdict(dict))
+    assert isinstance(index, (int, list))
 
     for key in client.keys(pattern):
         ret = client.get(key)
@@ -121,7 +122,17 @@ def get_all_keys(pattern: str,
                 ret = json.loads(ret, use_decimal=True)
 
             if index:
-                key = key.split(':')[index]
+                if type(index) == int:
+                    key = key.split(':')[index]
+                elif type(index) == list:
+                    index = cast(List[int], index)
+
+                    if len(index) == 1:
+                        key = key.split(':')[index[0]]
+                    else:
+                        # [min, max]
+                        assert len(index) == 2
+                        key = ':'.join(key.split(':')[index[0]:index[1]])
 
         res[key] = ret
 
