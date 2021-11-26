@@ -89,12 +89,14 @@ def get_balance_of(w3: Web3,
     return ret
 
 
-def get_synapse_per_second(chain: str,
-                           block: BlockIdentifier = 'latest',
-                           multiplier: int = None) -> Decimal:
+def get_synapse_emissions(chain: str,
+                          block: BlockIdentifier = 'latest',
+                          multiplier: int = None) -> Decimal:
     contract = SYN_DATA[chain]['minichef_contract']
-    ret = contract.functions.synapsePerSecond().call(block_indentifier=block)
+    ret = contract.functions.synapsePerSecond().call(block_identifier=block)
+    print(chain, ret)
     ret = handle_decimals(ret, SYN_DECIMALS)
+    print(ret)
 
     if multiplier is None:
         return ret

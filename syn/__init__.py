@@ -36,6 +36,7 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     #    asnyc_mode='gevent',
     #    message_queue=MESSAGE_QUEUE_REDIS_URL)
 
+    from .routes.api.v1.analytics.emissions import emissions_bp
     from .routes.api.v1.analytics.treasury import treasury_bp
     from .routes.api.v1.analytics.volume import volume_bp
     from .routes.api.v1.analytics.pools import pools_bp
@@ -52,6 +53,8 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     app.register_blueprint(volume_bp, url_prefix='/api/v1/analytics/volume')
     app.register_blueprint(treasury_bp,
                            url_prefix='/api/v1/analytics/treasury')
+    app.register_blueprint(emissions_bp,
+                           url_prefix='/api/v1/analytics/emissions')
 
     from .cron import update_caches, update_getlogs
 
