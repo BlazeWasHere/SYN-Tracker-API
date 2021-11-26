@@ -53,6 +53,7 @@ symbol_to_address = {
         'syn': '0x1f1e7c893855525b303f99bdf5c3c05be09ca251',
         'nusd': '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46',
         'nfd': '0xf1293574ee43950e7a8c9f1005ff097a9a713959',
+        'neth': '0x19e1ae0ee35c0404f835521146206595d37981ae',
     },
     'harmony': {
         'syn': '0xe55e19fb4f2d85af758950957714292dac1e25b2',
