@@ -10,3 +10,4 @@ flask-caching
 Flask-APScheduler
 flask-socketio
 gevent-websocket
+simplejson

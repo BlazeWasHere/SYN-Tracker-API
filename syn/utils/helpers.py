@@ -10,21 +10,21 @@
 from typing import Any, List, Dict, Optional, TypeVar, Union, cast, Callable
 from datetime import datetime, timedelta
 from collections import defaultdict
+import decimal
 import logging
-import json
 
 from web3.types import _Hash32, TxReceipt, LogReceipt
-from eth_typing.evm import ChecksumAddress
 from gevent import Greenlet
 from web3.main import Web3
+import simplejson as json
 from redis import Redis
 import dateutil.parser
 import gevent
 
-from .explorer.data import Direction, TOKENS_IN_POOL
 from .data import REDIS, TOKEN_DECIMALS, SYN_DATA
 
 logger = logging.Logger(__name__)
+D = decimal.Decimal
 KT = TypeVar('KT')
 VT = TypeVar('VT')
 
@@ -110,57 +110,54 @@ def store_volume_dict_to_redis(chain: str, _dict: Dict[str, Any]) -> None:
 def get_all_keys(pattern: str,
                  serialize: bool = False,
                  client: Redis = REDIS,
-                 index: int = 1) -> Dict[str, Any]:
+                 index: Union[List[int], int] = 1) -> Dict[str, Any]:
     res = cast(Dict[str, Any], defaultdict(dict))
+    assert isinstance(index, (int, list))
 
     for key in client.keys(pattern):
         ret = client.get(key)
 
         if serialize:
             if ret is not None:
-                ret = json.loads(ret)
+                ret = json.loads(ret, use_decimal=True)
 
             if index:
-                key = key.split(':')[index]
+                if type(index) == int:
+                    key = key.split(':')[index]
+                elif type(index) == list:
+                    index = cast(List[int], index)
+
+                    if len(index) == 1:
+                        key = key.split(':')[index[0]]
+                    else:
+                        # [min, max]
+                        assert len(index) == 2
+                        key = ':'.join(key.split(':')[index[0]:index[1]])
 
         res[key] = ret
 
     return res
 
 
-def get_address_from_data(
-    chain: str,
-    method: str,
-    data: dict,
-    direction: Direction,
-    lower: bool = True,
-) -> Union[str, ChecksumAddress]:
-    """Get from/to_token from searching through `data` and `log` depending 
-    on the `method`"""
-
-    if direction == Direction.OUT:
-        address = data['token']
-    elif direction == Direction.IN:
-        if 'token' in data:
-            address = data['token']
-        else:
-            address = TOKENS_IN_POOL[chain][data['tokenIndexFrom']]
-
-    return Web3.toChecksumAddress(address) if not lower else address.lower()
-
-
-def convert_amount(chain: str, token: str, amount: int) -> float:
+def convert_amount(chain: str, token: str, amount: int) -> D:
     try:
-        return amount / 10**TOKEN_DECIMALS[chain][token.lower()]
+        return handle_decimals(amount, TOKEN_DECIMALS[chain][token.lower()])
     except KeyError:
         logger.warning(f'return amount 0 for token {token} on {chain}')
-        return 0
+        return D(0)
+
+
+def hex_to_int(str_hex: str) -> int:
+    """
+    Convert 0xdead1234 into integer
+    """
+    return int(str_hex[2:], 16)
 
 
 def get_gas_stats_for_tx(chain: str,
                          w3: Web3,
                          txhash: _Hash32,
-                         receipt: TxReceipt = None) -> Dict[str, float]:
+                         receipt: TxReceipt = None) -> Dict[str, D]:
     if receipt is None:
         receipt = w3.eth.get_transaction_receipt(txhash)
 
@@ -171,17 +168,35 @@ def get_gas_stats_for_tx(chain: str,
         paid_for_gas = 0
 
         for key in paid:
-            paid_for_gas += int(paid[key][2:], 16)
+            paid_for_gas += hex_to_int(paid[key])
 
-        gas_price = paid_for_gas / (1e9 * receipt['gasUsed'])
+        gas_price = D(paid_for_gas) / (D(1e9) * D(receipt['gasUsed']))
 
-        return {'gas_paid': paid_for_gas / 1e18, 'gas_price': gas_price}
+        return {
+            'gas_paid': handle_decimals(paid_for_gas, 18),
+            'gas_price': gas_price
+        }
 
     ret = w3.eth.get_transaction(txhash)
-    gas_price = ret['gasPrice'] / 1e9  # type: ignore
+
+    # Optimism seems to be pricing gas on both L1 and L2,
+    # so we aggregate these and use gas_spent on L1 to
+    # determine the "gas price", as L1 gas >>> L2 gas
+    if chain == 'optimism':
+        paid_for_gas = receipt['gasUsed'] * ret['gasPrice']
+        paid_for_gas += hex_to_int(receipt['l1Fee'])
+        gas_used = hex_to_int(receipt['l1GasUsed'])
+        gas_price = D(paid_for_gas) / (D(1e9) * D(gas_used))
+
+        return {
+            'gas_paid': handle_decimals(paid_for_gas, 18),
+            'gas_price': gas_price
+        }
+
+    gas_price = handle_decimals(ret['gasPrice'], 9)  # type: ignore
 
     return {
-        'gas_paid': gas_price * receipt['gasUsed'] / 1e9,
+        'gas_paid': handle_decimals(gas_price * receipt['gasUsed'], 9),
         'gas_price': gas_price
     }
 
@@ -196,13 +211,14 @@ def dispatch_get_logs(cb: Callable[[str, str, LogReceipt], None],
         if chain in [
                 'harmony',
                 'bsc',
-                'polygon',
                 'ethereum',
                 'moonriver',
         ]:
             jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=1024))
         elif chain == 'boba':
             jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=512))
+        elif chain == 'polygon':
+            jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=2048))
         else:
             jobs.append(gevent.spawn(get_logs, chain, cb))
 
@@ -211,6 +227,16 @@ def dispatch_get_logs(cb: Callable[[str, str, LogReceipt], None],
     else:
         return jobs
 
+def handle_decimals(num: Union[str, int, float, decimal.Decimal],
+                    decimals: int,
+                    *,
+                    precision: int = None) -> decimal.Decimal:
+    res: decimal.Decimal = D(num) / D(10**decimals)
+
+    if precision is not None:
+        return res.quantize(decimal.Decimal(10)**-precision)
+
+    return res
 
 def is_in_range(value: int, min: int, max: int) -> bool:
     return min <= value <= max

@@ -7,10 +7,11 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from collections import defaultdict
 from typing import Any, Dict, List, Union
+from collections import defaultdict
 from datetime import datetime
 from itertools import chain
+from decimal import Decimal
 
 from web3.exceptions import BadFunctionCallOutput
 from flask import Blueprint, jsonify, request
@@ -51,7 +52,7 @@ def _dispatch(chain: str, block: Union[str, int]) -> List[Greenlet]:
     return threads
 
 
-def _convert_ret(ret: Dict[str, Any], res: Dict[str, float]) -> None:
+def _convert_ret(ret: Dict[str, Any], res: Dict[str, Decimal]) -> None:
     if 'ethpool_contract' in ret:
         res['neth'] = ret['ethpool_contract']
     elif 'pool_contract' in ret:
@@ -76,7 +77,7 @@ def price_virtual_chain(chain: str):
         block = int(block)
 
     threads: List[Greenlet] = _dispatch(chain, block)
-    res: Dict[str, float] = {}
+    res: Dict[str, Decimal] = {}
     gevent.joinall(threads)
 
     for thread in threads:
@@ -91,7 +92,7 @@ def price_virtual_chain(chain: str):
 @pools_bp.route('/price/virtual', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def price_virtual():
-    res: Dict[str, Dict[str, float]] = defaultdict(dict)
+    res: Dict[str, Dict[str, Decimal]] = defaultdict(dict)
     jobs: Dict[str, List[Greenlet]] = {}
 
     for _chain in SYN_DATA:

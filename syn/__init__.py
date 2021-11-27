@@ -11,17 +11,35 @@ from typing import Tuple
 
 from gevent import monkey
 
+# Monkey patch stuff.
 monkey.patch_all()
 
+from syn.utils.data import SYN_DATA
+from web3._utils import request
+from math import log2
+import lru
+
+# Get the next ^2 that is greater than len(SYN_DATA.keys()) so we can make
+# the cache size greater than the amount of chains we support.
+n = 1 << int(log2(len(SYN_DATA.keys()))) + 1
+
+b = request._session_cache.get_size()
+request._session_cache.set_size(n)
+c = request._session_cache.get_size()
+assert b != c, '_session_cache size did not change'
+assert c == n, 'new _session_cache size is not what we set it to'
+
 from flask_socketio import SocketIO
+import simplejson as json
 from flask import Flask
 
-from syn.utils.data import cache, SCHEDULER_CONFIG, schedular, POPULATE_CACHE, \
-    MESSAGE_QUEUE_REDIS_URL
+from syn.utils.data import cache, SCHEDULER_CONFIG, schedular
 
 
 def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     app = Flask(__name__)
+    app.json_encoder = json.JSONEncoder  # type: ignore
+    app.json_decoder = json.JSONDecoder  # type: ignore
 
     from .utils.converters import register_converter
     register_converter(app, 'date')
@@ -33,6 +51,7 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     #    asnyc_mode='gevent',
     #    message_queue=MESSAGE_QUEUE_REDIS_URL)
 
+    from .routes.api.v1.analytics.emissions import emissions_bp
     from .routes.api.v1.analytics.treasury import treasury_bp
     from .routes.api.v1.analytics.volume import volume_bp
     from .routes.api.v1.analytics.pools import pools_bp
@@ -49,6 +68,8 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     app.register_blueprint(volume_bp, url_prefix='/api/v1/analytics/volume')
     app.register_blueprint(treasury_bp,
                            url_prefix='/api/v1/analytics/treasury')
+    app.register_blueprint(emissions_bp,
+                           url_prefix='/api/v1/analytics/emissions')
 
     from .cron import update_caches, update_getlogs
 

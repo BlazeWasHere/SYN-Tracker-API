@@ -28,6 +28,7 @@ load_dotenv(override=True)
 COINGECKO_HISTORIC_URL = "https://api.coingecko.com/api/v3/coins/{0}/history?date={1}&localization=false"
 COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_currencies={1}"
 
+MINICHEF_ABI = """[{"inputs":[],"name":"synapsePerSecond","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getVirtualPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
 
@@ -115,6 +116,7 @@ SYN_DATA = {
         "usdc": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         "dai": "0x6b175474e89094c44da98b954eedeac495271d0f",
         "bridge": "0x2796317b0ff8538f253012862c06787adfb8ceb6",
+        "minichef": "0xd10eF2A513cEE0Db54E959eF16cAc711470B62cF",
     },
     "avalanche": {
         "rpc": os.getenv('AVAX_RPC'),
@@ -123,6 +125,7 @@ SYN_DATA = {
         "nusd": "0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46",
         "usdlp": "0x55904f416586b5140a0f666cf5acf320adf64846",
         "bridge": "0xc05e61d0e7a63d27546389b7ad62fdff5a91aace",
+        "minichef": "0x3a01521F8E7F012eB37eAAf1cb9490a5d9e18249",
     },
     "bsc": {
         "rpc": os.getenv('BSC_RPC'),
@@ -136,6 +139,7 @@ SYN_DATA = {
         "dog": "0xaa88c603d142c371ea0eac8756123c5805edee03",
         "high": "0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63",
         "bridge": "0xd123f70ae324d34a9e76b67a27bf77593ba8749f",
+        "minichef": "0x8F5BBB2BB8c2Ee94639E55d5F41de9b4839C1280",
     },
     "polygon": {
         "rpc": os.getenv('POLYGON_RPC'),
@@ -144,6 +148,7 @@ SYN_DATA = {
         "nusd": "0xb6c473756050de474286bed418b77aeac39b02af",
         "usdlp": "0x128a587555d1148766ef4327172129b50ec66e5d",
         "bridge": "0x8f5bbb2bb8c2ee94639e55d5f41de9b4839c1280",
+        "minichef": "0x7875Af1a6878bdA1C129a4e2356A3fD040418Be5",
     },
     "arbitrum": {
         "rpc": os.getenv('ARB_RPC'),
@@ -153,6 +158,7 @@ SYN_DATA = {
         "usdlp": "0xe264cb5a941f98a391b9d5244378edf79bf5c19e",
         "bridge": "0x6f4e8eba4d337f874ab57478acc2cb5bacdc19c9",
         "ethpool": "0xa067668661c84476afcdc6fa5d758c4c01c34352",
+        "minichef": "0x73186f2Cf2493f20836b17b21ae79fc12934E207",
     },
     "fantom": {
         "rpc": os.getenv('FTM_RPC'),
@@ -161,12 +167,14 @@ SYN_DATA = {
         "nusd": "0xed2a7edd7413021d440b09d654f3b87712abab66",
         "usdlp": "0x43cf58380e69594fa2a5682de484ae00edd83e94",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
+        "minichef": "0xaeD5b25BE1c3163c907a471082640450F928DDFE",
     },
     "harmony": {
         "rpc": os.getenv('HARMONY_RPC'),
         'address': '0xE55e19Fb4F2D85af758950957714292DAC1e25B2',
         "pool": "0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
+        "minichef": "0xaeD5b25BE1c3163c907a471082640450F928DDFE",
     },
     "boba": {
         "rpc": os.getenv('BOBA_RPC'),
@@ -174,17 +182,20 @@ SYN_DATA = {
         "pool": "0x75ff037256b36f15919369ac58695550be72fead",
         "bridge": "0x432036208d2717394d2614d6697c46df3ed69540",
         "ethpool": "0x753bb855c8fe814233d26bb23af61cb3d2022be5",
+        "minichef": "0xd5609cD0e1675331E4Fb1d43207C8d9D83AAb17C",
     },
     "moonriver": {
         "rpc": os.getenv('MOVR_RPC'),
         "address": "0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445",
         "bridge": "0xaed5b25be1c3163c907a471082640450f928ddfe",
+        "minichef": "0x432036208d2717394d2614d6697c46DF3Ed69540",
     },
     "optimism": {
         "rpc": os.getenv('OPTIMISM_RPC'),
         "address": "0x5a5fff6f753d7c11a56a52fe47a177a87e431655",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
         "ethpool": "0xe27bff97ce92c3e1ff7aa9f86781fdd6d48f5ee9",
+        "minichef": "0xe8c610fcb63A4974F02Da52f0B4523937012Aaa0",
     }
 }
 
@@ -198,6 +209,7 @@ TREASURY = {
     'boba': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
     'moonriver': '0x4bA30618fDcb184eC01a9B3CAe258CFc5786E70E',
     'optimism': '0x2431CBdc0792F5485c4cb0a9bEf06C4f21541D52',
+    'harmony': '0x0172e7190Bbc0C2Aa98E4d1281d41D0c07178605',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
@@ -209,6 +221,11 @@ for key, value in SYN_DATA.items():
         w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     w3.middleware_onion.add(local_filter_middleware)
+    print(key)
+    try:
+        print(w3.eth.syncing)
+    except Exception as e:
+        print(e)
 
     value.update({
         'contract':
@@ -216,6 +233,9 @@ for key, value in SYN_DATA.items():
                         abi=TOTAL_SUPPLY_ABI),
         'w3':
         w3,
+        'minichef_contract':
+        w3.eth.contract(Web3.toChecksumAddress(value['minichef']),
+                        abi=MINICHEF_ABI)
     })
 
     if value.get('pool') is not None:
@@ -283,6 +303,7 @@ TOKEN_DECIMALS = {
         '0x55904f416586b5140a0f666cf5acf320adf64846': 18,  # USD-LP
         '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': 18,  # SYN
         '0xf1293574ee43950e7a8c9f1005ff097a9a713959': 18,  # NFD
+        '0x19e1ae0ee35c0404f835521146206595d37981ae': 18,  # nETH
     },
     'arbitrum': {
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': 18,  # DAI
@@ -293,6 +314,7 @@ TOKEN_DECIMALS = {
         '0xe264cb5a941f98a391b9d5244378edf79bf5c19e': 18,  # USD-LP
         '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': 18,  # MIM
         '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e': 18,  # nETH
+        '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': 18,  # WETH
     },
     'fantom': {
         '0x04068da6c83afcfa0e13ba15a6696662335d5b75': 6,  # USDC
@@ -309,6 +331,7 @@ TOKEN_DECIMALS = {
         '0x985458e523db3d53125813ed68c274899e9dfab4': 6,  # 1USDC
         '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f': 6,  # 1USDT
         '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,  # nUSD
+        '0xcf664087a5bb0237a0bad6742852ec6c8d69a27a': 18,  # ONE
     },
     'boba': {
         '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc': 6,  # USDC
@@ -318,6 +341,7 @@ TOKEN_DECIMALS = {
         '0x96419929d7949d6a801a6909c145c8eef6a40431': 18,  # nETH
         '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 18,  # nUSD
         '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35': 18,  # DAI
+        '0xd203de32170130082896b4111edf825a4774c18e': 18,  # WETH
     },
     'moonriver': {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': 18,  # SYN
@@ -327,6 +351,7 @@ TOKEN_DECIMALS = {
     'optimism': {
         '0x809dc529f07651bd43a172e8db6f4a7a0d771036': 18,  # nETH
         '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': 18,  # SYN
+        '0x121ab82b49b2bc4c7901ca46b8277962b4350204': 18,  # WETH
     },
 }
 

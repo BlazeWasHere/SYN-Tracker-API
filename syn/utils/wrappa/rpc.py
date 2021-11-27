@@ -9,18 +9,19 @@
 
 from typing import Callable, cast, List, TypeVar, Union
 from datetime import datetime
+from decimal import Decimal
 from pprint import pformat
-import json
 
 from web3.types import FilterParams, LogReceipt
 from hexbytes import HexBytes
 from gevent.pool import Pool
+import simplejson as json
 from web3 import Web3
 import gevent
 
 from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
     OLDERBRIDGE_ABI, TOKEN_DECIMALS
-from syn.utils.helpers import get_gas_stats_for_tx, get_airdrop_value_for_block
+from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals, get_airdrop_value_for_block
 from syn.utils.explorer.poll import figure_out_method
 from syn.utils.explorer.data import TOPICS, Direction
 
@@ -156,11 +157,8 @@ def bridge_callback(chain: str,
             f'Decimals? token = {asset}, tx_hash = {convert(tx_hash)}')
 
     decimals = TOKEN_DECIMALS[chain][asset]
-    value = {
-        'amount':
-        args['amount'] / 10**decimals,  # This is in nUSD/nETH/SYN/etc
-        'txCount': 1
-    }
+    # Amount is in nUSD/nETH/SYN/etc
+    value = {'amount': handle_decimals(args['amount'], decimals), 'txCount': 1}
 
     if direction == Direction.IN:
         # All `IN` txs are from the validator; let's track how much gas they pay.
@@ -168,7 +166,7 @@ def bridge_callback(chain: str,
         value['validator'] = gas_stats
 
         # Let's also track how much fees the user paid for the bridge tx
-        value['fees'] = args['fee'] / 10**18
+        value['fees'] = handle_decimals(args['fee'], 18)
 
         # All `IN` txs give some airdrop amounts, well on most chains at least.
         if chain in airdrop_ranges:
@@ -181,7 +179,7 @@ def bridge_callback(chain: str,
     key = f'{chain}:bridge:{date}:{asset}:{direction}{_chain}'
 
     if (ret := LOGS_REDIS_URL.get(key)) is not None:
-        ret = json.loads(ret)
+        ret = json.loads(ret, use_decimal=True)
 
         if direction == Direction.IN:
             if 'validator' not in ret:

@@ -10,8 +10,9 @@
 from typing import Any, Callable, Optional, Union
 from functools import lru_cache, wraps
 from datetime import timedelta
-import json
 import time
+
+import simplejson as json
 
 from .data import REDIS
 
@@ -86,7 +87,7 @@ def redis_cache(key: Optional[Callable[..., str]] = None,
             if (data := REDIS.get(_key)) is not None:
                 if isinstance(data, str):
                     try:
-                        return json.loads(data)
+                        return json.loads(data, use_decimal=True)
                     except:
                         return data
 

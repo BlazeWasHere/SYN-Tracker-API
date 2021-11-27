@@ -78,20 +78,26 @@ TOPICS = {
     Direction.IN,
 }
 
+_TKS = DefaultDict[str, Dict[str, Dict[int, str]]]
 #: Example schema:
-#: {
-#:   "ethereum": {
-#:      0: '0x...',
-#:      1: '0x...',
-#:   }
-#: }
-TOKENS_IN_POOL: DefaultDict[str, Dict[int, str]] = defaultdict(dict)
+#: {'arbitrum':
+#:   {'neth': {0: '0x3ea9B0ab55F34Fb188824Ee288CeaEfC63cf908e',
+#:             1: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'},
+#:    'nusd': {0: '0x2913E812Cf0dcCA30FB28E6Cac3d2DCFF4497688',
+#:             1: '0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A',
+#:             2: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+#:             3: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9'}}
+TOKENS_IN_POOL: _TKS = defaultdict(lambda: defaultdict(dict))
 
 for chain, v in SYN_DATA.items():
-    if not v.get('pool_contract'):
-        continue
+    if 'pool_contract' in v:
+        ret = get_all_tokens_in_pool(chain)
 
-    ret = get_all_tokens_in_pool(chain)
+        for i, token in enumerate(ret):
+            TOKENS_IN_POOL[chain]['nusd'].update({i: token})
 
-    for i, token in enumerate(ret):
-        TOKENS_IN_POOL[chain].update({i: token})
+    if 'ethpool_contract' in v:
+        ret = get_all_tokens_in_pool(chain, func='ethpool_contract')
+
+        for i, token in enumerate(ret):
+            TOKENS_IN_POOL[chain]['neth'].update({i: token})

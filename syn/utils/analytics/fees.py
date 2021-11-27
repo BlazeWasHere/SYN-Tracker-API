@@ -7,11 +7,13 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Dict, Union, List
+from typing import Dict, Union, List, overload
 from collections import defaultdict
+from decimal import Decimal
 
 from syn.utils.data import SYN_DATA, TOKEN_DECIMALS, LOGS_REDIS_URL
-from syn.utils.helpers import add_to_dict, raise_if, get_all_keys
+from syn.utils.helpers import add_to_dict, raise_if, get_all_keys, \
+    handle_decimals
 from syn.utils.contract import get_all_tokens_in_pool, call_abi
 from syn.utils.price import CoingeckoIDS, get_historic_price, \
     get_historic_price_for_address
@@ -51,21 +53,23 @@ def get_admin_fee(chain: str,
                     call_args={'block_identifier': block})
 
 
-def get_admin_fees(chain: str,
-                   block: Union[int, str] = 'latest',
-                   handle_decimals: bool = False,
-                   tokens: List[str] = None) -> Dict[str, float]:
+def get_admin_fees(
+        chain: str,
+        block: Union[int, str] = 'latest',
+        _handle_decimals: bool = False,
+        tokens: List[str] = None) -> Dict[str, Union[Decimal, float]]:
     if tokens is None:
         tokens = get_all_tokens_in_pool(chain)
 
-    res: Dict[str, float] = {}
+    res: Dict[str, Union[Decimal, float]] = {}
 
     if tokens:
         for i, token in enumerate(tokens):
             res[token] = get_admin_fee(chain, i, block)
 
-            if handle_decimals:
-                res[token] /= 10**TOKEN_DECIMALS[chain][token.lower()]
+            if _handle_decimals:
+                res[token] = handle_decimals(
+                    res[token], TOKEN_DECIMALS[chain][token.lower()])
 
     return res
 
@@ -81,21 +85,23 @@ def get_pending_admin_fee(chain: str,
                     call_args={'block_identifier': block})
 
 
-def get_pending_admin_fees(chain: str,
-                           block: Union[int, str] = 'latest',
-                           handle_decimals: bool = False,
-                           tokens: List[str] = None) -> Dict[str, float]:
+def get_pending_admin_fees(
+        chain: str,
+        block: Union[int, str] = 'latest',
+        _handle_decimals: bool = False,
+        tokens: List[str] = None) -> Dict[str, Union[Decimal, float]]:
     if tokens is None:
         tokens = get_all_tokens_in_pool(chain)
 
-    res: Dict[str, float] = {}
+    res: Dict[str, Union[Decimal, float]] = {}
 
     if tokens:
         for token in tokens:
             res[token] = get_pending_admin_fee(chain, token, block)
 
-            if handle_decimals:
-                res[token] /= 10**TOKEN_DECIMALS[chain][token.lower()]
+            if _handle_decimals:
+                res[token] = handle_decimals(
+                    res[token], TOKEN_DECIMALS[chain][token.lower()])
 
     return res
 
@@ -121,23 +127,24 @@ def get_admin_and_pending_fees(chain: str,
 
 
 def get_chain_validator_gas_fees(
-        chain: str) -> Dict[str, Dict[str, Union[str, float]]]:
+        chain: str) -> Dict[str, Dict[str, Union[str, Decimal]]]:
     # We aggregate validator gas fees on `IN` txs.
     ret = get_all_keys(f'{chain}:bridge:*:IN',
                        client=LOGS_REDIS_URL,
-                       index=2,
+                       index=[2, 4],
                        serialize=True)
 
-    res: Dict[str, Dict[str, Union[str, float]]] = defaultdict(dict)
+    res: Dict[str, Dict[str, Union[str, Decimal]]] = defaultdict(dict)
 
     for k, v in ret.items():
-        price = get_historic_price(_chain_to_cgid[chain], k)
+        date, _ = k.split(':')
+        price = get_historic_price(_chain_to_cgid[chain], date)
         x = v['validator']
 
-        add_to_dict(res[k], 'gas_price', x['gas_price'])
-        add_to_dict(res[k], 'transaction_fee', x['gas_paid'])
-        add_to_dict(res[k], 'price_usd', x['gas_paid'] * price)
-        add_to_dict(res[k], 'tx_count', v['txCount'])
+        add_to_dict(res[date], 'gas_price', x['gas_price'])
+        add_to_dict(res[date], 'transaction_fee', x['gas_paid'])
+        add_to_dict(res[date], 'price_usd', x['gas_paid'] * price)
+        add_to_dict(res[date], 'tx_count', v['txCount'])
 
     return res
 
