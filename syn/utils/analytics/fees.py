@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Dict, Union, List, overload
+from typing import Any, Dict, Union, List
 from collections import defaultdict
 from decimal import Decimal
 

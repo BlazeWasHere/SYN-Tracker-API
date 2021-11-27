@@ -11,8 +11,9 @@ from web3.exceptions import BadFunctionCallOutput
 from flask import Blueprint, jsonify, request
 from web3 import Web3
 
-from syn.utils.analytics.fees import get_admin_fees, get_chain_bridge_fees, get_pending_admin_fees, \
-    get_chain_validator_gas_fees, get_chain_airdrop_amounts
+from syn.utils.analytics.fees import get_admin_fees, get_chain_bridge_fees, \
+    get_pending_admin_fees, get_chain_validator_gas_fees, \
+    get_chain_airdrop_amounts
 from syn.utils.analytics.treasury import get_treasury_erc20_balances
 from syn.routes.api.v1.analytics.volume import symbol_to_address
 from syn.utils.data import SYN_DATA, cache, _forced_update
@@ -25,16 +26,13 @@ TIMEOUT = 60 * 15
 
 
 @fees_bp.route('/admin/', defaults={'chain': ''}, methods=['GET'])
-@fees_bp.route('/admin/<chain>', methods=['GET'])
+@fees_bp.route('/admin/<chain:chain>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
 def adminfees_chain(chain: str):
-    chainzzz = list(SYN_DATA)
-    chainzzz.remove('harmony')
-
-    if chain not in chainzzz:
+    if chain not in SYN_DATA:
         return (jsonify({
             'error': 'invalid chain',
-            'valids': chainzzz,
+            'valids': list(SYN_DATA),
         }), 400)
 
     block = request.args.get('block', 'latest')
@@ -52,7 +50,7 @@ def adminfees_chain(chain: str):
         return (jsonify({'error': 'contract not deployed'}), 400)
 
 
-@fees_bp.route('/admin/<chain>/pending', methods=['GET'])
+@fees_bp.route('/admin/<chain:chain>/pending', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def pending_adminfees_chain(chain: str):
     chainzzz = list(SYN_DATA)
@@ -91,28 +89,22 @@ def pending_adminfees_chain(chain: str):
 
 
 @fees_bp.route('/validator/', defaults={'chain': ''}, methods=['GET'])
-@fees_bp.route('/validator/<chain>', methods=['GET'])
+@fees_bp.route('/validator/<chain:chain>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def chain_validator_gas_fees(chain: str):
-    if chain not in SYN_DATA:
-        return (jsonify({
-            'error': 'invalid chain',
-            'valids': list(SYN_DATA),
-        }), 400)
-
     return jsonify(get_chain_validator_gas_fees(chain))
 
 
-@fees_bp.route('/bridge/<chain>/', defaults={'token': ''}, methods=['GET'])
+@fees_bp.route('/bridge/<chain>/',
+               defaults={
+                   'token': '',
+                   'chain': ''
+               },
+               methods=['GET'])
 @fees_bp.route('/bridge/<chain>/<token>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def chain_bridge_fees(chain: str, token: str):
-    if chain not in SYN_DATA:
-        return (jsonify({
-            'error': 'invalid chain',
-            'valids': list(SYN_DATA),
-        }), 400)
-    elif token not in symbol_to_address[chain]:
+    if token not in symbol_to_address[chain]:
         return (jsonify({
             'error': 'invalid token',
             'valids': list(symbol_to_address[chain]),
@@ -124,6 +116,7 @@ def chain_bridge_fees(chain: str, token: str):
 
 @fees_bp.route('/airdrop/', defaults={'chain': ''}, methods=['GET'])
 @fees_bp.route('/airdrop/<chain>', methods=['GET'])
+@cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def airdrop_chain_fees(chain: str):
     if chain not in SYN_DATA:
         return (jsonify({

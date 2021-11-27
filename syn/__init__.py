@@ -7,8 +7,6 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Tuple
-
 from gevent import monkey
 
 # Monkey patch stuff.
@@ -29,27 +27,20 @@ c = request._session_cache.get_size()
 assert b != c, '_session_cache size did not change'
 assert c == n, 'new _session_cache size is not what we set it to'
 
-from flask_socketio import SocketIO
 import simplejson as json
 from flask import Flask
 
 from syn.utils.data import cache, SCHEDULER_CONFIG, schedular
 
 
-def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
+def init() -> Flask:
     app = Flask(__name__)
     app.json_encoder = json.JSONEncoder  # type: ignore
     app.json_decoder = json.JSONDecoder  # type: ignore
 
     from .utils.converters import register_converter
+    register_converter(app, 'chain')
     register_converter(app, 'date')
-
-    #app.socketio = SocketIO(  # type: ignore
-    #    app,
-    #    logger=debug,
-    #    engineio_logger=debug,
-    #    asnyc_mode='gevent',
-    #    message_queue=MESSAGE_QUEUE_REDIS_URL)
 
     from .routes.api.v1.analytics.emissions import emissions_bp
     from .routes.api.v1.analytics.treasury import treasury_bp
@@ -76,15 +67,11 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     app.config.from_mapping(SCHEDULER_CONFIG)
     schedular.init_app(app)
     cache.init_app(app)
+    # TODO(blaze): launch as a background thread?
     # First run.
     update_getlogs()
     update_caches()
 
     schedular.start()
 
-    #with app.app_context():
-    #    from .routes.api.v1.explorer import ws
-
-    #ws.start()
-
-    return app, None  # type: ignore
+    return app

@@ -183,9 +183,9 @@ def get_gas_stats_for_tx(chain: str,
     # so we aggregate these and use gas_spent on L1 to
     # determine the "gas price", as L1 gas >>> L2 gas
     if chain == 'optimism':
-        paid_for_gas = receipt['gasUsed'] * ret['gasPrice']
-        paid_for_gas += hex_to_int(receipt['l1Fee'])
-        gas_used = hex_to_int(receipt['l1GasUsed'])
+        paid_for_gas = receipt['gasUsed'] * ret['gasPrice']  # type: ignore
+        paid_for_gas += hex_to_int(receipt['l1Fee'])  # type: ignore
+        gas_used = hex_to_int(receipt['l1GasUsed'])  # type: ignore
         gas_price = D(paid_for_gas) / (D(1e9) * D(gas_used))
 
         return {
@@ -228,14 +228,17 @@ def dispatch_get_logs(cb: Callable[[str, str, LogReceipt], None],
         return jobs
 
 
-def handle_decimals(num: Union[str, int, float, decimal.Decimal],
+def handle_decimals(num: Union[str, int, float, D],
                     decimals: int,
                     *,
-                    precision: int = None) -> decimal.Decimal:
-    res: decimal.Decimal = D(num) / D(10**decimals)
+                    precision: int = None) -> D:
+    if type(num) != D:
+        num = str(num)
+
+    res: D = D(num) / D(10**decimals)
 
     if precision is not None:
-        return res.quantize(decimal.Decimal(10)**-precision)
+        return res.quantize(D(10)**-precision)
 
     return res
 

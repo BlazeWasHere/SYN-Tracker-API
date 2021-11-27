@@ -75,14 +75,10 @@ symbol_to_address = {
 }
 
 
-@volume_bp.route('/<chain>/filter/<token>/<direction>', methods=['GET'])
+@volume_bp.route('/<chain:chain>/filter/<token>/<direction>', methods=['GET'])
+@cache.cached(timeout=60 * 5, forced_update=_forced_update)
 def chain_filter_token_direction(chain: str, token: str, direction: str):
-    if chain not in SYN_DATA:
-        return (jsonify({
-            'error': 'invalid chain',
-            'valids': list(SYN_DATA),
-        }), 400)
-    elif direction.upper() not in ['IN', 'OUT']:
+    if direction.upper() not in ['IN', 'OUT']:
         return (jsonify({
             'error': 'invalid direction',
             'valids': ['in', 'out'],
@@ -101,15 +97,13 @@ def chain_filter_token_direction(chain: str, token: str, direction: str):
     return jsonify(ret)
 
 
-@volume_bp.route('/<chain>/', defaults={'direction': ''}, methods=['GET'])
-@volume_bp.route('/<chain>/<direction>', methods=['GET'])
+@volume_bp.route('/<chain:chain>/',
+                 defaults={'direction': ''},
+                 methods=['GET'])
+@volume_bp.route('/<chain:chain>/<direction>', methods=['GET'])
+@cache.cached(timeout=60 * 5, forced_update=_forced_update)
 def chain_volume(chain: str, direction: str):
-    if chain not in SYN_DATA:
-        return (jsonify({
-            'error': 'invalid chain',
-            'valids': list(SYN_DATA),
-        }), 400)
-    elif direction.upper() not in ['IN', 'OUT']:
+    if direction.upper() not in ['IN', 'OUT']:
         return (jsonify({
             'error': 'invalid direction',
             'valids': ['in', 'out'],
@@ -122,7 +116,7 @@ def chain_volume(chain: str, direction: str):
 
 
 @volume_bp.route('/metapool/', defaults={'chain': ''}, methods=['GET'])
-@volume_bp.route('/metapool/<chain>', methods=['GET'])
+@volume_bp.route('/metapool/<chain:chain>', methods=['GET'])
 @cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
 def volume_metapool(chain: str):
     valid_chains = list(SYN_DATA)

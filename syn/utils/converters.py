@@ -8,10 +8,13 @@
 """
 
 from datetime import datetime
+import re
 
-from werkzeug.routing import BaseConverter, ValidationError
+from werkzeug.routing import BaseConverter, ValidationError, Map
 from flask import Flask
 import dateutil.parser
+
+from syn.utils.data import SYN_DATA
 
 
 class DatetimeConverter(BaseConverter):
@@ -25,11 +28,21 @@ class DatetimeConverter(BaseConverter):
         return super().to_url(value)
 
 
+class ChainConverter(BaseConverter):
+    def __init__(self, map: Map) -> None:
+        print(map)
+        print(dir(map))
+        super().__init__(map)
+        self.regex = f"(?:{'|'.join([re.escape(x) for x in SYN_DATA])})"
+
+
 def register_converter(app: Flask, name: str) -> None:
     func = None
 
     if name == 'date':
         func = DatetimeConverter
+    elif name == 'chain':
+        func = ChainConverter
 
     if func is None:
         raise TypeError(f'{name} is invalid: no converter found.')

@@ -10,6 +10,7 @@
 from typing import Callable, cast, List, TypeVar, Union
 from datetime import datetime
 from pprint import pformat
+import time
 
 from web3.types import FilterParams, LogReceipt
 from hexbytes import HexBytes
@@ -20,7 +21,8 @@ import gevent
 
 from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
     OLDERBRIDGE_ABI, TOKEN_DECIMALS
-from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals, get_airdrop_value_for_block
+from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals, \
+    get_airdrop_value_for_block
 from syn.utils.explorer.poll import figure_out_method
 from syn.utils.explorer.data import TOPICS, Direction
 
@@ -178,6 +180,8 @@ def bridge_callback(chain: str,
         if chain in airdrop_ranges:
             value['airdrops'] = get_airdrop_value_for_block(
                 airdrop_ranges[chain], block_n)
+        else:
+            raise RuntimeError(f'{chain} is not in `airdrop_ranges`')
 
     # Just in case we ever need that later for debugging
     # value['txs'] = f'[{convert(tx_hash)}]'
@@ -247,7 +251,6 @@ def get_logs(
     if till_block is None:
         till_block = w3.eth.block_number
 
-    import time
     print(
         f'{_chain:{chain_len}} starting from {start_block} with block height of {till_block}'
     )

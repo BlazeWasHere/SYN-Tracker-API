@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Optional, List, Any, Union, Dict, overload
+from typing import Optional, List, Any, Union, Dict
 from decimal import Decimal
 
 from web3.types import BlockIdentifier
@@ -94,9 +94,7 @@ def get_synapse_emissions(chain: str,
                           multiplier: int = None) -> Decimal:
     contract = SYN_DATA[chain]['minichef_contract']
     ret = contract.functions.synapsePerSecond().call(block_identifier=block)
-    print(chain, ret)
     ret = handle_decimals(ret, SYN_DECIMALS)
-    print(ret)
 
     if multiplier is None:
         return ret
