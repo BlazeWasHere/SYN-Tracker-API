@@ -10,9 +10,24 @@
 from typing import Tuple
 
 from gevent import monkey
-import gevent
 
+# Monkey patch stuff.
 monkey.patch_all()
+
+from syn.utils.data import SYN_DATA
+from web3._utils import request
+from math import log2
+import lru
+
+# Get the next ^2 that is greater than len(SYN_DATA.keys()) so we can make
+# the cache size greater than the amount of chains we support.
+n = 1 << int(log2(len(SYN_DATA.keys()))) + 1
+
+b = request._session_cache.get_size()
+request._session_cache.set_size(n)
+c = request._session_cache.get_size()
+assert b != c, '_session_cache size did not change'
+assert c == n, 'new _session_cache size is not what we set it to'
 
 from flask_socketio import SocketIO
 import simplejson as json
