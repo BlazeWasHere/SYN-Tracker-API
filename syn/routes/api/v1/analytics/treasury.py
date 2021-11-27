@@ -9,8 +9,8 @@
 
 from flask import Blueprint, jsonify, request
 
-from syn.utils.analytics.treasury import get_treasury_erc20_balances, get_treasury_erc20_balances_usd
-from syn.utils.data import TREASURY, cache, _forced_update
+from syn.utils.analytics.treasury import get_treasury_erc20_balances_usd
+from syn.utils.data import cache, _forced_update
 from syn.utils import verify
 
 treasury_bp = Blueprint('treasury_bp', __name__)
@@ -19,16 +19,9 @@ treasury_bp = Blueprint('treasury_bp', __name__)
 TIMEOUT = 60 * 15
 
 
-@treasury_bp.route('/<chain>', methods=['GET'])
+@treasury_bp.route('/<chain:chain>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
 def treasury_chain(chain: str):
-    _list = list(TREASURY.keys())
-    if chain not in TREASURY:
-        return (jsonify({
-            'error': 'invalid chain',
-            'valids': list(TREASURY.keys()),
-        }), 400)
-
     block = request.args.get('block', 'latest')
     if block != 'latest':
         if not verify.isdigit(block):

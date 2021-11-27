@@ -7,35 +7,42 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Tuple
-
 from gevent import monkey
-import gevent
 
+# Monkey patch stuff.
 monkey.patch_all()
 
-from flask_socketio import SocketIO
+from syn.utils.data import SYN_DATA
+from web3._utils import request
+from math import log2
+import lru
+
+# Get the next ^2 that is greater than len(SYN_DATA.keys()) so we can make
+# the cache size greater than the amount of chains we support.
+n = 1 << int(log2(len(SYN_DATA.keys()))) + 1
+
+b = request._session_cache.get_size()
+request._session_cache.set_size(n)
+c = request._session_cache.get_size()
+assert b != c, '_session_cache size did not change'
+assert c == n, 'new _session_cache size is not what we set it to'
+
 import simplejson as json
 from flask import Flask
 
 from syn.utils.data import cache, SCHEDULER_CONFIG, schedular
 
 
-def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
+def init() -> Flask:
     app = Flask(__name__)
     app.json_encoder = json.JSONEncoder  # type: ignore
     app.json_decoder = json.JSONDecoder  # type: ignore
 
     from .utils.converters import register_converter
+    register_converter(app, 'chain')
     register_converter(app, 'date')
 
-    #app.socketio = SocketIO(  # type: ignore
-    #    app,
-    #    logger=debug,
-    #    engineio_logger=debug,
-    #    asnyc_mode='gevent',
-    #    message_queue=MESSAGE_QUEUE_REDIS_URL)
-
+    from .routes.api.v1.analytics.emissions import emissions_bp
     from .routes.api.v1.analytics.treasury import treasury_bp
     from .routes.api.v1.analytics.volume import volume_bp
     from .routes.api.v1.analytics.pools import pools_bp
@@ -52,21 +59,19 @@ def init(debug: bool = False) -> Tuple[Flask, SocketIO]:
     app.register_blueprint(volume_bp, url_prefix='/api/v1/analytics/volume')
     app.register_blueprint(treasury_bp,
                            url_prefix='/api/v1/analytics/treasury')
+    app.register_blueprint(emissions_bp,
+                           url_prefix='/api/v1/analytics/emissions')
 
     from .cron import update_caches, update_getlogs
 
     app.config.from_mapping(SCHEDULER_CONFIG)
     schedular.init_app(app)
     cache.init_app(app)
+    # TODO(blaze): launch as a background thread?
     # First run.
     update_getlogs()
     update_caches()
 
     schedular.start()
 
-    #with app.app_context():
-    #    from .routes.api.v1.explorer import ws
-
-    #ws.start()
-
-    return app, None  # type: ignore
+    return app

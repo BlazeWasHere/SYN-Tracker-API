@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Dict, Union, List, overload
+from typing import Any, Dict, Union, List
 from collections import defaultdict
 from decimal import Decimal
 
@@ -127,23 +127,24 @@ def get_admin_and_pending_fees(chain: str,
 
 
 def get_chain_validator_gas_fees(
-        chain: str) -> Dict[str, Dict[str, Union[str, float]]]:
+        chain: str) -> Dict[str, Dict[str, Union[str, Decimal]]]:
     # We aggregate validator gas fees on `IN` txs.
     ret = get_all_keys(f'{chain}:bridge:*:IN',
                        client=LOGS_REDIS_URL,
-                       index=2,
+                       index=[2, 4],
                        serialize=True)
 
-    res: Dict[str, Dict[str, Union[str, float]]] = defaultdict(dict)
+    res: Dict[str, Dict[str, Union[str, Decimal]]] = defaultdict(dict)
 
     for k, v in ret.items():
-        price = get_historic_price(_chain_to_cgid[chain], k)
+        date, _ = k.split(':')
+        price = get_historic_price(_chain_to_cgid[chain], date)
         x = v['validator']
 
-        add_to_dict(res[k], 'gas_price', x['gas_price'])
-        add_to_dict(res[k], 'transaction_fee', x['gas_paid'])
-        add_to_dict(res[k], 'price_usd', x['gas_paid'] * price)
-        add_to_dict(res[k], 'tx_count', v['txCount'])
+        add_to_dict(res[date], 'gas_price', x['gas_price'])
+        add_to_dict(res[date], 'transaction_fee', x['gas_paid'])
+        add_to_dict(res[date], 'price_usd', x['gas_paid'] * price)
+        add_to_dict(res[date], 'tx_count', v['txCount'])
 
     return res
 
@@ -181,4 +182,40 @@ def get_chain_bridge_fees(chain: str, address: str):
             },
         },
         'data': res,
+    }
+
+
+def get_chain_airdrop_amounts(chain: str) -> Dict[str, Any]:
+    # We aggregate validator gas fees on `IN` txs.
+    ret = get_all_keys(f'{chain}:bridge:*:IN',
+                       client=LOGS_REDIS_URL,
+                       index=[2, 4],
+                       serialize=True)
+
+    res: Dict[str, Dict[str, Union[str, Decimal]]] = defaultdict(dict)
+
+    for k, v in ret.items():
+        date, _ = k.split(':')
+        price = get_historic_price(_chain_to_cgid[chain], date)
+
+        add_to_dict(res[date], 'airdrop', v['airdrops'])
+        add_to_dict(res[date], 'price_usd', v['airdrops'] * price)
+        add_to_dict(res[date], 'tx_count', v['txCount'])
+
+    total, total_usd, total_usd_current = create_totals(res,
+                                                        chain,
+                                                        _chain_to_cgid[chain],
+                                                        is_out=False,
+                                                        key='airdrop')
+
+    return {
+        'stats': {
+            'volume': total,
+            'usd': {
+                'adjusted': total_usd,
+                'current': total_usd_current,
+            },
+        },
+        'data': res,
+        'gas_token': _chain_to_cgid[chain]._name_,
     }

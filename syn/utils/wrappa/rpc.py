@@ -9,8 +9,8 @@
 
 from typing import Callable, cast, List, TypeVar, Union
 from datetime import datetime
-from decimal import Decimal
 from pprint import pformat
+import time
 
 from web3.exceptions import LogTopicError
 from web3.types import FilterParams, LogReceipt
@@ -22,7 +22,8 @@ import gevent
 
 from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
     OLDERBRIDGE_ABI, TOKEN_DECIMALS
-from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals
+from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals, \
+    get_airdrop_value_for_block
 from syn.utils.explorer.poll import figure_out_method
 from syn.utils.explorer.data import TOPICS, Direction, TOPIC_TO_EVENT
 
@@ -39,7 +40,7 @@ start_blocks = {
     'optimism': 30718,
 }
 
-aidrop_ranges = {
+airdrop_ranges = {
     'polygon': {
         # +------------------------- The airdrop value in the chain's native
         # |                           token (used for paying gas fees).
@@ -51,7 +52,7 @@ aidrop_ranges = {
         # |       |    |
         # v       v    v
         0.0003: [None, 20335948],
-        #      +--------------------- Airdrop was 0.02 starting from this
+        #      +-------------------- Airdrop was 0.02 starting from this
         #      |                       block (including this block).
         #      |
         #      |         +---------- Shows this is the airdrop value currently.
@@ -62,6 +63,32 @@ aidrop_ranges = {
     'bsc': {
         0.001: [None, 12038426],
         0.002: [12038427, None],
+    },
+    'avalanche': {
+        0.05: [None, 7164612],
+        0.025: [7164613, None],
+    },
+    'fantom': {
+        0.4: [None, None],
+    },
+    'moonriver': {
+        0.1: [None, 914404],
+        0.002: [914403, None],
+    },
+    'ethereum': {
+        0: [None, None],
+    },
+    'arbitrum': {
+        0: [None, None],
+    },
+    'harmony': {
+        0.1: [None, None],
+    },
+    'boba': {
+        0.005: [None, None],
+    },
+    'optimism': {
+        0: [None, None],
     },
 }
 
@@ -87,7 +114,8 @@ def bridge_callback(chain: str,
     contract = w3.eth.contract(w3.toChecksumAddress(address), abi=abi)
     tx_hash = log['transactionHash']
 
-    date = w3.eth.get_block(log['blockNumber'])['timestamp']  # type: ignore
+    block_n = log['blockNumber']
+    date = w3.eth.get_block(block_n)['timestamp']  # type: ignore
     date = datetime.utcfromtimestamp(date).date()
 
     topic = cast(str, convert(log['topics'][0]))
@@ -155,6 +183,13 @@ def bridge_callback(chain: str,
         # Let's also track how much fees the user paid for the bridge tx
         value['fees'] = handle_decimals(args['fee'], 18)
 
+        # All `IN` txs give some airdrop amounts, well on most chains at least.
+        if chain in airdrop_ranges:
+            value['airdrops'] = get_airdrop_value_for_block(
+                airdrop_ranges[chain], block_n)
+        else:
+            raise RuntimeError(f'{chain} is not in `airdrop_ranges`')
+
     # Just in case we ever need that later for debugging
     # value['txs'] = f'[{convert(tx_hash)}]'
 
@@ -172,6 +207,9 @@ def bridge_callback(chain: str,
                 raise RuntimeError(
                     f'No validator: chain = {chain}, tx_hash = {convert(tx_hash)}'
                 )
+
+            if chain in airdrop_ranges:
+                ret['airdrops'] += value['airdrops']
 
             ret['validator']['gas_price'] += value['validator']['gas_price']
             ret['validator']['gas_paid'] += value['validator']['gas_paid']
@@ -220,7 +258,6 @@ def get_logs(
     if till_block is None:
         till_block = w3.eth.block_number
 
-    import time
     print(
         f'{_chain:{chain_len}} starting from {start_block} with block height of {till_block}'
     )

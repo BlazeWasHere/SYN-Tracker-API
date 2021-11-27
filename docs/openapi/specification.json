@@ -762,6 +762,107 @@
         "tags": ["Market Cap"]
       }
     },
+    "/api/v1/analytics/emissions/weekly/{chain}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          },
+          {
+            "in": "query",
+            "name": "block",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "can be negative to indicate a block backwards since the latest block."
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "emission": {
+                      "type": "number",
+                      "format": "float"
+                    }
+                  },
+                  "example": {
+                    "emission": 85750.0003584
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "weekly emission SYN on a chain",
+        "tags": ["Emissions"]
+      }
+    },
+    "/api/v1/analytics/emissions/weekly": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "example": {
+                    "arbitrum": 217728.0,
+                    "avalanche": 100327.5002016,
+                    "boba": 18666.666648,
+                    "bsc": 100327.5002016,
+                    "ethereum": 85750.0003584,
+                    "fantom": 89999.9998128,
+                    "harmony": 29999.99999808,
+                    "moonriver": 0,
+                    "optimism": 35000.00001792,
+                    "polygon": 85949.999856
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidError"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "weekly emission SYN on all chain",
+        "tags": ["Emissions"]
+      }
+    },
     "/api/v1/mcap/{chain}": {
       "get": {
         "parameters": [
@@ -953,6 +1054,61 @@
         },
         "summary": "view virtual price for a chain of a pool",
         "tags": ["Pools"]
+      }
+    },
+    "/api/v1/analytics/fees/airdrop/{chain}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gas_token": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "price_usd": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "airdrop": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "tx_count": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "stats": {
+                      "$ref": "#/components/schemas/VolumeResponseStats"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "airdrop amounts given on a chain",
+        "tags": ["Airdrop"]
       }
     }
   }

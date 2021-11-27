@@ -125,6 +125,7 @@ SYN_DATA = {
         "nusd": "0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46",
         "usdlp": "0x55904f416586b5140a0f666cf5acf320adf64846",
         "bridge": "0xc05e61d0e7a63d27546389b7ad62fdff5a91aace",
+        "minichef": "0x3a01521F8E7F012eB37eAAf1cb9490a5d9e18249",
     },
     "bsc": {
         "rpc": os.getenv('BSC_RPC'),
@@ -138,6 +139,7 @@ SYN_DATA = {
         "dog": "0xaa88c603d142c371ea0eac8756123c5805edee03",
         "high": "0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63",
         "bridge": "0xd123f70ae324d34a9e76b67a27bf77593ba8749f",
+        "minichef": "0x8F5BBB2BB8c2Ee94639E55d5F41de9b4839C1280",
     },
     "polygon": {
         "rpc": os.getenv('POLYGON_RPC'),
@@ -146,6 +148,7 @@ SYN_DATA = {
         "nusd": "0xb6c473756050de474286bed418b77aeac39b02af",
         "usdlp": "0x128a587555d1148766ef4327172129b50ec66e5d",
         "bridge": "0x8f5bbb2bb8c2ee94639e55d5f41de9b4839c1280",
+        "minichef": "0x7875Af1a6878bdA1C129a4e2356A3fD040418Be5",
     },
     "arbitrum": {
         "rpc": os.getenv('ARB_RPC'),
@@ -155,6 +158,7 @@ SYN_DATA = {
         "usdlp": "0xe264cb5a941f98a391b9d5244378edf79bf5c19e",
         "bridge": "0x6f4e8eba4d337f874ab57478acc2cb5bacdc19c9",
         "ethpool": "0xa067668661c84476afcdc6fa5d758c4c01c34352",
+        "minichef": "0x73186f2Cf2493f20836b17b21ae79fc12934E207",
     },
     "fantom": {
         "rpc": os.getenv('FTM_RPC'),
@@ -163,12 +167,14 @@ SYN_DATA = {
         "nusd": "0xed2a7edd7413021d440b09d654f3b87712abab66",
         "usdlp": "0x43cf58380e69594fa2a5682de484ae00edd83e94",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
+        "minichef": "0xaeD5b25BE1c3163c907a471082640450F928DDFE",
     },
     "harmony": {
         "rpc": os.getenv('HARMONY_RPC'),
         'address': '0xE55e19Fb4F2D85af758950957714292DAC1e25B2',
         "pool": "0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
+        "minichef": "0xaeD5b25BE1c3163c907a471082640450F928DDFE",
     },
     "boba": {
         "rpc": os.getenv('BOBA_RPC'),
@@ -176,17 +182,20 @@ SYN_DATA = {
         "pool": "0x75ff037256b36f15919369ac58695550be72fead",
         "bridge": "0x432036208d2717394d2614d6697c46df3ed69540",
         "ethpool": "0x753bb855c8fe814233d26bb23af61cb3d2022be5",
+        "minichef": "0xd5609cD0e1675331E4Fb1d43207C8d9D83AAb17C",
     },
     "moonriver": {
         "rpc": os.getenv('MOVR_RPC'),
         "address": "0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445",
         "bridge": "0xaed5b25be1c3163c907a471082640450f928ddfe",
+        "minichef": "0x432036208d2717394d2614d6697c46DF3Ed69540",
     },
     "optimism": {
         "rpc": os.getenv('OPTIMISM_RPC'),
         "address": "0x5a5fff6f753d7c11a56a52fe47a177a87e431655",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
         "ethpool": "0xe27bff97ce92c3e1ff7aa9f86781fdd6d48f5ee9",
+        "minichef": "0xe8c610fcb63A4974F02Da52f0B4523937012Aaa0",
     }
 }
 
@@ -224,9 +233,9 @@ for key, value in SYN_DATA.items():
                         abi=TOTAL_SUPPLY_ABI),
         'w3':
         w3,
-        #     'minichef_contract':
-        #     w3.eth.contract(Web3.toChecksumAddress(value['minichef']),
-        #                     abi=MINICHEF_ABI)
+        'minichef_contract':
+        w3.eth.contract(Web3.toChecksumAddress(value['minichef']),
+                        abi=MINICHEF_ABI)
     })
 
     if value.get('pool') is not None:

@@ -110,8 +110,9 @@ def store_volume_dict_to_redis(chain: str, _dict: Dict[str, Any]) -> None:
 def get_all_keys(pattern: str,
                  serialize: bool = False,
                  client: Redis = REDIS,
-                 index: int = 1) -> Dict[str, Any]:
+                 index: Union[List[int], int] = 1) -> Dict[str, Any]:
     res = cast(Dict[str, Any], defaultdict(dict))
+    assert isinstance(index, (int, list))
 
     for key in client.keys(pattern):
         ret = client.get(key)
@@ -121,7 +122,17 @@ def get_all_keys(pattern: str,
                 ret = json.loads(ret, use_decimal=True)
 
             if index:
-                key = key.split(':')[index]
+                if type(index) == int:
+                    key = key.split(':')[index]
+                elif type(index) == list:
+                    index = cast(List[int], index)
+
+                    if len(index) == 1:
+                        key = key.split(':')[index[0]]
+                    else:
+                        # [min, max]
+                        assert len(index) == 2
+                        key = ':'.join(key.split(':')[index[0]:index[1]])
 
         res[key] = ret
 
@@ -172,9 +183,9 @@ def get_gas_stats_for_tx(chain: str,
     # so we aggregate these and use gas_spent on L1 to
     # determine the "gas price", as L1 gas >>> L2 gas
     if chain == 'optimism':
-        paid_for_gas = receipt['gasUsed'] * ret['gasPrice']
-        paid_for_gas += hex_to_int(receipt['l1Fee'])
-        gas_used = hex_to_int(receipt['l1GasUsed'])
+        paid_for_gas = receipt['gasUsed'] * ret['gasPrice']  # type: ignore
+        paid_for_gas += hex_to_int(receipt['l1Fee'])  # type: ignore
+        gas_used = hex_to_int(receipt['l1GasUsed'])  # type: ignore
         gas_price = D(paid_for_gas) / (D(1e9) * D(gas_used))
 
         return {
@@ -200,13 +211,14 @@ def dispatch_get_logs(cb: Callable[[str, str, LogReceipt], None],
         if chain in [
                 'harmony',
                 'bsc',
-                'polygon',
                 'ethereum',
                 'moonriver',
         ]:
             jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=1024))
         elif chain == 'boba':
             jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=512))
+        elif chain == 'polygon':
+            jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=2048))
         else:
             jobs.append(gevent.spawn(get_logs, chain, cb))
 
@@ -216,13 +228,55 @@ def dispatch_get_logs(cb: Callable[[str, str, LogReceipt], None],
         return jobs
 
 
-def handle_decimals(num: Union[str, int, float, decimal.Decimal],
+def handle_decimals(num: Union[str, int, float, D],
                     decimals: int,
                     *,
-                    precision: int = None) -> decimal.Decimal:
-    res: decimal.Decimal = D(num) / D(10**decimals)
+                    precision: int = None) -> D:
+    if type(num) != D:
+        num = str(num)
+
+    res: D = D(num) / D(10**decimals)
 
     if precision is not None:
-        return res.quantize(decimal.Decimal(10)**-precision)
+        return res.quantize(D(10)**-precision)
 
     return res
+
+
+def is_in_range(value: int, min: int, max: int) -> bool:
+    return min <= value <= max
+
+
+def get_airdrop_value_for_block(ranges: Dict[float, List[Optional[int]]],
+                                block: int) -> D:
+    def _transform(num: float) -> D:
+        return D(str(num))
+
+    for airdrop, _ranges in ranges.items():
+        # `_ranges` should have a [0] (start) and a [1] (end)
+        assert len(_ranges) == 2, f'expected {_ranges} to have 2 items'
+
+        _min: int
+        _max: int
+
+        # Has always been this airdrop value.
+        if _ranges[0] is None and _ranges[1] is None:
+            return _transform(airdrop)
+        elif _ranges[0] is None:
+            _min = 0
+            _max = cast(int, _ranges[1])
+
+            if is_in_range(block, _min, _max):
+                return _transform(airdrop)
+        elif _ranges[1] is None:
+            _min = _ranges[0]
+
+            if _min <= block:
+                return _transform(airdrop)
+        else:
+            _min, _max = cast(List[int], _ranges)
+
+            if is_in_range(block, _min, _max):
+                return _transform(airdrop)
+
+    raise RuntimeError('did not converge', block, ranges)

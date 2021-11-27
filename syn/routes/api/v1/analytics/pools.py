@@ -60,7 +60,7 @@ def _convert_ret(ret: Dict[str, Any], res: Dict[str, Decimal]) -> None:
 
 
 @pools_bp.route('/price/virtual/', defaults={'chain': ''}, methods=['GET'])
-@pools_bp.route('/price/virtual/<chain>', methods=['GET'])
+@pools_bp.route('/price/virtual/<chain:chain>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
 def price_virtual_chain(chain: str):
     if chain not in SYN_DATA:
@@ -107,18 +107,18 @@ def price_virtual():
     return jsonify(res)
 
 
-@pools_bp.route('/price/virtual/<chain>/<date:date>', methods=['GET'])
-@cache.cached(forced_update=_forced_update)
-def price_virtual_chain_historical(chain: str, date: datetime):
-    if chain not in SYN_DATA:
-        return (jsonify({
-            'error': 'invalid chain',
-            'valids': list(SYN_DATA),
-        }), 400)
-
-    ret = verify.is_sane_date(date)
-    if ret != True:
-        return (jsonify({'error': ret, 'valids': []}), 400)
-
-    _date = str(date.date())
-    return jsonify({_date: REDIS.get(f'pools:{chain}:vp:{_date}')})
+#@pools_bp.route('/price/virtual/<chain>/<date:date>', methods=['GET'])
+#@cache.cached(forced_update=_forced_update)
+#def price_virtual_chain_historical(chain: str, date: datetime):
+#    if chain not in SYN_DATA:
+#        return (jsonify({
+#            'error': 'invalid chain',
+#            'valids': list(SYN_DATA),
+#        }), 400)
+#
+#    ret = verify.is_sane_date(date)
+#    if ret != True:
+#        return (jsonify({'error': ret, 'valids': []}), 400)
+#
+#    _date = str(date.date())
+#    return jsonify({_date: REDIS.get(f'pools:{chain}:vp:{_date}')})

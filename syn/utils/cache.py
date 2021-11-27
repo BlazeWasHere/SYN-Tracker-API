@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Callable, Optional, Union
+from typing import Callable, Optional, Union
 from functools import lru_cache, wraps
 from datetime import timedelta
 import time

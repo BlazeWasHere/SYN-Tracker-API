@@ -18,6 +18,7 @@ import gevent
 from syn.utils.data import SYN_DATA, SYN_DECIMALS
 from syn.utils.helpers import handle_decimals
 from syn.utils.cache import timed_cache
+from syn.utils.contract import call_abi
 
 circ_bp = Blueprint('circ_bp', __name__)
 pool = Pool()
@@ -25,11 +26,8 @@ pool = Pool()
 
 @timed_cache(60)
 def get_chain_circ_cupply(chain: str) -> Decimal:
-    assert (chain in SYN_DATA)
     return handle_decimals(
-        SYN_DATA[chain]['contract'].functions.totalSupply(  # type: ignore
-        ).call(),
-        SYN_DECIMALS)
+        call_abi(SYN_DATA[chain], 'contract', 'totalSupply'), SYN_DECIMALS)
 
 
 @timed_cache(60 * 30)
@@ -52,12 +50,6 @@ def circ():
     return jsonify({'supply': get_all_chains_circ_supply()})
 
 
-@circ_bp.route('/<chain>', methods=['GET'])
+@circ_bp.route('/<chain:chain>', methods=['GET'])
 def circ_chain(chain: str):
-    if chain not in SYN_DATA:
-        return (jsonify({
-            'error': 'invalid chain',
-            'valids': list(SYN_DATA),
-        }), 400)
-
     return jsonify({'supply': get_chain_circ_cupply(chain)})
