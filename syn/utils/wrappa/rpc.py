@@ -12,6 +12,7 @@ from datetime import datetime
 from decimal import Decimal
 from pprint import pformat
 
+from web3.exceptions import LogTopicError
 from web3.types import FilterParams, LogReceipt
 from hexbytes import HexBytes
 from gevent.pool import Pool
@@ -23,7 +24,7 @@ from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, 
     OLDERBRIDGE_ABI, TOKEN_DECIMALS
 from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals
 from syn.utils.explorer.poll import figure_out_method
-from syn.utils.explorer.data import TOPICS, Direction
+from syn.utils.explorer.data import TOPICS, Direction, TOPIC_TO_EVENT
 
 start_blocks = {
     'ethereum': 13136427,
@@ -85,7 +86,6 @@ def bridge_callback(chain: str,
     w3: Web3 = SYN_DATA[chain]['w3']
     contract = w3.eth.contract(w3.toChecksumAddress(address), abi=abi)
     tx_hash = log['transactionHash']
-    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
 
     date = w3.eth.get_block(log['blockNumber'])['timestamp']  # type: ignore
     date = datetime.utcfromtimestamp(date).date()
@@ -96,11 +96,14 @@ def bridge_callback(chain: str,
 
     direction = TOPICS[topic]
     if direction == Direction.OUT:
-        # For OUT transactions the bridged asset and its amount are stored in the logs data
-        ret = figure_out_method(contract, receipt)
-        if ret is None:
+        # For OUT transactions the bridged asset
+        # and its amount are stored in the logs data
+        event = TOPIC_TO_EVENT[topic]
+        try:
+            data = contract.events[event]().processLog(log)
+        except LogTopicError:
             if abi == OLDERBRIDGE_ABI:
-                raise TypeError(receipt, chain)
+                raise TypeError(log, chain)
             elif abi == OLDBRIDGE_ABI:
                 abi = OLDERBRIDGE_ABI
             elif abi == BRIDGE_ABI:
@@ -110,12 +113,14 @@ def bridge_callback(chain: str,
 
             return bridge_callback(chain, address, log, abi)
 
-        data, _, _ = ret
-        args = data[0]['args']  # type: ignore
+        args = data['args']  # type: ignore
     elif direction == Direction.IN:
-        # For IN transactions the bridged asset and its amount are stored in the tx.input
+        # For IN transactions the bridged asset
+        # and its amount are stored in the tx.input
         tx_info = w3.eth.get_transaction(tx_hash)
-        # All IN transactions are guaranteed to be from validators to Bridge contract
+
+        # All IN transactions are guaranteed to be
+        # from validators to Bridge contract
         _, args = contract.decode_function_input(
             tx_info['input'])  # type: ignore
     else:
@@ -141,7 +146,9 @@ def bridge_callback(chain: str,
     value = {'amount': handle_decimals(args['amount'], decimals), 'txCount': 1}
 
     if direction == Direction.IN:
-        # All `IN` txs are from the validator; let's track how much gas they pay.
+        # All `IN` txs are from the validator;
+        # let's track how much gas they pay.
+        receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
         gas_stats = get_gas_stats_for_tx(chain, w3, tx_hash, receipt)
         value['validator'] = gas_stats
 
@@ -236,7 +243,8 @@ def get_logs(
 
         logs: List[LogReceipt] = w3.eth.get_logs(params)
         for log in logs:
-            # Skip transactions in the very first block that are already in the DB
+            # Skip transactions from the very first block
+            # that are already in the DB
             if log['blockNumber'] == initial_block \
               and log['transactionIndex'] <= tx_index:
                 continue
