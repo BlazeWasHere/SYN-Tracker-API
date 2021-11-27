@@ -12,7 +12,7 @@ from flask import Blueprint, jsonify, request
 from web3 import Web3
 
 from syn.utils.analytics.fees import get_admin_fees, get_chain_bridge_fees, get_pending_admin_fees, \
-    get_chain_validator_gas_fees
+    get_chain_validator_gas_fees, get_chain_airdrop_amounts
 from syn.utils.analytics.treasury import get_treasury_erc20_balances
 from syn.routes.api.v1.analytics.volume import symbol_to_address
 from syn.utils.data import SYN_DATA, cache, _forced_update
@@ -120,3 +120,15 @@ def chain_bridge_fees(chain: str, token: str):
 
     return jsonify(
         get_chain_bridge_fees(chain, symbol_to_address[chain][token]))
+
+
+@fees_bp.route('/airdrop/', defaults={'chain': ''}, methods=['GET'])
+@fees_bp.route('/airdrop/<chain>', methods=['GET'])
+def airdrop_chain_fees(chain: str):
+    if chain not in SYN_DATA:
+        return (jsonify({
+            'error': 'invalid chain',
+            'valids': list(SYN_DATA),
+        }), 400)
+
+    return jsonify(get_chain_airdrop_amounts(chain))
