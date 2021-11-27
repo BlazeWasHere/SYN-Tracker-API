@@ -227,6 +227,7 @@ def dispatch_get_logs(cb: Callable[[str, str, LogReceipt], None],
     else:
         return jobs
 
+
 def handle_decimals(num: Union[str, int, float, decimal.Decimal],
                     decimals: int,
                     *,
@@ -238,12 +239,16 @@ def handle_decimals(num: Union[str, int, float, decimal.Decimal],
 
     return res
 
+
 def is_in_range(value: int, min: int, max: int) -> bool:
     return min <= value <= max
 
 
 def get_airdrop_value_for_block(ranges: Dict[float, List[Optional[int]]],
-                                block: int) -> float:
+                                block: int) -> D:
+    def _transform(num: float) -> D:
+        return D(str(num))
+
     for airdrop, _ranges in ranges.items():
         # `_ranges` should have a [0] (start) and a [1] (end)
         assert len(_ranges) == 2, f'expected {_ranges} to have 2 items'
@@ -253,22 +258,22 @@ def get_airdrop_value_for_block(ranges: Dict[float, List[Optional[int]]],
 
         # Has always been this airdrop value.
         if _ranges[0] is None and _ranges[1] is None:
-            return airdrop
+            return _transform(airdrop)
         elif _ranges[0] is None:
             _min = 0
             _max = cast(int, _ranges[1])
 
             if is_in_range(block, _min, _max):
-                return airdrop
+                return _transform(airdrop)
         elif _ranges[1] is None:
             _min = _ranges[0]
 
             if _min <= block:
-                return airdrop
+                return _transform(airdrop)
         else:
             _min, _max = cast(List[int], _ranges)
 
             if is_in_range(block, _min, _max):
-                return airdrop
+                return _transform(airdrop)
 
     raise RuntimeError('did not converge', block, ranges)

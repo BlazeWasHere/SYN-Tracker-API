@@ -9,7 +9,6 @@
 
 from typing import Callable, cast, List, TypeVar, Union
 from datetime import datetime
-from decimal import Decimal
 from pprint import pformat
 
 from web3.types import FilterParams, LogReceipt
@@ -73,19 +72,26 @@ airdrop_ranges = {
         0.1: [None, 914404],
         0.002: [914403, None],
     },
-    # TODO: finish the other chains.
+    'ethereum': {
+        0: [None, None],
+    },
+    'arbitrum': {
+        0: [None, None],
+    },
+    'harmony': {
+        0.1: [None, None],
+    },
+    'boba': {
+        0.005: [None, None],
+    },
+    'optimism': {
+        0: [None, None],
+    },
 }
 
 pool = Pool(size=64)
 MAX_BLOCKS = 5000
 T = TypeVar('T')
-
-assert get_airdrop_value_for_block(airdrop_ranges['polygon'], 1) == 0.0003
-assert get_airdrop_value_for_block(airdrop_ranges['polygon'],
-                                   20335948) == 0.0003
-assert get_airdrop_value_for_block(airdrop_ranges['polygon'], 20335949) == 0.02
-assert get_airdrop_value_for_block(airdrop_ranges['polygon'],
-                                   20321335949) == 0.02
 
 
 def convert(value: T) -> Union[T, str, List]:

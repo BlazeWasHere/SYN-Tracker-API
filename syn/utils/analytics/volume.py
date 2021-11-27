@@ -16,8 +16,8 @@ import dateutil.parser
 import gevent
 
 from syn.utils.data import MORALIS_APIKEY, COVALENT_APIKEY, LOGS_REDIS_URL
-from syn.utils.price import get_historic_price_for_address, \
-    get_price_for_address
+from syn.utils.price import CoingeckoIDS, get_historic_price_for_address, \
+    get_price_for_address, get_price_coingecko
 from syn.utils.helpers import add_to_dict, get_all_keys, raise_if
 from syn.utils.wrappa.covalent import Covalent
 from syn.utils.wrappa.moralis import Moralis
@@ -32,7 +32,7 @@ moralis = Moralis(MORALIS_APIKEY)
 def create_totals(
         res: Dict[str, Any],
         chain: str,
-        address: str,
+        address: Union[str, CoingeckoIDS],
         is_out: bool = True,
         key: str = 'volume') -> Tuple[Dict[str, Decimal], float, float]:
     total_volume: DefaultDict[str, Decimal] = defaultdict(Decimal)
@@ -67,7 +67,11 @@ def create_totals(
             total_usd += v['total']['usd']
             total_txcount += v['total']['tx_count']
 
-    price = get_price_for_address(chain, address)
+    if isinstance(address, CoingeckoIDS):
+        price = get_price_coingecko(address)
+    else:
+        price = get_price_for_address(chain, address)
+
     for volume in total_volume.values():
         total_usd_current += (price * Decimal(volume))
 

@@ -1055,6 +1055,61 @@
         "summary": "view virtual price for a chain of a pool",
         "tags": ["Pools"]
       }
+    },
+    "/api/v1/analytics/fees/airdrop/{chain}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gas_token": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "price_usd": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "airdrop": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "tx_count": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "stats": {
+                      "$ref": "#/components/schemas/VolumeResponseStats"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "airdrop amounts given on a chain",
+        "tags": ["Airdrop"]
+      }
     }
   }
 }
