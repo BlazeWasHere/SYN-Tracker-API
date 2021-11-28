@@ -43,6 +43,8 @@ with open(os.path.join(_abis_path, 'oldBridge.json')) as f:
     OLDBRIDGE_ABI = json.load(f)['abi']
 with open(os.path.join(_abis_path, 'olderBridge.json')) as f:
     OLDERBRIDGE_ABI = json.load(f)['abi']
+with open(os.path.join(_abis_path, 'pool.json')) as f:
+    POOL_ABI = json.load(f)['abi']
 
 COVALENT_APIKEY = cast(str, os.getenv('COVALENT_APIKEY'))
 MORALIS_APIKEY = cast(str, os.getenv('MORALIS_APIKEY'))

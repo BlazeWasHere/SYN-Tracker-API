@@ -7,9 +7,11 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, List, Dict, Optional, TypeVar, Union, cast, Callable
+from typing import Any, List, Dict, Literal, Optional, TypeVar, Union, cast, \
+    Callable
 from datetime import datetime, timedelta
 from collections import defaultdict
+from hexbytes import HexBytes
 import decimal
 import logging
 
@@ -27,6 +29,7 @@ logger = logging.Logger(__name__)
 D = decimal.Decimal
 KT = TypeVar('KT')
 VT = TypeVar('VT')
+T = TypeVar('T')
 
 
 def add_to_dict(dict: Dict[KT, VT], key: KT, value: VT) -> None:
@@ -201,26 +204,112 @@ def get_gas_stats_for_tx(chain: str,
     }
 
 
-def dispatch_get_logs(cb: Callable[[str, str, LogReceipt], None],
-                      join_all: bool = True) -> Optional[List[Greenlet]]:
-    from .wrappa.rpc import get_logs
+def dispatch_get_logs(
+    cb: Callable[[str, str, LogReceipt], None],
+    topics: List[str] = None,
+    key_namespace: str = 'logs',
+    address_key: Union[str, Literal[-1]] = 'bridge',
+    join_all: bool = True,
+) -> Optional[List[Greenlet]]:
+    from .wrappa.rpc import get_logs, TOPICS
 
     jobs: List[Greenlet] = []
 
     for chain in SYN_DATA:
-        if chain in [
-                'harmony',
-                'bsc',
-                'ethereum',
-                'moonriver',
-        ]:
-            jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=1024))
-        elif chain == 'boba':
-            jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=512))
-        elif chain == 'polygon':
-            jobs.append(gevent.spawn(get_logs, chain, cb, max_blocks=2048))
+        start_block = None
+        addresses = []
+
+        # Some logic to dispatch different addresses for bridge and swap events.
+        if address_key != -1:
+            addresses.append(SYN_DATA[chain][cast(str, address_key)])
         else:
-            jobs.append(gevent.spawn(get_logs, chain, cb))
+            _start_blocks = {
+                'ethereum': {
+                    'nusd': 13033711,
+                },
+                'avalanche': {
+                    'nusd': 6619002,
+                },
+                'bsc': {
+                    'nusd': 12431591,
+                },
+                'polygon': {
+                    'nusd': 21071348,
+                },
+                'arbitrum': {
+                    'nusd': 2876718,
+                    'neth': 762758,
+                },
+                'fantom': {
+                    'nusd': 21297076,
+                },
+                'harmony': {
+                    'nusd': 19163634,
+                },
+                'boba': {
+                    'nusd': 16221,
+                    'neth': 49329,
+                },
+                'optimism': {
+                    'neth': 30819,
+                },
+            }
+
+            if 'pool_contract' in SYN_DATA[chain]:
+                start_block = _start_blocks[chain]['nusd']
+                addresses.append(SYN_DATA[chain]['pool'])
+
+            if 'ethpool_contract' in SYN_DATA[chain]:
+                start_block = _start_blocks[chain]['neth']
+                addresses.append(SYN_DATA[chain]['ethpool'])
+
+        topics = topics or list(TOPICS)
+
+        for address in addresses:
+            if chain in [
+                    'harmony',
+                    'bsc',
+                    'ethereum',
+                    'moonriver',
+            ]:
+                jobs.append(
+                    gevent.spawn(get_logs,
+                                 chain,
+                                 cb,
+                                 address,
+                                 max_blocks=1024,
+                                 topics=topics,
+                                 start_block=start_block,
+                                 key_namespace=key_namespace))
+            elif chain == 'boba':
+                jobs.append(
+                    gevent.spawn(get_logs,
+                                 chain,
+                                 cb,
+                                 address,
+                                 max_blocks=512,
+                                 topics=topics,
+                                 start_block=start_block,
+                                 key_namespace=key_namespace))
+            elif chain == 'polygon':
+                jobs.append(
+                    gevent.spawn(get_logs,
+                                 chain,
+                                 cb,
+                                 address,
+                                 max_blocks=2048,
+                                 topics=topics,
+                                 start_block=start_block,
+                                 key_namespace=key_namespace))
+            else:
+                jobs.append(
+                    gevent.spawn(get_logs,
+                                 chain,
+                                 cb,
+                                 address,
+                                 topics=topics,
+                                 start_block=start_block,
+                                 key_namespace=key_namespace))
 
     if join_all:
         gevent.joinall(jobs)
@@ -280,3 +369,12 @@ def get_airdrop_value_for_block(ranges: Dict[float, List[Optional[int]]],
                 return _transform(airdrop)
 
     raise RuntimeError('did not converge', block, ranges)
+
+
+def convert(value: T) -> Union[T, str, List]:
+    if isinstance(value, HexBytes):
+        return value.hex()
+    elif isinstance(value, list):
+        return [convert(item) for item in value]
+    else:
+        return value

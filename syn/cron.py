@@ -10,6 +10,7 @@
 import time
 
 from syn.utils.data import schedular, MORALIS_APIKEY
+from syn.utils.analytics.pool import pool_callback
 from syn.utils.wrappa.rpc import bridge_callback
 from syn.utils.helpers import dispatch_get_logs
 from syn.utils.wrappa.moralis import Moralis
@@ -73,6 +74,21 @@ def update_getlogs():
     start = time.time()
     print(f'(2) [{start}] Cron job start.')
 
-    dispatch_get_logs(bridge_callback, join_all=True)
+    dispatch_get_logs(bridge_callback)
 
     print(f'(2) Cron job done. Elapsed: {time.time() - start:.2f}s')
+
+
+@schedular.task("interval", id="update_getlogs_pool", hours=1, max_instances=1)
+def update_getlogs_pool():
+    from syn.utils.analytics.pool import TOPICS
+
+    start = time.time()
+    print(f'(3) [{start}] Cron job start.')
+
+    dispatch_get_logs(pool_callback,
+                      topics=list(TOPICS),
+                      key_namespace='pool_logs',
+                      address_key=-1)
+
+    print(f'(3) Cron job done. Elapsed: {time.time() - start:.2f}s')

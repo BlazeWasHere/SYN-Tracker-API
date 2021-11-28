@@ -7,14 +7,13 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Callable, cast, List, TypeVar, Union
+from typing import Callable, Dict, cast, List, TypeVar, Union
 from datetime import datetime
 from pprint import pformat
 import time
 
 from web3.exceptions import LogTopicError
 from web3.types import FilterParams, LogReceipt
-from hexbytes import HexBytes
 from gevent.pool import Pool
 import simplejson as json
 from web3 import Web3
@@ -23,11 +22,10 @@ import gevent
 from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
     OLDERBRIDGE_ABI, TOKEN_DECIMALS
 from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals, \
-    get_airdrop_value_for_block
-from syn.utils.explorer.poll import figure_out_method
+    get_airdrop_value_for_block, convert
 from syn.utils.explorer.data import TOPICS, Direction, TOPIC_TO_EVENT
 
-start_blocks = {
+_start_blocks = {
     'ethereum': 13136427,
     'arbitrum': 657404,
     'avalanche': 3376709,
@@ -95,15 +93,6 @@ airdrop_ranges = {
 pool = Pool(size=64)
 MAX_BLOCKS = 5000
 T = TypeVar('T')
-
-
-def convert(value: T) -> Union[T, str, List]:
-    if isinstance(value, HexBytes):
-        return value.hex()
-    elif isinstance(value, list):
-        return [convert(item) for item in value]
-    else:
-        return value
 
 
 def bridge_callback(chain: str,
@@ -233,19 +222,22 @@ def bridge_callback(chain: str,
 def get_logs(
     chain: str,
     callback: Callable[[str, str, LogReceipt], None],
+    address: str,
     start_block: int = None,
     till_block: int = None,
     max_blocks: int = MAX_BLOCKS,
+    topics: List[str] = list(TOPICS),
+    key_namespace: str = 'logs',
+    start_blocks: Dict[str, int] = _start_blocks,
 ) -> None:
-    address = SYN_DATA[chain]['bridge']
     w3: Web3 = SYN_DATA[chain]['w3']
     _chain = f'[{chain}]'
     chain_len = max(len(c) for c in SYN_DATA) + 2
     tx_index = -1
 
     if start_block is None:
-        _key_block = f'{chain}:logs:{address}:MAX_BLOCK_STORED'
-        _key_index = f'{chain}:logs:{address}:TX_INDEX'
+        _key_block = f'{chain}:{key_namespace}:{address}:MAX_BLOCK_STORED'
+        _key_index = f'{chain}:{key_namespace}:{address}:TX_INDEX'
 
         if (ret := LOGS_REDIS_URL.get(_key_block)) is not None:
             start_block = max(int(ret), start_blocks[chain])
@@ -259,8 +251,9 @@ def get_logs(
         till_block = w3.eth.block_number
 
     print(
-        f'{_chain:{chain_len}} starting from {start_block} with block height of {till_block}'
-    )
+        f'{key_namespace} | {_chain:{chain_len}} starting from {start_block} '
+        f'with block height of {till_block}')
+
     jobs: List[gevent.Greenlet] = []
     _start = time.time()
     x = 0
@@ -275,7 +268,7 @@ def get_logs(
             'fromBlock': start_block,
             'toBlock': to_block,
             'address': w3.toChecksumAddress(address),
-            'topics': [list(TOPICS)],  # type: ignore
+            'topics': [topics],  # type: ignore
         }
 
         logs: List[LogReceipt] = w3.eth.get_logs(params)
@@ -293,8 +286,9 @@ def get_logs(
         y = time.time() - _start
         total_events += len(logs)
 
-        print(f'{_chain:{chain_len}} elapsed {y:5.1f}s ({y - x:4.2f}s),'
-              f' found {total_events:5} events, so far at block {start_block}')
+        print(f'{key_namespace} | {_chain:{chain_len}} elapsed {y:5.1f}s'
+              f' ({y - x:4.2f}s), found {total_events:5} events, so far'
+              f' at block {start_block}')
         x = y
 
     gevent.joinall(jobs)

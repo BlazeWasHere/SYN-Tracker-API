@@ -63,13 +63,14 @@ def init() -> Flask:
     app.register_blueprint(emissions_bp,
                            url_prefix='/api/v1/analytics/emissions')
 
-    from .cron import update_caches, update_getlogs
+    from .cron import update_caches, update_getlogs, update_getlogs_pool
 
     app.config.from_mapping(SCHEDULER_CONFIG)
     schedular.init_app(app)
     cache.init_app(app)
 
     def _first_run() -> None:
+        update_getlogs_pool()
         update_getlogs()
         update_caches()
 
