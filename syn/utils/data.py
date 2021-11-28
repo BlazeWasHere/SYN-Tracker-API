@@ -7,7 +7,8 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import cast
+from typing import Dict, TypedDict, cast
+from collections import defaultdict
 import json
 import os
 
@@ -17,6 +18,7 @@ from web3.middleware.geth_poa import geth_poa_middleware
 from apscheduler.jobstores.redis import RedisJobStore
 from dotenv import load_dotenv, find_dotenv
 from flask_apscheduler import APScheduler
+from web3.contract import Contract
 from flask_caching import Cache
 from web3 import Web3
 import redis
@@ -31,6 +33,7 @@ COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_c
 MINICHEF_ABI = """[{"inputs":[],"name":"synapsePerSecond","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getVirtualPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
+ERC20_BARE_ABI = """[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 
 _abis_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           'explorer', 'abis')
@@ -259,127 +262,147 @@ for key, value in SYN_DATA.items():
                             abi=BRIDGE_ABI)
         })
 
-TOKEN_DECIMALS = {
-    'ethereum': {
-        '0x71ab77b7dbb4fa7e017bc15090b2163221420282': 18,  # HIGH
-        '0x0f2d719407fdbeff09d87557abb7232601fd9f29': 18,  # SYN
-        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': 18,  # WETH
-        '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 6,  # USDC
-        '0x6b175474e89094c44da98b954eedeac495271d0f': 18,  # DAI
-        '0xdac17f958d2ee523a2206206994597c13d831ec7': 6,  # USDT
-        '0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f': 18,  # nUSD
-        '0xbaac2b4491727d78d2b78815144570b9f2fe8899': 18,  # DOG
-        '0x853d955acef822db058eb8505911ed77f175b99e': 18,  # FRAX
-        '0xca76543cf381ebbb277be79574059e32108e3e65': 18,  # wsOHM
-        '0x0ab87046fbb341d058f17cbc4c1133f25a20a52f': 18,  # gOHM
-    },
-    'bsc': {
-        '0x23b891e5c62e0955ae2bd185990103928ab817b3': 18,  # nUSD
-        '0xf0b8b631145d393a767b4387d08aa09969b2dfed': 18,  # USD-LP
-        '0xe9e7cea3dedca5984780bafc599bd69add087d56': 18,  # BUSD
-        '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 18,  # USDC
-        '0xaa88c603d142c371ea0eac8756123c5805edee03': 18,  # DOG
-        '0x55d398326f99059ff775485246999027b3197955': 18,  # USDT
-        '0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63': 18,  # HIGH
-        '0xa4080f1778e69467e905b8d6f72f6e441f9e9484': 18,  # SYN
-        '0x42f6f551ae042cbe50c739158b4f0cac0edb9096': 18,  # NRV
-        '0x130025ee738a66e691e6a7a62381cb33c6d9ae83': 18,  # JUMP
-        '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51': 18,  # NFD
-        '0xc13b7a43223bb9bf4b69bd68ab20ca1b79d81c75': 18,  # JGN
-    },
-    'polygon': {
-        '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': 18,  # SYN
-        '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': 18,  # DAI
-        '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': 6,  # USDC
-        '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 6,  # USDT
-        '0xb6c473756050de474286bed418b77aeac39b02af': 18,  # nUSD
-        '0x128a587555d1148766ef4327172129b50ec66e5d': 18,  # USD-LP
-        '0x0a5926027d407222f8fe20f24cb16e103f617046': 18,  # NFD
-    },
-    'avalanche': {
-        '0xd586e7f844cea2f87f50152665bcbc2c279d8d70': 18,  # DAI
-        '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664': 6,  # USDC
-        '0xc7198437980c041c805a1edcba50c1ce5db95118': 6,  # USDT
-        '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46': 18,  # nUSD
-        '0x55904f416586b5140a0f666cf5acf320adf64846': 18,  # USD-LP
-        '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': 18,  # SYN
-        '0xf1293574ee43950e7a8c9f1005ff097a9a713959': 18,  # NFD
-        '0x19e1ae0ee35c0404f835521146206595d37981ae': 18,  # nETH
-        '0x321e7092a180bb43555132ec53aaa65a5bf84251': 18,  # gOHM
-    },
-    'arbitrum': {
-        '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': 18,  # DAI
-        '0x080f6aed32fc474dd5717105dba5ea57268f46eb': 18,  # SYN
-        '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8': 6,  # USDC
-        '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': 6,  # USDT
-        '0x2913e812cf0dcca30fb28e6cac3d2dcff4497688': 18,  # nUSD
-        '0xe264cb5a941f98a391b9d5244378edf79bf5c19e': 18,  # USD-LP
-        '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': 18,  # MIM
-        '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e': 18,  # nETH
-        '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': 18,  # WETH
-        '0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1': 18,  # gOHM
-    },
-    'fantom': {
-        '0x04068da6c83afcfa0e13ba15a6696662335d5b75': 6,  # USDC
-        '0x049d68029688eabf473097a2fc38ef61633a3c7a': 6,  # fUSDT
-        '0x43cf58380e69594fa2a5682de484ae00edd83e94': 18,  # USD-LP
-        '0x82f0b8b456c1a451378467398982d4834b6829c1': 18,  # MIM
-        '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,  # nUSD
-        '0xe55e19fb4f2d85af758950957714292dac1e25b2': 18,  # SYN
-        '0x78de9326792ce1d6eca0c978753c6953cdeedd73': 18,  # JUMP
-        '0x91fa20244fb509e8289ca630e5db3e9166233fdc': 18,  # gOHM
-    },
-    'harmony': {
-        '0xe55e19fb4f2d85af758950957714292dac1e25b2': 18,  # SYN
-        '0xef977d2f931c1978db5f6747666fa1eacb0d0339': 18,  # 1DAI
-        '0x985458e523db3d53125813ed68c274899e9dfab4': 6,  # 1USDC
-        '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f': 6,  # 1USDT
-        '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,  # nUSD
-        '0xcf664087a5bb0237a0bad6742852ec6c8d69a27a': 18,  # ONE
-    },
-    'boba': {
-        '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc': 6,  # USDC
-        '0xb554a55358ff0382fb21f0a478c3546d1106be8c': 18,  # SYN
-        '0x5de1677344d3cb0d7d465c10b72a8f60699c062d': 6,  # USDT
-        '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000': 18,  # WETH
-        '0x96419929d7949d6a801a6909c145c8eef6a40431': 18,  # nETH
-        '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 18,  # nUSD
-        '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35': 18,  # DAI
-        '0xd203de32170130082896b4111edf825a4774c18e': 18,  # WETH
-    },
-    'moonriver': {
-        '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': 18,  # SYN
-        '0xe96ac70907fff3efee79f502c985a7a21bce407d': 18,  # synFRAX
-        '0x1a93b23281cc1cde4c4741353f3064709a16197d': 18,  # FRAX
-    },
-    'optimism': {
-        '0x809dc529f07651bd43a172e8db6f4a7a0d771036': 18,  # nETH
-        '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': 18,  # SYN
-        '0x121ab82b49b2bc4c7901ca46b8277962b4350204': 18,  # WETH
-    },
-}
-
-BRIDGES = {
+TOKENS = {
+    'ethereum': [
+        '0x71ab77b7dbb4fa7e017bc15090b2163221420282',  # HIGH
+        '0x0f2d719407fdbeff09d87557abb7232601fd9f29',  # SYN
+        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',  # WETH
+        '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',  # USDC
+        '0x6b175474e89094c44da98b954eedeac495271d0f',  # DAI
+        '0xdac17f958d2ee523a2206206994597c13d831ec7',  # USDT
+        '0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f',  # nUSD
+        '0xbaac2b4491727d78d2b78815144570b9f2fe8899',  # DOG
+        '0x853d955acef822db058eb8505911ed77f175b99e',  # FRAX
+        '0xca76543cf381ebbb277be79574059e32108e3e65',  # wsOHM
+        '0x0ab87046fbb341d058f17cbc4c1133f25a20a52f',  # gOHM
+    ],
     'bsc': [
-        # Bridge
-        '0xd123f70ae324d34a9e76b67a27bf77593ba8749f',
-        # Bridge Zap
-        '0x612f3a0226463599ccbcabff89623904ef38bcb9',
-        # Meta Bridge Zap
-        '0x8027a7fa5753c8873e130f1205da9fb8691726ab',
+        '0x23b891e5c62e0955ae2bd185990103928ab817b3',  # nUSD
+        '0xf0b8b631145d393a767b4387d08aa09969b2dfed',  # USD-LP
+        '0xe9e7cea3dedca5984780bafc599bd69add087d56',  # BUSD
+        '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',  # USDC
+        '0xaa88c603d142c371ea0eac8756123c5805edee03',  # DOG
+        '0x55d398326f99059ff775485246999027b3197955',  # USDT
+        '0x5f4bde007dc06b867f86ebfe4802e34a1ffeed63',  # HIGH
+        '0xa4080f1778e69467e905b8d6f72f6e441f9e9484',  # SYN
+        '0x42f6f551ae042cbe50c739158b4f0cac0edb9096',  # NRV
+        '0x130025ee738a66e691e6a7a62381cb33c6d9ae83',  # JUMP
+        '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51',  # NFD
+        '0xc13b7a43223bb9bf4b69bd68ab20ca1b79d81c75',  # JGN
     ],
     'polygon': [
-        # Bridge
-        '0x8f5bbb2bb8c2ee94639e55d5f41de9b4839c1280',
-        # Bridge Zap
-        '0xff0047e2156b2d62055a77fe9abbd01baa11d54a',
-        # Meta Bridge Zap
-        '0x0775632f3d2b8aa764e833c0e3db6382882d0f48',
+        '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695',  # SYN
+        '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',  # DAI
+        '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',  # USDC
+        '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',  # USDT
+        '0xb6c473756050de474286bed418b77aeac39b02af',  # nUSD
+        '0x128a587555d1148766ef4327172129b50ec66e5d',  # USD-LP
+        '0x0a5926027d407222f8fe20f24cb16e103f617046',  # NFD
     ],
-    'ethereum': [
-        # Bridge
-        '0x2796317b0ff8538f253012862c06787adfb8ceb6',
+    'avalanche': [
+        '0xd586e7f844cea2f87f50152665bcbc2c279d8d70',  # DAI
+        '0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664',  # USDC
+        '0xc7198437980c041c805a1edcba50c1ce5db95118',  # USDT
+        '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46',  # nUSD
+        '0x55904f416586b5140a0f666cf5acf320adf64846',  # USD-LP
+        '0x1f1e7c893855525b303f99bdf5c3c05be09ca251',  # SYN
+        '0xf1293574ee43950e7a8c9f1005ff097a9a713959',  # NFD
+        '0x19e1ae0ee35c0404f835521146206595d37981ae',  # nETH
+        '0x321e7092a180bb43555132ec53aaa65a5bf84251',  # gOHM
+    ],
+    'arbitrum': [
+        '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',  # DAI
+        '0x080f6aed32fc474dd5717105dba5ea57268f46eb',  # SYN
+        '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',  # USDC
+        '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',  # USDT
+        '0x2913e812cf0dcca30fb28e6cac3d2dcff4497688',  # nUSD
+        '0xe264cb5a941f98a391b9d5244378edf79bf5c19e',  # USD-LP
+        '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a',  # MIM
+        '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e',  # nETH
+        '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',  # WETH
+        '0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1',  # gOHM
+    ],
+    'fantom': [
+        '0x04068da6c83afcfa0e13ba15a6696662335d5b75',  # USDC
+        '0x049d68029688eabf473097a2fc38ef61633a3c7a',  # fUSDT
+        '0x43cf58380e69594fa2a5682de484ae00edd83e94',  # USD-LP
+        '0x82f0b8b456c1a451378467398982d4834b6829c1',  # MIM
+        '0xed2a7edd7413021d440b09d654f3b87712abab66',  # nUSD
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2',  # SYN
+        '0x78de9326792ce1d6eca0c978753c6953cdeedd73',  # JUMP
+        '0x91fa20244fb509e8289ca630e5db3e9166233fdc',  # gOHM
+    ],
+    'harmony': [
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2',  # SYN
+        '0xef977d2f931c1978db5f6747666fa1eacb0d0339',  # 1DAI
+        '0x985458e523db3d53125813ed68c274899e9dfab4',  # 1USDC
+        '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f',  # 1USDT
+        '0xed2a7edd7413021d440b09d654f3b87712abab66',  # nUSD
+        '0xcf664087a5bb0237a0bad6742852ec6c8d69a27a',  # ONE
+    ],
+    'boba': [
+        '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc',  # USDC
+        '0xb554a55358ff0382fb21f0a478c3546d1106be8c',  # SYN
+        '0x5de1677344d3cb0d7d465c10b72a8f60699c062d',  # USDT
+        '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000',  # WETH
+        '0x96419929d7949d6a801a6909c145c8eef6a40431',  # nETH
+        '0x6b4712ae9797c199edd44f897ca09bc57628a1cf',  # nUSD
+        '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35',  # DAI
+        '0xd203de32170130082896b4111edf825a4774c18e',  # WETH
+    ],
+    'moonriver': [
+        '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445',  # SYN
+        '0xe96ac70907fff3efee79f502c985a7a21bce407d',  # synFRAX
+        '0x1a93b23281cc1cde4c4741353f3064709a16197d',  # FRAX
+    ],
+    'optimism': [
+        '0x809dc529f07651bd43a172e8db6f4a7a0d771036',  # nETH
+        '0x5a5fff6f753d7c11a56a52fe47a177a87e431655',  # SYN
+        '0x121ab82b49b2bc4c7901ca46b8277962b4350204',  # WETH
     ],
 }
 
 MAX_UINT8 = 2**8 - 1
+
+
+class TokenInfo(TypedDict):
+    _contract: Contract
+    name: str
+    decimals: int
+    symbol: str
+
+
+TOKENS_INFO: Dict[str, Dict[str, TokenInfo]] = defaultdict(dict)
+
+# TODO(blaze): remove time complexity by caching to redis.
+for chain, tokens in TOKENS.items():
+    w3: Web3 = SYN_DATA[chain]['w3']
+
+    for token in tokens:
+        assert token not in TOKENS_INFO[chain], \
+            f'duped token? {token} @ {chain} | {TOKENS_INFO[chain][token]}'
+
+        contract = w3.eth.contract(w3.toChecksumAddress(token),
+                                   abi=ERC20_BARE_ABI)
+
+        decimals = contract.functions.decimals().call()
+        name = contract.functions.name().call()
+        symbol = contract.functions.symbol().call()
+
+        TOKENS_INFO[chain].update({
+            token.lower():
+            TokenInfo(_contract=contract,
+                      name=name,
+                      symbol=symbol,
+                      decimals=decimals)
+        })
+
+TOKEN_DECIMALS: Dict[str, Dict[str, int]] = defaultdict(dict)
+
+# `TOKEN_DECIMALS` is an abstraction of `TOKENS_INFO`.
+for chain, v in TOKENS_INFO.items():
+    for token, data in v.items():
+        assert token not in TOKEN_DECIMALS[chain], \
+            f'duped token? {token} @ {chain} | {TOKEN_DECIMALS[chain][token]}'
+
+        TOKEN_DECIMALS[chain].update({token: data['decimals']})
