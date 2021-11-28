@@ -8,6 +8,7 @@
 """
 
 from gevent import monkey
+import gevent
 
 # Monkey patch stuff.
 monkey.patch_all()
@@ -67,11 +68,14 @@ def init() -> Flask:
     app.config.from_mapping(SCHEDULER_CONFIG)
     schedular.init_app(app)
     cache.init_app(app)
-    # TODO(blaze): launch as a background thread?
-    # First run.
-    update_getlogs()
-    update_caches()
 
-    schedular.start()
+    def _first_run() -> None:
+        update_getlogs()
+        update_caches()
+
+        # We want schedular to start AFTER.
+        schedular.start()
+
+    gevent.spawn(_first_run)
 
     return app

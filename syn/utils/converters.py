@@ -30,8 +30,6 @@ class DatetimeConverter(BaseConverter):
 
 class ChainConverter(BaseConverter):
     def __init__(self, map: Map) -> None:
-        print(map)
-        print(dir(map))
         super().__init__(map)
         self.regex = f"(?:{'|'.join([re.escape(x) for x in SYN_DATA])})"
 

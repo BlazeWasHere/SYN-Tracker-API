@@ -7,10 +7,16 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from collections import defaultdict
 import json
 import os
 
 from flask import Blueprint, jsonify
+from web3 import Web3
+import gevent
+
+from syn.utils.data import LOGS_REDIS_URL, SYN_DATA
+from syn.utils.helpers import get_all_keys
 
 # Get parent (root) dir.
 _path = os.path.dirname(
@@ -31,3 +37,20 @@ def index():
 @root_bp.route('/openapi.json')
 def openapi():
     return jsonify(OPENAPI_DATA)
+
+
+# Something a bit more internal, but useful for tracking sync status because
+# we launch `update_getlogs` as a daemon now.
+@root_bp.route('/syncing')
+def syncing():
+    ret = get_all_keys('*MAX_BLOCK_STORED',
+                       serialize=True,
+                       index=0,
+                       client=LOGS_REDIS_URL)
+    res = defaultdict(dict)
+
+    for chain, v in ret.items():
+        w3: Web3 = SYN_DATA[chain]['w3']
+        res[chain] = {'current': v, 'blockheight': w3.eth.block_number}
+
+    return jsonify(res)

@@ -121,7 +121,7 @@ def get_all_keys(pattern: str,
             if ret is not None:
                 ret = json.loads(ret, use_decimal=True)
 
-            if index:
+            if index is not None:
                 if type(index) == int:
                     key = key.split(':')[index]
                 elif type(index) == list:
