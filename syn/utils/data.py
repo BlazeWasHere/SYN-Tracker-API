@@ -271,6 +271,7 @@ TOKEN_DECIMALS = {
         '0xbaac2b4491727d78d2b78815144570b9f2fe8899': 18,  # DOG
         '0x853d955acef822db058eb8505911ed77f175b99e': 18,  # FRAX
         '0xca76543cf381ebbb277be79574059e32108e3e65': 18,  # wsOHM
+        '0x0ab87046fbb341d058f17cbc4c1133f25a20a52f': 18,  # gOHM
     },
     'bsc': {
         '0x23b891e5c62e0955ae2bd185990103928ab817b3': 18,  # nUSD
@@ -304,6 +305,7 @@ TOKEN_DECIMALS = {
         '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': 18,  # SYN
         '0xf1293574ee43950e7a8c9f1005ff097a9a713959': 18,  # NFD
         '0x19e1ae0ee35c0404f835521146206595d37981ae': 18,  # nETH
+        '0x321e7092a180bb43555132ec53aaa65a5bf84251': 18,  # gOHM
     },
     'arbitrum': {
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': 18,  # DAI
@@ -315,6 +317,7 @@ TOKEN_DECIMALS = {
         '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': 18,  # MIM
         '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e': 18,  # nETH
         '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': 18,  # WETH
+        '0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1': 18,  # gOHM
     },
     'fantom': {
         '0x04068da6c83afcfa0e13ba15a6696662335d5b75': 6,  # USDC
@@ -324,6 +327,7 @@ TOKEN_DECIMALS = {
         '0xed2a7edd7413021d440b09d654f3b87712abab66': 18,  # nUSD
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': 18,  # SYN
         '0x78de9326792ce1d6eca0c978753c6953cdeedd73': 18,  # JUMP
+        '0x91fa20244fb509e8289ca630e5db3e9166233fdc': 18,  # gOHM
     },
     'harmony': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': 18,  # SYN

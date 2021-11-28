@@ -115,6 +115,7 @@ ADDRESS_TO_CGID = {
         '0xbaac2b4491727d78d2b78815144570b9f2fe8899': CoingeckoIDS.DOG,
         '0x853d955acef822db058eb8505911ed77f175b99e': CoingeckoIDS.FRAX,
         '0xca76543cf381ebbb277be79574059e32108e3e65': CoingeckoIDS.OHM,
+        '0x0ab87046fbb341d058f17cbc4c1133f25a20a52f': CoingeckoIDS.OHM,
     },
     'bsc': {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': CoingeckoIDS.BUSD,
@@ -141,6 +142,7 @@ ADDRESS_TO_CGID = {
         '0xc7198437980c041c805a1edcba50c1ce5db95118': CoingeckoIDS.USDT,
         '0xf1293574ee43950e7a8c9f1005ff097a9a713959': CoingeckoIDS.NFD,
         '0x19e1ae0ee35c0404f835521146206595d37981ae': CoingeckoIDS.ETH,
+        '0x321e7092a180bb43555132ec53aaa65a5bf84251': CoingeckoIDS.OHM,
     },
     'arbitrum': {
         '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,
@@ -149,12 +151,14 @@ ADDRESS_TO_CGID = {
         '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': CoingeckoIDS.USDT,
         '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': CoingeckoIDS.MIM,
         '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': CoingeckoIDS.ETH,
+        '0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1': CoingeckoIDS.OHM,
     },
     'fantom': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
         '0x82f0b8b456c1a451378467398982d4834b6829c1': CoingeckoIDS.MIM,
         '0x04068da6c83afcfa0e13ba15a6696662335d5b75': CoingeckoIDS.USDC,
         '0x049d68029688eabf473097a2fc38ef61633a3c7a': CoingeckoIDS.USDT,
+        '0x91fa20244fb509e8289ca630e5db3e9166233fdc': CoingeckoIDS.OHM,
     },
     'harmony': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
