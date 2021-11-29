@@ -104,8 +104,8 @@ def bridge_callback(chain: str,
     tx_hash = log['transactionHash']
 
     block_n = log['blockNumber']
-    date = w3.eth.get_block(block_n)['timestamp']  # type: ignore
-    date = datetime.utcfromtimestamp(date).date()
+    timestamp = w3.eth.get_block(block_n)['timestamp']  # type: ignore
+    date = datetime.utcfromtimestamp(timestamp).date()
 
     topic = cast(str, convert(log['topics'][0]))
     if topic not in TOPICS:
@@ -211,6 +211,19 @@ def bridge_callback(chain: str,
 
         LOGS_REDIS_URL.set(key, json.dumps(ret))
     else:
+        # NOTE: we push this into the bridge callback rather than it's own
+        # callback to save some rpc calls, why can't they be free? *sigh*.
+        # First bridge tx of the day; store this block so we can later map
+        # date to block, which is a limitation of eth rpc. However this should
+        # not get confused with the FIRST block of the day, rather it is the
+        # first block of the day which contains a bridge event.
+        _key = f'{chain}:date2block:{date}'
+        LOGS_REDIS_URL.setnx(
+            _key, json.dumps({
+                'block': block_n,
+                'timestamp': timestamp,
+            }))
+
         LOGS_REDIS_URL.set(key, json.dumps(value))
 
     LOGS_REDIS_URL.set(f'{chain}:logs:{address}:MAX_BLOCK_STORED',
