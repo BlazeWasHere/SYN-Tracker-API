@@ -26,6 +26,6 @@ def is_sane_date(date: datetime) -> Union[Literal[True], str]:
     elif date < datetime(year=2021, month=11, day=6):
         # New pools were created post failed exploit. ref:
         # https://synapseprotocol.medium.com/11-06-2021-post-mortem-of-synapse-metapool-exploit-3003b4df4ef4
-        return f'the pools weren not created at {date}'
+        return f'the pools were not created at {date}'
 
     return True

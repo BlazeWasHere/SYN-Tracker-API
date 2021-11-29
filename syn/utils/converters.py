@@ -18,6 +18,8 @@ from syn.utils.data import SYN_DATA
 
 
 class DatetimeConverter(BaseConverter):
+    regex = r'\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])'
+
     def to_python(self, value: str) -> datetime:
         try:
             return dateutil.parser.parse(value)
@@ -29,9 +31,7 @@ class DatetimeConverter(BaseConverter):
 
 
 class ChainConverter(BaseConverter):
-    def __init__(self, map: Map) -> None:
-        super().__init__(map)
-        self.regex = f"(?:{'|'.join([re.escape(x) for x in SYN_DATA])})"
+    regex = f"(?:{'|'.join([re.escape(x) for x in SYN_DATA])})"
 
 
 def register_converter(app: Flask, name: str) -> None:
