@@ -43,8 +43,9 @@ def syncing():
 @cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
 def chain_date_to_block(chain: str, date: datetime):
     _date = str(date.date())
-    return jsonify({
-        _date:
-        json.loads(cast(str,
-                        LOGS_REDIS_URL.get(f'{chain}:date2block:{_date}')))
-    })
+
+    ret = LOGS_REDIS_URL.get(f'{chain}:date2block:{_date}')
+    if ret is not None:
+        ret = json.loads(ret)
+
+    return jsonify({_date: ret})
