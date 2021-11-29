@@ -13,6 +13,11 @@
         },
         "type": "object"
       },
+      "date": {
+        "type": "string",
+        "pattern": "/([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/",
+        "example": "2021-11-29"
+      },
       "Chains": {
         "type": "string",
         "enum": [
@@ -618,6 +623,60 @@
         },
         "summary": "bridge fees paid for a token on a chain",
         "tags": ["Bridge Fees"]
+      }
+    },
+    "/api/v1/utils/date2block/{chain}/{date}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          },
+          {
+            "in": "path",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "block": {
+                        "type": "number"
+                      },
+                      "timestamp": {
+                        "type": "number"
+                      }
+                    },
+                    "nullable": true
+                  }
+                },
+                "example": {
+                  "2021-11-29": {
+                    "block": 573301,
+                    "timestamp": 1638145334
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "get a chain block from date",
+        "tags": ["Utils"]
       }
     },
     "/api/v1/analytics/fees/validator/{chain}": {

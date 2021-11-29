@@ -48,6 +48,7 @@ def init() -> Flask:
     from .routes.api.v1.analytics.volume import volume_bp
     from .routes.api.v1.analytics.pools import pools_bp
     from .routes.api.v1.analytics.fees import fees_bp
+    from .routes.api.v1.utils import utils_bp
     from .routes.api.v1.circ import circ_bp
     from .routes.api.v1.mcap import mcap_bp
     from .routes.root import root_bp
@@ -55,6 +56,7 @@ def init() -> Flask:
     app.register_blueprint(root_bp)
     app.register_blueprint(circ_bp, url_prefix='/api/v1/circ')
     app.register_blueprint(mcap_bp, url_prefix='/api/v1/mcap')
+    app.register_blueprint(utils_bp, url_prefix='/api/v1/utils')
     app.register_blueprint(fees_bp, url_prefix='/api/v1/analytics/fees')
     app.register_blueprint(pools_bp, url_prefix='/api/v1/analytics/pools')
     app.register_blueprint(volume_bp, url_prefix='/api/v1/analytics/volume')
