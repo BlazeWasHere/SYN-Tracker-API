@@ -46,7 +46,7 @@ def _first_run() -> None:
 
     # Okay sometimes there is a race condition, hopefully this prevents it.
     import time, random
-    time.sleep(random(1, 5))
+    time.sleep(random.randint(1, 5))
 
     with lock:
         print(f'pid({os.getpid()}), acquired the lock')
