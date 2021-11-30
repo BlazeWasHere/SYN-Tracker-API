@@ -7,6 +7,11 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from gevent import monkey
+
+# Monkey patch stuff.
+monkey.patch_all()
+
 import syn
 
 app = syn.init()
