@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Dict, TypedDict, cast
+from typing import Dict, List, TypedDict, cast
 from collections import defaultdict
 import json
 import os
@@ -18,9 +18,12 @@ from web3.middleware.geth_poa import geth_poa_middleware
 from apscheduler.jobstores.redis import RedisJobStore
 from dotenv import load_dotenv, find_dotenv
 from flask_apscheduler import APScheduler
+from gevent.greenlet import Greenlet
 from web3.contract import Contract
 from flask_caching import Cache
+from gevent.pool import Pool
 from web3 import Web3
+import gevent
 import redis
 
 load_dotenv(find_dotenv('.env.sample'))
@@ -69,6 +72,8 @@ else:
 
 # We use this for processes to interact w/ eachother.
 MESSAGE_QUEUE_REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/3'
+MESSAGE_QUEUE_REDIS = redis.Redis.from_url(MESSAGE_QUEUE_REDIS_URL,
+                                           decode_responses=True)
 # We use this for storing eth_GetLogs and stuff related to that.
 LOGS_REDIS_URL = redis.Redis(REDIS_HOST,
                              REDIS_PORT,
@@ -376,8 +381,26 @@ class TokenInfo(TypedDict):
 
 
 TOKENS_INFO: Dict[str, Dict[str, TokenInfo]] = defaultdict(dict)
+__jobs: List[Greenlet] = []
 
-# TODO(blaze): remove time complexity by caching to redis.
+
+def __cb(w3: Web3, chain: str, token: str) -> None:
+    contract = w3.eth.contract(w3.toChecksumAddress(token), abi=ERC20_BARE_ABI)
+
+    decimals = contract.functions.decimals().call()
+    name = contract.functions.name().call()
+    symbol = contract.functions.symbol().call()
+
+    TOKENS_INFO[chain].update({
+        token.lower():
+        TokenInfo(_contract=contract,
+                  name=name,
+                  symbol=symbol,
+                  decimals=decimals)
+    })
+
+
+__pool = Pool(size=16)
 for chain, tokens in TOKENS.items():
     w3: Web3 = SYN_DATA[chain]['w3']
 
@@ -385,20 +408,9 @@ for chain, tokens in TOKENS.items():
         assert token not in TOKENS_INFO[chain], \
             f'duped token? {token} @ {chain} | {TOKENS_INFO[chain][token]}'
 
-        contract = w3.eth.contract(w3.toChecksumAddress(token),
-                                   abi=ERC20_BARE_ABI)
+        __jobs.append(__pool.spawn(__cb, w3, chain, token))
 
-        decimals = contract.functions.decimals().call()
-        name = contract.functions.name().call()
-        symbol = contract.functions.symbol().call()
-
-        TOKENS_INFO[chain].update({
-            token.lower():
-            TokenInfo(_contract=contract,
-                      name=name,
-                      symbol=symbol,
-                      decimals=decimals)
-        })
+gevent.joinall(__jobs, raise_error=True)
 
 TOKEN_DECIMALS: Dict[str, Dict[str, int]] = defaultdict(dict)
 
