@@ -300,6 +300,7 @@ TOKENS = {
         '0xb6c473756050de474286bed418b77aeac39b02af',  # nUSD
         '0x128a587555d1148766ef4327172129b50ec66e5d',  # USD-LP
         '0x0a5926027d407222f8fe20f24cb16e103f617046',  # NFD
+        '0xd8ca34fd379d9ca3c6ee3b3905678320f5b45195',  # gOHM
     ],
     'avalanche': [
         '0xd586e7f844cea2f87f50152665bcbc2c279d8d70',  # DAI

@@ -135,6 +135,7 @@ ADDRESS_TO_CGID = {
         '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': CoingeckoIDS.USDC,
         '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': CoingeckoIDS.USDT,
         '0x0a5926027d407222f8fe20f24cb16e103f617046': CoingeckoIDS.NFD,
+        '0xd8ca34fd379d9ca3c6ee3b3905678320f5b45195': CoingeckoIDS.WSOHM,
     },
     'avalanche': {
         '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': CoingeckoIDS.SYN,
