@@ -30,20 +30,32 @@ assert c == n, 'new _session_cache size is not what we set it to'
 
 import simplejson as json
 from flask import Flask
+import redis_lock
 
 from syn.cron import update_caches, update_getlogs, update_getlogs_pool
-from syn.utils.data import cache, SCHEDULER_CONFIG, schedular
+from syn.utils.data import cache, SCHEDULER_CONFIG, schedular, \
+    MESSAGE_QUEUE_REDIS
+
+import os
 
 
 def _first_run() -> None:
-    update_getlogs_pool()
-    update_getlogs()
-    update_caches()
+    lock = redis_lock.Lock(MESSAGE_QUEUE_REDIS,
+                           "first_run",
+                           id=str(os.getpid()))
 
-    # We want schedular to start AFTER.
-    schedular.start()
+    with lock:
+        print(f'pid({os.getpid()}), acquired the lock')
+
+        update_getlogs_pool()
+        update_getlogs()
+        update_caches()
+
+        # We want schedular to start AFTER.
+        schedular.start()
 
 
+redis_lock.reset_all(MESSAGE_QUEUE_REDIS)
 gevent.spawn(_first_run)
 
 
