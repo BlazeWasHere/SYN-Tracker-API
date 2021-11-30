@@ -31,7 +31,20 @@ assert c == n, 'new _session_cache size is not what we set it to'
 import simplejson as json
 from flask import Flask
 
+from syn.cron import update_caches, update_getlogs, update_getlogs_pool
 from syn.utils.data import cache, SCHEDULER_CONFIG, schedular
+
+
+def _first_run() -> None:
+    update_getlogs_pool()
+    update_getlogs()
+    update_caches()
+
+    # We want schedular to start AFTER.
+    schedular.start()
+
+
+gevent.spawn(_first_run)
 
 
 def init() -> Flask:
@@ -65,20 +78,8 @@ def init() -> Flask:
     app.register_blueprint(emissions_bp,
                            url_prefix='/api/v1/analytics/emissions')
 
-    from .cron import update_caches, update_getlogs, update_getlogs_pool
-
     app.config.from_mapping(SCHEDULER_CONFIG)
     schedular.init_app(app)
     cache.init_app(app)
-
-    def _first_run() -> None:
-        update_getlogs_pool()
-        update_getlogs()
-        update_caches()
-
-        # We want schedular to start AFTER.
-        schedular.start()
-
-    gevent.spawn(_first_run)
 
     return app
