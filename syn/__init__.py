@@ -46,6 +46,7 @@ def _first_run() -> None:
 
     with lock:
         print(f'pid({os.getpid()}), acquired the lock')
+        assert lock.locked()
 
         update_getlogs_pool()
         update_getlogs()
@@ -55,7 +56,6 @@ def _first_run() -> None:
         schedular.start()
 
 
-redis_lock.reset_all(MESSAGE_QUEUE_REDIS)
 gevent.spawn(_first_run)
 
 
