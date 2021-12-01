@@ -71,13 +71,14 @@ airdrop_ranges = {
     },
     'moonriver': {
         0.1: [None, 914404],
-        0.002: [914403, None],
+        0.002: [914405, None],
     },
     'ethereum': {
         0: [None, None],
     },
     'arbitrum': {
-        0: [None, None],
+        0: [None, 3393884],
+        0.003: [3393885, None],
     },
     'harmony': {
         0.1: [None, None],
@@ -86,7 +87,8 @@ airdrop_ranges = {
         0.005: [None, None],
     },
     'optimism': {
-        0: [None, None],
+        0: [None, 541401],
+        0.002: [541402, None],
     },
 }
 
