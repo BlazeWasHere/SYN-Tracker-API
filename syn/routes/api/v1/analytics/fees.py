@@ -53,17 +53,6 @@ def adminfees_chain(chain: str):
 @fees_bp.route('/admin/<chain:chain>/pending', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def pending_adminfees_chain(chain: str):
-    chainzzz = list(SYN_DATA)
-    chainzzz.remove('harmony')
-    chainzzz.remove('fantom')
-    chainzzz.remove('arbitrum')
-
-    if chain not in chainzzz:
-        return (jsonify({
-            'error': 'invalid chain',
-            'valids': chainzzz,
-        }), 400)
-
     block = request.args.get('block', 'latest')
     if block != 'latest':
         if not verify.isdigit(block):
@@ -72,7 +61,7 @@ def pending_adminfees_chain(chain: str):
         block = int(block)
 
     # The tokens can be found here.
-    ret = get_treasury_erc20_balances(chain)
+    ret = get_treasury_erc20_balances(chain, include_native=False)
     tokens = [Web3.toChecksumAddress(x) for x in ret.keys()]
 
     try:

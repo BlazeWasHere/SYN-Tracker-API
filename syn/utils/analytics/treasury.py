@@ -23,9 +23,10 @@ from syn.utils.cache import timed_cache
 
 
 @timed_cache(60, maxsize=50)
-def get_treasury_erc20_balances(chain: str,
-                                block: BlockIdentifier = 'latest'
-                                ) -> Dict[str, Decimal]:
+def get_treasury_erc20_balances(
+        chain: str,
+        block: BlockIdentifier = 'latest',
+        include_native: bool = True) -> Dict[str, Decimal]:
     res: Dict[str, Decimal] = defaultdict(Decimal)
     w3 = SYN_DATA[chain]['w3']
 
@@ -62,9 +63,10 @@ def get_treasury_erc20_balances(chain: str,
                 TOKEN_DECIMALS[chain][token.lower()],
                 block=block)
 
-    # Let's bet its 18 decimals.
-    res['native'] = handle_decimals(
-        w3.eth.get_balance(TREASURY[chain], block_identifier=block), 18)
+    if include_native:
+        # Let's bet its 18 decimals.
+        res['native'] = handle_decimals(
+            w3.eth.get_balance(TREASURY[chain], block_identifier=block), 18)
 
     return res
 
