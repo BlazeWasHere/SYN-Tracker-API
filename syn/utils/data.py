@@ -306,6 +306,8 @@ TOKENS = {
         '0x128a587555d1148766ef4327172129b50ec66e5d',  # USD-LP
         '0x0a5926027d407222f8fe20f24cb16e103f617046',  # NFD
         '0xd8ca34fd379d9ca3c6ee3b3905678320f5b45195',  # gOHM
+        '0xeee3371b89fc43ea970e908536fcddd975135d8a',  # DOG
+        '0x48a34796653afdaa1647986b33544c911578e767',  # synFRAX
     ],
     'avalanche': [
         '0xd586e7f844cea2f87f50152665bcbc2c279d8d70',  # DAI
@@ -317,6 +319,7 @@ TOKENS = {
         '0xf1293574ee43950e7a8c9f1005ff097a9a713959',  # NFD
         '0x19e1ae0ee35c0404f835521146206595d37981ae',  # nETH
         '0x321e7092a180bb43555132ec53aaa65a5bf84251',  # gOHM
+        '0xcc5672600b948df4b665d9979357bef3af56b300',  # synFRAX
     ],
     'arbitrum': [
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',  # DAI
@@ -329,6 +332,7 @@ TOKENS = {
         '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e',  # nETH
         '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',  # WETH
         '0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1',  # gOHM
+        '0x85662fd123280827e11c59973ac9fcbe838dc3b4',  # synFRAX
     ],
     'fantom': [
         '0x04068da6c83afcfa0e13ba15a6696662335d5b75',  # USDC
@@ -339,6 +343,7 @@ TOKENS = {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2',  # SYN
         '0x78de9326792ce1d6eca0c978753c6953cdeedd73',  # JUMP
         '0x91fa20244fb509e8289ca630e5db3e9166233fdc',  # gOHM
+        '0x1852f70512298d56e9c8fdd905e02581e04ddb2a',  # synFRAX
     ],
     'harmony': [
         '0xe55e19fb4f2d85af758950957714292dac1e25b2',  # SYN
@@ -362,6 +367,7 @@ TOKENS = {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445',  # SYN
         '0xe96ac70907fff3efee79f502c985a7a21bce407d',  # synFRAX
         '0x1a93b23281cc1cde4c4741353f3064709a16197d',  # FRAX
+        '0x3bf21ce864e58731b6f28d68d5928bcbeb0ad172',  # gOHM
     ],
     'optimism': [
         '0x809dc529f07651bd43a172e8db6f4a7a0d771036',  # nETH

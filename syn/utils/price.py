@@ -136,6 +136,8 @@ ADDRESS_TO_CGID = {
         '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': CoingeckoIDS.USDT,
         '0x0a5926027d407222f8fe20f24cb16e103f617046': CoingeckoIDS.NFD,
         '0xd8ca34fd379d9ca3c6ee3b3905678320f5b45195': CoingeckoIDS.WSOHM,
+        '0xeee3371b89fc43ea970e908536fcddd975135d8a': CoingeckoIDS.DOG,
+        '0x48a34796653afdaa1647986b33544c911578e767': CoingeckoIDS.FRAX,
     },
     'avalanche': {
         '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': CoingeckoIDS.SYN,
@@ -145,6 +147,7 @@ ADDRESS_TO_CGID = {
         '0xf1293574ee43950e7a8c9f1005ff097a9a713959': CoingeckoIDS.NFD,
         '0x19e1ae0ee35c0404f835521146206595d37981ae': CoingeckoIDS.ETH,
         '0x321e7092a180bb43555132ec53aaa65a5bf84251': CoingeckoIDS.WSOHM,
+        '0xcc5672600b948df4b665d9979357bef3af56b300': CoingeckoIDS.FRAX,
     },
     'arbitrum': {
         '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,
@@ -154,6 +157,7 @@ ADDRESS_TO_CGID = {
         '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a': CoingeckoIDS.MIM,
         '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': CoingeckoIDS.ETH,
         '0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1': CoingeckoIDS.WSOHM,
+        '0x85662fd123280827e11c59973ac9fcbe838dc3b4': CoingeckoIDS.FRAX,
     },
     'fantom': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
@@ -161,6 +165,7 @@ ADDRESS_TO_CGID = {
         '0x04068da6c83afcfa0e13ba15a6696662335d5b75': CoingeckoIDS.USDC,
         '0x049d68029688eabf473097a2fc38ef61633a3c7a': CoingeckoIDS.USDT,
         '0x91fa20244fb509e8289ca630e5db3e9166233fdc': CoingeckoIDS.WSOHM,
+        '0x1852f70512298d56e9c8fdd905e02581e04ddb2a': CoingeckoIDS.FRAX,
     },
     'harmony': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
@@ -180,6 +185,7 @@ ADDRESS_TO_CGID = {
     'moonriver': {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
         '0xe96ac70907fff3efee79f502c985a7a21bce407d': CoingeckoIDS.FRAX,
+        '0x3bf21ce864e58731b6f28d68d5928bcbeb0ad172': CoingeckoIDS.WSOHM,
     },
     'optimism': {
         '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': CoingeckoIDS.SYN,
