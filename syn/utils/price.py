@@ -206,7 +206,8 @@ def get_historic_price(_id: CoingeckoIDS,
     if POPULATE_CACHE:
         time.sleep(randint(5, 20))
 
-    r = requests.get(COINGECKO_HISTORIC_URL.format(_id.value, date)).json()
+    r = requests.get(COINGECKO_HISTORIC_URL.format(
+        _id.value, date)).json(use_decimal=True)
 
     try:
         return Decimal(r['market_data']['current_price'][currency])
@@ -254,7 +255,7 @@ def get_price_coingecko(_id: CoingeckoIDS, currency: str = "usd") -> Decimal:
         time.sleep(randint(5, 20))
 
     r = requests.get(COINGECKO_BASE_URL.format(_id.value, currency))
-    return Decimal(r.json()[_id.value][currency])
+    return Decimal(r.json(use_decimal=True)[_id.value][currency])
 
 
 def init() -> None:
