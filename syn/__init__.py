@@ -40,24 +40,33 @@ import os
 
 
 def _first_run() -> None:
-    lock = redis_lock.Lock(MESSAGE_QUEUE_REDIS,
-                           "first_run",
-                           id=str(os.getpid()))
-
     # Okay sometimes there is a race condition, hopefully this prevents it.
     import time, random
     time.sleep(random.randint(1, 5))
 
-    with lock:
-        print(f'pid({os.getpid()}), acquired the lock')
-        assert lock.locked()
+    lock = redis_lock.Lock(MESSAGE_QUEUE_REDIS,
+                           "first_run",
+                           id=str(os.getpid()))
 
-        update_getlogs_pool()
-        update_getlogs()
-        update_caches()
+    if not lock.acquire(blocking=False):
+        print(f'pid({os.getpid()}), failed to acquire lock')
+        # This should raise `NotAcquired`.
+        lock.release()
+        # Just incase it didn't raise an error.
+        return
 
-        # We want schedular to start AFTER.
-        schedular.start()
+    assert lock.locked(), 'lock does not exist'
+    assert lock._held, f'lock not held by pid({os.getpid()})'
+    print(f'pid({os.getpid()}), acquired the lock')
+
+    update_getlogs_pool()
+    update_getlogs()
+    update_caches()
+
+    lock.release()
+
+    # We want schedular to start AFTER.
+    schedular.start()
 
 
 gevent.spawn(_first_run)
