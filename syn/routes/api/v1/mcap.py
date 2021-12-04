@@ -17,8 +17,10 @@ mcap_bp = Blueprint('mcap_bp', __name__)
 
 @mcap_bp.route('/', methods=['GET'])
 def mcap():
-    return jsonify(
-        {get_price_coingecko(CoingeckoIDS.SYN) * get_all_chains_circ_supply()})
+    return jsonify({
+        'market_cap':
+        get_price_coingecko(CoingeckoIDS.SYN) * get_all_chains_circ_supply()
+    })
 
 
 @mcap_bp.route('/<chain:chain>', methods=['GET'])
