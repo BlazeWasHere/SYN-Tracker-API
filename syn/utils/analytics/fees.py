@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Dict, Union, List
+from typing import Any, Dict, Optional, Union, List
 from collections import defaultdict
 from decimal import Decimal
 
@@ -127,9 +127,16 @@ def get_admin_and_pending_fees(chain: str,
 
 
 def get_chain_validator_gas_fees(
-        chain: str) -> Dict[str, Dict[str, Union[str, Decimal]]]:
+        chain: str,
+        token: Optional[str] = None
+) -> Dict[str, Dict[str, Union[str, Decimal]]]:
+    if token is None:
+        key = f'{chain}:bridge:*:IN'
+    else:
+        key = f'{chain}:bridge:*:{token.lower()}:IN'
+
     # We aggregate validator gas fees on `IN` txs.
-    ret = get_all_keys(f'{chain}:bridge:*:IN',
+    ret = get_all_keys(key,
                        client=LOGS_REDIS_URL,
                        index=[2, 4],
                        serialize=True)
@@ -185,9 +192,15 @@ def get_chain_bridge_fees(chain: str, address: str):
     }
 
 
-def get_chain_airdrop_amounts(chain: str) -> Dict[str, Any]:
+def get_chain_airdrop_amounts(chain: str,
+                              token: Optional[str] = None) -> Dict[str, Any]:
+    if token is None:
+        key = f'{chain}:bridge:*:IN'
+    else:
+        key = f'{chain}:bridge:*:{token.lower()}:IN'
+
     # We aggregate validator gas fees on `IN` txs.
-    ret = get_all_keys(f'{chain}:bridge:*:IN',
+    ret = get_all_keys(key,
                        client=LOGS_REDIS_URL,
                        index=[2, 4],
                        serialize=True)

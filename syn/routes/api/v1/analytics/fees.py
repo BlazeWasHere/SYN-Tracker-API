@@ -77,20 +77,32 @@ def pending_adminfees_chain(chain: str):
         return (jsonify({'error': 'contract not deployed'}), 400)
 
 
-@fees_bp.route('/validator/', defaults={'chain': ''}, methods=['GET'])
-@fees_bp.route('/validator/<chain:chain>', methods=['GET'])
+@fees_bp.route('/validator/',
+               defaults={
+                   'chain': '',
+                   'token': None
+               },
+               methods=['GET'])
+@fees_bp.route('/validator/<chain:chain>/<token>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
-def chain_validator_gas_fees(chain: str):
-    return jsonify(get_chain_validator_gas_fees(chain))
+def chain_validator_gas_fees(chain: str, token: str):
+    if token not in symbol_to_address[chain]:
+        return (jsonify({
+            'error': 'invalid token',
+            'valids': list(symbol_to_address[chain]),
+        }), 400)
+
+    return jsonify(
+        get_chain_validator_gas_fees(chain, symbol_to_address[chain][token]))
 
 
-@fees_bp.route('/bridge/<chain>/',
+@fees_bp.route('/bridge/',
                defaults={
                    'token': '',
                    'chain': ''
                },
                methods=['GET'])
-@fees_bp.route('/bridge/<chain>/<token>', methods=['GET'])
+@fees_bp.route('/bridge/<chain:chain>/<token>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def chain_bridge_fees(chain: str, token: str):
     if token not in symbol_to_address[chain]:
@@ -103,14 +115,20 @@ def chain_bridge_fees(chain: str, token: str):
         get_chain_bridge_fees(chain, symbol_to_address[chain][token]))
 
 
-@fees_bp.route('/airdrop/', defaults={'chain': ''}, methods=['GET'])
-@fees_bp.route('/airdrop/<chain>', methods=['GET'])
+@fees_bp.route('/airdrop/',
+               defaults={
+                   'chain': '',
+                   'token': None
+               },
+               methods=['GET'])
+@fees_bp.route('/airdrop/<chain:chain>/<token>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
-def airdrop_chain_fees(chain: str):
-    if chain not in SYN_DATA:
+def airdrop_chain_fees(chain: str, token: str):
+    if token not in symbol_to_address[chain]:
         return (jsonify({
-            'error': 'invalid chain',
-            'valids': list(SYN_DATA),
+            'error': 'invalid token',
+            'valids': list(symbol_to_address[chain]),
         }), 400)
 
-    return jsonify(get_chain_airdrop_amounts(chain))
+    return jsonify(
+        get_chain_airdrop_amounts(chain, symbol_to_address[chain][token]))
