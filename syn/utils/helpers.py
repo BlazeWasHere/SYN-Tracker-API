@@ -390,7 +390,7 @@ def worker_assert_lock(r: Redis, name: str,
 
     lock = redis_lock.Lock(r, name, id=id)
 
-    if not lock.acquire(blocking=False):
+    if not lock.acquire(blocking=True, timeout=15):
         print(f'worker({id}), failed to acquire lock')
         # This should raise `NotAcquired`.
         with contextlib.suppress(redis_lock.NotAcquired):
