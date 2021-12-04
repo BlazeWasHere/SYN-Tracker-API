@@ -7,12 +7,16 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from contextlib import contextmanager
+from typing import Generator
+from functools import wraps
 import time
+import os
 
-from syn.utils.data import schedular, MORALIS_APIKEY
+from syn.utils.data import schedular, MORALIS_APIKEY, MESSAGE_QUEUE_REDIS
+from syn.utils.helpers import dispatch_get_logs, worker_assert_lock
 from syn.utils.analytics.pool import pool_callback
 from syn.utils.wrappa.rpc import bridge_callback
-from syn.utils.helpers import dispatch_get_logs
 from syn.utils.wrappa.moralis import Moralis
 
 moralis = Moralis(MORALIS_APIKEY)
@@ -56,7 +60,31 @@ routes = [
 ]
 
 
+def acquire_lock(name: str):
+    @contextmanager
+    def ctx_lock() -> Generator[None, None, None]:
+        lock = worker_assert_lock(MESSAGE_QUEUE_REDIS, name, str(os.getpid()))
+        assert lock != False, 'failed to acquire lock'
+        print(f'worker({os.getpid()}), acquired the lock')
+
+        try:
+            yield None
+        finally:
+            lock.release()
+
+    def _decorator(fn):
+        @wraps(fn)
+        def _wrapped(*args, **kwargs):
+            with ctx_lock():
+                return fn(*args, **kwargs)
+
+        return _wrapped
+
+    return _decorator
+
+
 @schedular.task("cron", id="update_caches", minute="*/15", max_instances=1)
+@acquire_lock('update_caches')
 def update_caches():
     start = time.time()
     print(f'(0) [{start}] Cron job start.')
@@ -70,6 +98,7 @@ def update_caches():
 
 
 @schedular.task("interval", id="update_getlogs", hours=1, max_instances=1)
+@acquire_lock('update_getlogs')
 def update_getlogs():
     start = time.time()
     print(f'(2) [{start}] Cron job start.')
@@ -80,6 +109,7 @@ def update_getlogs():
 
 
 @schedular.task("interval", id="update_getlogs_pool", hours=1, max_instances=1)
+@acquire_lock('update_getlogs_pool')
 def update_getlogs_pool():
     from syn.utils.analytics.pool import TOPICS
 

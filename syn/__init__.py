@@ -30,36 +30,24 @@ assert c == n, 'new _session_cache size is not what we set it to'
 
 import simplejson as json
 from flask import Flask
-import redis_lock
 
 from syn.cron import update_caches, update_getlogs, update_getlogs_pool
 from syn.utils.data import cache, SCHEDULER_CONFIG, schedular, \
     MESSAGE_QUEUE_REDIS
+from syn.utils.helpers import worker_assert_lock
 
 import os
 
 
 def _first_run() -> None:
-    # Okay sometimes there is a race condition, hopefully this prevents it.
-    import time, random
-    time.sleep(random.randint(1, 5))
-
-    lock = redis_lock.Lock(MESSAGE_QUEUE_REDIS,
-                           "first_run",
-                           id=str(os.getpid()))
-
-    if not lock.acquire(blocking=False):
-        print(f'pid({os.getpid()}), failed to acquire lock')
-        # This should raise `NotAcquired`.
-        lock.release()
-        # Just incase it didn't raise an error.
+    lock = worker_assert_lock(MESSAGE_QUEUE_REDIS, 'first_run',
+                              str(os.getpid()))
+    if lock == False:
         return
 
-    assert lock.locked(), 'lock does not exist'
-    assert lock._held, f'lock not held by pid({os.getpid()})'
-    print(f'pid({os.getpid()}), acquired the lock')
+    print(f'worker({os.getpid()}), acquired the lock')
 
-    update_getlogs_pool()
+    # update_getlogs_pool()
     update_getlogs()
     update_caches()
 

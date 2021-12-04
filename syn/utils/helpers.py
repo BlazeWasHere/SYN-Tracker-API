@@ -12,6 +12,7 @@ from typing import Any, List, Dict, Literal, Optional, TypeVar, Union, cast, \
 from datetime import datetime, timedelta
 from collections import defaultdict
 from hexbytes import HexBytes
+import contextlib
 import decimal
 import logging
 
@@ -21,6 +22,7 @@ from web3.main import Web3
 import simplejson as json
 from redis import Redis
 import dateutil.parser
+import redis_lock
 import gevent
 
 from .data import REDIS, TOKEN_DECIMALS, SYN_DATA
@@ -378,3 +380,25 @@ def convert(value: T) -> Union[T, str, List]:
         return [convert(item) for item in value]
     else:
         return value
+
+
+def worker_assert_lock(r: Redis, name: str,
+                       id: str) -> Union[Literal[False], redis_lock.Lock]:
+    # Okay sometimes there is a race condition, hopefully this prevents it.
+    import time, random
+    time.sleep(random.randint(1, 5))
+
+    lock = redis_lock.Lock(r, name, id=id)
+
+    if not lock.acquire(blocking=False):
+        print(f'worker({id}), failed to acquire lock')
+        # This should raise `NotAcquired`.
+        with contextlib.suppress(redis_lock.NotAcquired):
+            lock.release()
+
+        # Just incase it didn't raise an error.
+        return False
+
+    assert lock.locked(), 'lock does not exist'
+    assert lock._held, f'lock not held by worker({id})'
+    return lock
