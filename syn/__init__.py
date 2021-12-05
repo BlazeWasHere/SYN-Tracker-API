@@ -51,10 +51,11 @@ def _first_run() -> None:
     update_getlogs()
     update_caches()
 
-    lock.release()
-
     # We want schedular to start AFTER.
     schedular.start()
+
+    # Release lock after, incase we raise an error.
+    lock.release()
 
 
 gevent.spawn(_first_run)
