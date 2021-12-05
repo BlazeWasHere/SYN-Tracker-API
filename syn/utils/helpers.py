@@ -258,16 +258,17 @@ def dispatch_get_logs(
             }
 
             if 'pool_contract' in SYN_DATA[chain]:
-                start_block = _start_blocks[chain]['nusd']
-                addresses.append(SYN_DATA[chain]['pool'])
+                _start_block = _start_blocks[chain]['nusd']
+                addresses.append([SYN_DATA[chain]['pool'], _start_block])
 
             if 'ethpool_contract' in SYN_DATA[chain]:
-                start_block = _start_blocks[chain]['neth']
-                addresses.append(SYN_DATA[chain]['ethpool'])
+                _start_block = _start_blocks[chain]['neth']
+                addresses.append([SYN_DATA[chain]['ethpool'], _start_block])
 
         topics = topics or list(TOPICS)
 
-        for address in addresses:
+        for x in addresses:
+            address, start_block = x[0], x[1]
             if chain in [
                     'harmony',
                     'bsc',
