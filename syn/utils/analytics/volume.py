@@ -10,12 +10,13 @@
 from typing import Any, DefaultDict, Dict, Tuple, Union
 from collections import defaultdict
 from decimal import Decimal
+import copy
 
 from gevent.greenlet import Greenlet
 import dateutil.parser
 import gevent
 
-from syn.utils.data import MORALIS_APIKEY, COVALENT_APIKEY, LOGS_REDIS_URL
+from syn.utils.data import MORALIS_APIKEY, COVALENT_APIKEY, LOGS_REDIS_URL, SYN_DATA
 from syn.utils.price import CoingeckoIDS, get_historic_price_for_address, \
     get_price_for_address, get_price_coingecko
 from syn.utils.helpers import add_to_dict, get_all_keys, raise_if
@@ -76,6 +77,36 @@ def create_totals(
         total_usd_current += (price * Decimal(volume))
 
     return total_volume, total_usd, total_usd_current
+
+
+def get_chain_volume_total() -> Dict[str, Any]:
+    def recursive_defaultdict() -> DefaultDict:
+        return defaultdict(recursive_defaultdict)
+
+    res = recursive_defaultdict()
+    jobs: Dict[str, Greenlet] = {}
+
+    for chain in SYN_DATA.keys():
+        jobs[chain] = gevent.spawn(get_chain_volume, chain, 'IN')
+
+    for chain, job in jobs.items():
+        assert chain not in res
+        ret = raise_if(job.get(), None)['data']
+
+        for data in ret.values():
+
+            for date, _data in data['data'].items():
+                add_to_dict(res[date], chain, _data['price_usd'])
+
+    totals: Dict[str, Decimal] = {}
+
+    # Calculate totals for each day.
+    for date, data in copy.deepcopy(res).items():
+        for chain, v in data.items():
+            add_to_dict(res[date], 'total', v)
+            add_to_dict(totals, chain, v)
+
+    return {'data': res, 'totals': totals}
 
 
 def get_chain_volume_for_address(address: str,

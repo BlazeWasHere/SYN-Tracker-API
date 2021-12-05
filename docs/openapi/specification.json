@@ -102,6 +102,29 @@
           }
         }
       },
+      "ValidatorResponse": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "gas_price": {
+              "type": "number",
+              "format": "float"
+            },
+            "price_usd": {
+              "type": "number",
+              "format": "float"
+            },
+            "tx_count": {
+              "type": "number"
+            },
+            "transaction_fee": {
+              "type": "number",
+              "format": "float"
+            }
+          }
+        }
+      },
       "VolumeResponseIN": {
         "type": "object",
         "additionalProperties": {
@@ -420,6 +443,47 @@
         "tags": ["Metapool Volume"]
       }
     },
+    "/api/v1/analytics/volume/total": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number",
+                          "format": "float"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "number",
+                        "format": "float"
+                      }
+                    },
+                    "totals": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "number",
+                        "format": "float"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "total volume of every chain in USD",
+        "tags": ["Bridge Volume"]
+      }
+    },
     "/api/v1/analytics/volume/{chain}/filter/{token}/{direction}": {
       "get": {
         "parameters": [
@@ -695,27 +759,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object",
-                    "properties": {
-                      "gas_price": {
-                        "type": "number",
-                        "format": "float"
-                      },
-                      "price_usd": {
-                        "type": "number",
-                        "format": "float"
-                      },
-                      "tx_count": {
-                        "type": "number"
-                      },
-                      "transaction_fee": {
-                        "type": "number",
-                        "format": "float"
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/ValidatorResponse"
                 }
               }
             },
@@ -723,6 +767,44 @@
           }
         },
         "summary": "validator gas fees paid on a chain",
+        "tags": ["Validator Gas Fees"]
+      }
+    },
+    "/api/v1/analytics/fees/validator/{chain}/{token}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          },
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "description": "some chains support more tokens such as neth, synfrax, dog, high, etc.",
+            "schema": {
+              "type": "string",
+              "enum": ["nusd", "syn"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatorResponse"
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "validator gas fees paid on a chain for a token",
         "tags": ["Validator Gas Fees"]
       }
     },
