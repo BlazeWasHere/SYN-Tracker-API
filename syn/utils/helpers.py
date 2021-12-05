@@ -223,7 +223,7 @@ def dispatch_get_logs(
 
         # Some logic to dispatch different addresses for bridge and swap events.
         if address_key != -1:
-            addresses.append(SYN_DATA[chain][cast(str, address_key)])
+            addresses.append([SYN_DATA[chain][cast(str, address_key)], None])
         else:
             _start_blocks = {
                 'ethereum': {
