@@ -29,12 +29,6 @@ TIMEOUT = 60 * 15
 @fees_bp.route('/admin/<chain:chain>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
 def adminfees_chain(chain: str):
-    if chain not in SYN_DATA:
-        return (jsonify({
-            'error': 'invalid chain',
-            'valids': list(SYN_DATA),
-        }), 400)
-
     block = request.args.get('block', 'latest')
     if block != 'latest':
         if not verify.isdigit(block):
@@ -86,7 +80,7 @@ def pending_adminfees_chain(chain: str):
 @fees_bp.route('/validator/<chain:chain>/<token>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def chain_validator_gas_fees(chain: str, token: str):
-    if token not in symbol_to_address[chain]:
+    if token is not None and token not in symbol_to_address[chain]:
         return (jsonify({
             'error': 'invalid token',
             'valids': list(symbol_to_address[chain]),
@@ -124,7 +118,7 @@ def chain_bridge_fees(chain: str, token: str):
 @fees_bp.route('/airdrop/<chain:chain>/<token>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def airdrop_chain_fees(chain: str, token: str):
-    if token not in symbol_to_address[chain]:
+    if token is not None and token not in symbol_to_address[chain]:
         return (jsonify({
             'error': 'invalid token',
             'valids': list(symbol_to_address[chain]),
