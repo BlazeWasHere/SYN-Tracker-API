@@ -25,7 +25,6 @@ fees_bp = Blueprint('fees_bp', __name__)
 TIMEOUT = 60 * 15
 
 
-@fees_bp.route('/admin/', defaults={'chain': ''}, methods=['GET'])
 @fees_bp.route('/admin/<chain:chain>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
 def adminfees_chain(chain: str):
@@ -77,6 +76,9 @@ def pending_adminfees_chain(chain: str):
                    'token': None
                },
                methods=['GET'])
+@fees_bp.route('/validator/<chain:chain>',
+               defaults={'token': None},
+               methods=['GET'])
 @fees_bp.route('/validator/<chain:chain>/<token>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def chain_validator_gas_fees(chain: str, token: str):
@@ -87,13 +89,13 @@ def chain_validator_gas_fees(chain: str, token: str):
         }), 400)
 
     return jsonify(
-        get_chain_validator_gas_fees(chain, symbol_to_address[chain][token]))
+        get_chain_validator_gas_fees(chain,
+                                     symbol_to_address[chain].get(token)))
 
 
-@fees_bp.route('/bridge/',
+@fees_bp.route('/bridge/<chain:chain>/',
                defaults={
                    'token': '',
-                   'chain': ''
                },
                methods=['GET'])
 @fees_bp.route('/bridge/<chain:chain>/<token>', methods=['GET'])
@@ -115,6 +117,9 @@ def chain_bridge_fees(chain: str, token: str):
                    'token': None
                },
                methods=['GET'])
+@fees_bp.route('/airdrop/<chain:chain>/',
+               defaults={'token': None},
+               methods=['GET'])
 @fees_bp.route('/airdrop/<chain:chain>/<token>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def airdrop_chain_fees(chain: str, token: str):
@@ -125,4 +130,4 @@ def airdrop_chain_fees(chain: str, token: str):
         }), 400)
 
     return jsonify(
-        get_chain_airdrop_amounts(chain, symbol_to_address[chain][token]))
+        get_chain_airdrop_amounts(chain, symbol_to_address[chain].get(token)))
