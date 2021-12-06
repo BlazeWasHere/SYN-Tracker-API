@@ -37,6 +37,36 @@
         "type": "string",
         "enum": ["avalanche", "bsc", "polygon", "arbitrum", "fantom"]
       },
+      "AirdropResponse": {
+        "type": "object",
+        "properties": {
+          "gas_token": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "price_usd": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "airdrop": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "tx_count": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "stats": {
+            "$ref": "#/components/schemas/VolumeResponseStats"
+          }
+        }
+      },
       "TreasuryResponse": {
         "type": "object",
         "properties": {
@@ -1213,34 +1243,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "gas_token": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                          "price_usd": {
-                            "type": "number",
-                            "format": "float"
-                          },
-                          "airdrop": {
-                            "type": "number",
-                            "format": "float"
-                          },
-                          "tx_count": {
-                            "type": "number"
-                          }
-                        }
-                      }
-                    },
-                    "stats": {
-                      "$ref": "#/components/schemas/VolumeResponseStats"
-                    }
-                  }
+                  "$ref": "#/components/schemas/AirdropResponse"
                 }
               }
             },
@@ -1248,6 +1251,44 @@
           }
         },
         "summary": "airdrop amounts given on a chain",
+        "tags": ["Airdrop"]
+      }
+    },
+    "/api/v1/analytics/fees/airdrop/{chain}/{token}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          },
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "description": "some chains support more tokens such as neth, synfrax, dog, high, etc.",
+            "schema": {
+              "type": "string",
+              "enum": ["nusd", "syn"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AirdropResponse"
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "airdrop amounts given on a chain for a token",
         "tags": ["Airdrop"]
       }
     }
