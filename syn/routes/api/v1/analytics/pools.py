@@ -9,7 +9,6 @@
 
 from typing import Any, Dict, List, Union
 from collections import defaultdict
-from datetime import datetime
 from itertools import chain
 from decimal import Decimal
 
@@ -19,7 +18,7 @@ from gevent.greenlet import Greenlet
 from gevent.pool import Pool
 import gevent
 
-from syn.utils.data import SYN_DATA, cache, _forced_update, REDIS
+from syn.utils.data import SYN_DATA, cache, _forced_update
 from syn.utils.contract import get_virtual_price
 from syn.utils.helpers import raise_if
 from syn.utils import verify
@@ -29,13 +28,6 @@ pools_bp = Blueprint('pools_bp', __name__)
 # 15m
 TIMEOUT = 60 * 15
 gpool = Pool()
-metapools = list(SYN_DATA)
-# No metapool on ETH.
-metapools.remove('ethereum')
-
-basepools = list(SYN_DATA)
-
-pools = ['metapool', 'basepool']
 
 
 def _dispatch(chain: str, block: Union[str, int]) -> List[Greenlet]:
@@ -59,16 +51,9 @@ def _convert_ret(ret: Dict[str, Any], res: Dict[str, Decimal]) -> None:
         res['nusd'] = ret['pool_contract']
 
 
-@pools_bp.route('/price/virtual/', defaults={'chain': ''}, methods=['GET'])
 @pools_bp.route('/price/virtual/<chain:chain>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
 def price_virtual_chain(chain: str):
-    if chain not in SYN_DATA:
-        return (jsonify({
-            'error': 'invalid chain',
-            'valids': list(SYN_DATA),
-        }), 400)
-
     block = request.args.get('block', 'latest')
     if block != 'latest':
         if not verify.isdigit(block):

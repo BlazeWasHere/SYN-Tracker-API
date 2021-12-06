@@ -9,7 +9,6 @@
 
 from collections import defaultdict
 from datetime import datetime
-from typing import cast
 
 from flask import Blueprint, jsonify
 import simplejson as json

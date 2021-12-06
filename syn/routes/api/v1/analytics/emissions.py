@@ -22,18 +22,11 @@ from syn.utils import verify
 emissions_bp = Blueprint('emissions_bp', __name__)
 
 
-@emissions_bp.route('/weekly/', defaults={'chain': ''}, methods=['GET'])
-@emissions_bp.route('/weekly/<chain>', methods=['GET'])
+@emissions_bp.route('/weekly/<chain:chain>', methods=['GET'])
 @cache.cached(timeout=DEFAULT_TIMEOUT,
               forced_update=_forced_update,
               query_string=True)
 def weekly_emissions_chain(chain: str):
-    if chain not in SYN_DATA:
-        return (jsonify({
-            'error': 'invalid chain',
-            'valids': list(SYN_DATA),
-        }), 400)
-
     block = request.args.get('block', 'latest')
     if block != 'latest':
         if not verify.isdigit(block):

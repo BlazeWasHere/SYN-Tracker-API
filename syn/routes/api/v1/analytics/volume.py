@@ -13,9 +13,8 @@ from typing import Dict
 from flask import Blueprint, jsonify
 
 from syn.utils.analytics.volume import get_chain_volume_for_address, \
-    get_chain_metapool_volume, get_chain_volume, get_chain_volume_total
-from syn.utils.data import SYN_DATA, cache, DEFAULT_TIMEOUT, _forced_update, \
-    TOKENS_INFO
+    get_chain_volume, get_chain_volume_total
+from syn.utils.data import cache, _forced_update, TOKENS_INFO
 
 volume_bp = Blueprint('volume_bp', __name__)
 
@@ -56,7 +55,7 @@ def chain_filter_token_direction(chain: str, token: str, direction: str):
                  defaults={'direction': ''},
                  methods=['GET'])
 @volume_bp.route('/<chain:chain>/<direction>', methods=['GET'])
-@cache.cached(timeout=60 * 5, forced_update=_forced_update)
+@cache.cached(timeout=60 * 15, forced_update=_forced_update)
 def chain_volume(chain: str, direction: str):
     if direction.upper() not in ['IN', 'OUT']:
         return (jsonify({
@@ -71,27 +70,6 @@ def chain_volume(chain: str, direction: str):
 
 
 @volume_bp.route('/total', methods=['GET'])
-@cache.cached(timeout=60 * 5, forced_update=_forced_update)
+@cache.cached(timeout=60 * 15, forced_update=_forced_update)
 def chain_volume_total():
     return jsonify(get_chain_volume_total())
-
-
-@volume_bp.route('/metapool/', defaults={'chain': ''}, methods=['GET'])
-@volume_bp.route('/metapool/<chain:chain>', methods=['GET'])
-@cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
-def volume_metapool(chain: str):
-    valid_chains = list(SYN_DATA)
-    valid_chains.remove('ethereum')
-    valid_chains.remove('harmony')
-
-    if chain not in valid_chains:
-        return (jsonify({
-            'error': f'invalid chain: {chain}',
-            'valids': valid_chains,
-        }), 400)
-
-    metapool = SYN_DATA[chain]['pool']
-    nusd = SYN_DATA[chain]['nusd']
-    usdlp = SYN_DATA[chain]['usdlp']
-
-    return jsonify(get_chain_metapool_volume(metapool, nusd, usdlp, chain))

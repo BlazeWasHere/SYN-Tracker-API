@@ -15,8 +15,8 @@ from gevent.greenlet import Greenlet
 from gevent.pool import Pool
 import gevent
 
+from syn.utils.helpers import handle_decimals, raise_if
 from syn.utils.data import SYN_DATA, SYN_DECIMALS
-from syn.utils.helpers import handle_decimals
 from syn.utils.cache import timed_cache
 from syn.utils.contract import call_abi
 
@@ -40,7 +40,7 @@ def get_all_chains_circ_supply() -> Decimal:
 
     ret: List[Greenlet] = gevent.joinall(jobs)
     for x in ret:
-        total += x.get()
+        total += raise_if(x.get(), None)
 
     return total
 

@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Dict, List, TypedDict, cast
+from typing import Dict, List, TypedDict
 from collections import defaultdict
 import json
 import os
@@ -48,14 +48,6 @@ with open(os.path.join(_abis_path, 'olderBridge.json')) as f:
     OLDERBRIDGE_ABI = json.load(f)['abi']
 with open(os.path.join(_abis_path, 'pool.json')) as f:
     POOL_ABI = json.load(f)['abi']
-
-COVALENT_APIKEY = cast(str, os.getenv('COVALENT_APIKEY'))
-MORALIS_APIKEY = cast(str, os.getenv('MORALIS_APIKEY'))
-
-if MORALIS_APIKEY is None:
-    raise TypeError('`MORALIS_APIKEY` is not set')
-elif COVALENT_APIKEY is None:
-    raise TypeError('`COVALENT_APIKEY` is not set')
 
 if os.getenv('docker') == 'true':
     REDIS = redis.Redis(os.environ['REDIS_DOCKER_HOST'],

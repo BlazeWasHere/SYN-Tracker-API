@@ -13,13 +13,10 @@ from functools import wraps
 import time
 import os
 
-from syn.utils.data import schedular, MORALIS_APIKEY, MESSAGE_QUEUE_REDIS
 from syn.utils.helpers import dispatch_get_logs, worker_assert_lock
+from syn.utils.data import schedular, MESSAGE_QUEUE_REDIS
 from syn.utils.analytics.pool import pool_callback
 from syn.utils.wrappa.rpc import bridge_callback
-from syn.utils.wrappa.moralis import Moralis
-
-moralis = Moralis(MORALIS_APIKEY)
 
 routes = [
     '/api/v1/analytics/volume/ethereum/filter/nusd',
@@ -83,7 +80,7 @@ def acquire_lock(name: str):
     return _decorator
 
 
-@schedular.task("cron", id="update_caches", minute="*/15", max_instances=1)
+@schedular.task("interval", id="update_caches", minutes=15, max_instances=1)
 @acquire_lock('update_caches')
 def update_caches():
     start = time.time()
