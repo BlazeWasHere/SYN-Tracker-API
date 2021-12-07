@@ -33,10 +33,6 @@
           "moonriver"
         ]
       },
-      "MetapoolChains": {
-        "type": "string",
-        "enum": ["avalanche", "bsc", "polygon", "arbitrum", "fantom"]
-      },
       "AirdropResponse": {
         "type": "object",
         "properties": {
@@ -109,27 +105,6 @@
             "usd": 13.716867204193452
           },
           "total": 156477.96290324986
-        }
-      },
-      "MetapoolVolumeResponse": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "number",
-              "format": "float"
-            }
-          },
-          "stats": {
-            "type": "object",
-            "properties": {
-              "volume": {
-                "type": "number",
-                "format": "float"
-              }
-            }
-          }
         }
       },
       "ValidatorResponse": {
@@ -433,44 +408,6 @@
         },
         "summary": "pending admin fees on a chain",
         "tags": ["Admin Fees"]
-      }
-    },
-    "/api/v1/analytics/volume/metapool/{chain}": {
-      "get": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "chain",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/MetapoolChains"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MetapoolVolumeResponse"
-                }
-              }
-            },
-            "description": "Successful response"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InvalidError"
-                }
-              }
-            },
-            "description": "Not found"
-          }
-        },
-        "summary": "volume of nUSD on a chain metapool",
-        "tags": ["Metapool Volume"]
       }
     },
     "/api/v1/analytics/volume/total": {
