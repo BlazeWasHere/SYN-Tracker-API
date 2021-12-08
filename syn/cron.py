@@ -115,7 +115,7 @@ def update_getlogs_pool():
 
     dispatch_get_logs(pool_callback,
                       topics=list(TOPICS),
-                      key_namespace='pool_logs',
+                      key_namespace='pool',
                       address_key=-1)
 
     print(f'(3) Cron job done. Elapsed: {time.time() - start:.2f}s')

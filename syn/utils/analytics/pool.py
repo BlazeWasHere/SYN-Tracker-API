@@ -7,13 +7,19 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import cast
+from typing import Dict, Literal, Optional, Union, cast
+from collections import defaultdict
+from datetime import datetime
+from decimal import Decimal
+import logging
 
 from web3.types import LogReceipt
+import simplejson as json
 from web3 import Web3
 
-from syn.utils.data import SYN_DATA, POOL_ABI
-from syn.utils.helpers import convert
+from syn.utils.data import SYN_DATA, POOL_ABI, TOKEN_DECIMALS, LOGS_REDIS_URL
+from syn.utils.helpers import convert, handle_decimals
+from syn.utils.explorer.data import TOKENS_IN_POOL
 
 TOPICS = {
     '0xc6c1e0630dbe9130cc068028486c0d118ddcea348550819defd5cb8c257f8a38':
@@ -33,95 +39,103 @@ TOPICS = {
 #: NOTE: all the fees here are INITIAL fees which can be changed later on,
 #: thus us tracking `NewSwapFee` and `NewAdminFee`
 #: Similar schema as :file:`syn/utils/explorer/data.py#L90`
-# TODO(blaze): add rest of the fees. (ones set to 0)
-POOLS = {
+# TODO: pls somone check these numbers, whoever is reading this code, ty!
+POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     'ethereum': {
         'nusd': {
-            '0x1116898dda4015ed8ddefb84b6e8bc24528af2d8': {
-                'admin': 0,
-                'swap': 4000000,
-            },
-        },
+            'address': '0x1116898dda4015ed8ddefb84b6e8bc24528af2d8',
+            'admin': 0,
+            'swap': 4000000,
+        }
     },
     'avalanche': {
         'nusd': {
-            '0xed2a7edd7413021d440b09d654f3b87712abab66': {
-                'admin': 6000000000,
-                'swap': 4000000
-            },
+            'address': '0xed2a7edd7413021d440b09d654f3b87712abab66',
+            'admin': 6000000000,
+            'swap': 4000000
         },
     },
     'bsc': {
         'nusd': {
-            '0x28ec0b36f0819ecb5005cab836f4ed5a2eca4d13': {
-                'admin': 6000000000,
-                'swap': 4000000,
-            },
+            'address': '0x28ec0b36f0819ecb5005cab836f4ed5a2eca4d13',
+            'admin': 6000000000,
+            'swap': 4000000,
         },
     },
     'polygon': {
         'nusd': {
-            '0x85fcd7dd0a1e1a9fcd5fd886ed522de8221c3ee5': {
-                'admin': 6000000000,
-                'swap': 4000000,
-            },
+            'address': '0x85fcd7dd0a1e1a9fcd5fd886ed522de8221c3ee5',
+            'admin': 6000000000,
+            'swap': 4000000,
         },
     },
     'arbitrum': {
         'nusd': {
-            '0x0db3fe3b770c95a0b99d1ed6f2627933466c0dd8': {
-                'admin': 0,
-            },
+            # Check.
+            'address': '0x0db3fe3b770c95a0b99d1ed6f2627933466c0dd8',
+            'admin': 6000000000,
+            'swap': 4000000,
         },
         'neth': {
-            '0xa067668661c84476afcdc6fa5d758c4c01c34352': {
-                'admin': 0,
-                'swap': 0,
-            },
+            # Check.
+            'address': '0xa067668661c84476afcdc6fa5d758c4c01c34352',
+            'admin': 6000000000,
+            'swap': 4000000,
         },
     },
     'fantom': {
         'nusd': {
-            '0x2913e812cf0dcca30fb28e6cac3d2dcff4497688': {
-                'admin': 6000000000,
-                'swap': 4000000,
-            },
+            'address': '0x2913e812cf0dcca30fb28e6cac3d2dcff4497688',
+            'admin': 6000000000,
+            'swap': 4000000,
         },
     },
     'harmony': {
         'nusd': {
-            '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e': {
-                'admin': 0,
-                'swap': 0,
-            },
+            # Check.
+            'address': '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e',
+            'admin': 6000000000,
+            'swap': 4000000,
         },
     },
     'boba': {
         'nusd': {
-            '0x75ff037256b36f15919369ac58695550be72fead': {
-                'admin': 0,
-                'swap': 0,
-            },
+            # Check.
+            'address': '0x75ff037256b36f15919369ac58695550be72fead',
+            'admin': 6000000000,
+            'swap': 4000000,
         },
         'neth': {
-            '0x753bb855c8fe814233d26bb23af61cb3d2022be5': {
-                'admin': 0,
-                'swap': 0,
-            },
+            # Check.
+            'address': '0x753bb855c8fe814233d26bb23af61cb3d2022be5',
+            'admin': 6000000000,
+            'swap': 4000000,
         },
     },
     'optimism': {
         'neth': {
-            '0xe27bff97ce92c3e1ff7aa9f86781fdd6d48f5ee9': {
-                'admin': 0,
-                'swap': 0,
-            },
+            # Check.
+            'address': '0xe27bff97ce92c3e1ff7aa9f86781fdd6d48f5ee9',
+            'admin': 6000000000,
+            'swap': 4000000,
         },
     },
 }
 
-# https://github.com/synapsecns/synapse-contracts/blob/master/contracts/amm/SwapUtils.sol
+# https://github.com/synapsecns/synapse-contracts/blob/b3829f7c2177e9daf35d176713243acb6c43ea2b/contracts/amm/SwapUtils.sol#L112
 FEE_DENOMINATOR = 10**10
+FEE_DECIMALS = 10
+
+_chain_fee: Dict[str, Dict[str, Dict[str, int]]] = defaultdict(dict)
+
+
+def _address_to_pool(chain: str,
+                     address: str) -> Union[Literal['nusd'], Literal['neth']]:
+    for k, v in POOLS[chain].items():
+        if cast(str, v['address']).lower() == address.lower():
+            return k  # type: ignore
+
+    raise RuntimeError(f"{address} not found in {chain}'s pools")
 
 
 def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
@@ -134,5 +148,94 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
 
     event = TOPICS[topic]
     data = contract.events[event]().processLog(log)
-    # TODO(blaze): finish.
-    print(chain, event, log['transactionHash'].hex(), data)
+    pool = _address_to_pool(chain, address)
+
+    block_n = log['blockNumber']
+    timestamp = w3.eth.get_block(block_n)['timestamp']  # type: ignore
+    date = datetime.utcfromtimestamp(timestamp).date()
+
+    if pool not in _chain_fee[chain]:
+        _chain_fee[chain][pool] = {
+            'admin': cast(int, POOLS[chain][pool]['admin']),
+            'swap': cast(int, POOLS[chain][pool]['swap']),
+        }
+
+    TOPICS_REVERSE = {v: k for k, v in TOPICS.items()}
+    admin_fee = _chain_fee[chain][pool]['admin']
+    swap_fee = _chain_fee[chain][pool]['swap']
+    data = data['args']
+
+    newfee: Optional[Union[Literal['swap'], Literal['admin']]] = None
+
+    # Wen match-case syntax?
+    if topic in [
+            TOPICS_REVERSE['RemoveLiquidityOne'], TOPICS_REVERSE['TokenSwap']
+    ]:
+        total_fees = Decimal(
+            data['tokensBought']) * Decimal(swap_fee) / Decimal(
+                (FEE_DENOMINATOR - swap_fee) * 10**TOKEN_DECIMALS[chain][
+                    TOKENS_IN_POOL[chain][pool][data['boughtId']].lower()])
+        admin_lps_fees = handle_decimals(total_fees * admin_fee, FEE_DECIMALS)
+        lp_fees = total_fees - admin_lps_fees
+    elif topic == TOPICS_REVERSE['NewSwapFee']:
+        _chain_fee[chain]['swap'] = data['newSwapFee']
+        newfee = 'swap'
+    elif topic == TOPICS_REVERSE['NewAdminFee']:
+        _chain_fee[chain]['admin'] = data['newAdminFee']
+        newfee = 'admin'
+    elif topic == TOPICS_REVERSE['AddLiquidity']:
+        fees = data['fees']
+        # Pools are (WETH, NETH) & (STABLES) - all practically have the same peg.
+        total_fees = Decimal(0)
+
+        for i, token in TOKENS_IN_POOL[chain][pool].items():
+            total_fees += handle_decimals(fees[i],
+                                          TOKEN_DECIMALS[chain][token.lower()])
+
+        admin_lps_fees = handle_decimals(total_fees * admin_fee, FEE_DECIMALS)
+        lp_fees = total_fees - admin_lps_fees
+    else:
+        print(topic, 'unsupported', data, chain, log)
+
+        # TODO: dont skip...
+        logging.critical(
+            f'{chain} is skipping block({block_n}) in pool callback')
+        LOGS_REDIS_URL.rpush(f'{chain}:pool:skipped', block_n)
+        return
+
+    key = f'{chain}:pool:{date}:{pool}'
+    if newfee is not None:
+        value = _chain_fee[chain][newfee]
+    else:
+        # Vars WILL NOT be unbound, stupid linter.
+        value = {
+            'lp_fees': lp_fees,  # type: ignore
+            'admin_fees': admin_lps_fees,  # type: ignore
+            'tx_count': 1,
+        }
+
+    if (ret := LOGS_REDIS_URL.get(key)) is not None:
+        ret = json.loads(ret, use_decimal=True)
+
+        if newfee is not None:
+            # New fee was set.
+            ret['newfee_' + newfee] = value
+        else:
+            # A swap event.
+            ret['admin_fees'] += value['admin_fees']
+            ret['lp_fees'] += value['lp_fees']
+
+        # NOTE: many aggregators create txs with many pool events in 1 tx,
+        # so in reality this is more like `event_count` rather than `tx_count`.
+        # Quite inconsistent with :func:`bridge_callback`.
+        ret['tx_count'] += 1
+        LOGS_REDIS_URL.set(key, json.dumps(ret))
+    else:
+        # TODO: possibly check if we got an earlier block before the one set in
+        # :func:`bridge_callback`, but it adds computational cost.
+        LOGS_REDIS_URL.set(key, json.dumps(value))
+
+    LOGS_REDIS_URL.set(f'{chain}:pool:{address}:MAX_BLOCK_STORED',
+                       log['blockNumber'])
+    LOGS_REDIS_URL.set(f'{chain}:pool:{address}:TX_INDEX',
+                       log['transactionIndex'])
