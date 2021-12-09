@@ -128,6 +128,7 @@ SYN_DATA = {
         "usdlp": "0x55904f416586b5140a0f666cf5acf320adf64846",
         "bridge": "0xc05e61d0e7a63d27546389b7ad62fdff5a91aace",
         "minichef": "0x3a01521F8E7F012eB37eAAf1cb9490a5d9e18249",
+        "ethpool": "0x77a7e60555bC18B4Be44C181b2575eee46212d44",
     },
     "bsc": {
         "rpc": os.getenv('BSC_RPC'),
