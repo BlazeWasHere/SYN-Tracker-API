@@ -451,6 +451,39 @@
         "tags": ["Bridge Volume"]
       }
     },
+    "/api/v1/analytics/volume/total/tx_count": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    },
+                    "totals": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "total tx count of every chain",
+        "tags": ["Bridge Volume"]
+      }
+    },
     "/api/v1/analytics/volume/{chain}/filter/{token}/{direction}": {
       "get": {
         "parameters": [

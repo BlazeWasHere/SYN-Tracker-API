@@ -103,6 +103,32 @@ def get_chain_volume_total() -> Dict[str, Any]:
     return {'data': res, 'totals': totals}
 
 
+def get_chain_tx_count_total() -> Dict[str, Dict[str, Decimal]]:
+    def recursive_defaultdict() -> DefaultDict:
+        return defaultdict(recursive_defaultdict)
+
+    res = recursive_defaultdict()
+
+    ret = get_all_keys(f'*:bridge:*:IN',
+                       serialize=True,
+                       client=LOGS_REDIS_URL,
+                       index=False)
+
+    for k, v in ret.items():
+        chain, _, date, _, _ = k.split(':')
+        add_to_dict(res[chain], date, v['txCount'])
+
+    totals: Dict[str, Decimal] = {}
+
+    # Calculate totals for each day.
+    for date, data in copy.deepcopy(res).items():
+        for chain, v in data.items():
+            add_to_dict(res[date], 'total', v)
+            add_to_dict(totals, chain, v)
+
+    return {'data': res, 'totals': totals}
+
+
 def get_chain_volume_for_address(address: str,
                                  chain: str,
                                  direction: str = '*') -> Dict[str, Any]:
