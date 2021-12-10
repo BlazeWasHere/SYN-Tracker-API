@@ -28,6 +28,7 @@ c = request._session_cache.get_size()
 assert b != c, '_session_cache size did not change'
 assert c == n, 'new _session_cache size is not what we set it to'
 
+from flask.wrappers import Response
 import simplejson as json
 from flask import Flask
 
@@ -95,5 +96,11 @@ def init() -> Flask:
     app.config.from_mapping(SCHEDULER_CONFIG)
     schedular.init_app(app)
     cache.init_app(app)
+
+    @app.after_request
+    def after_request(response: Response):
+        header = response.headers
+        header['Access-Control-Allow-Origin'] = '*'
+        return response
 
     return app
