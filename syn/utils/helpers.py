@@ -231,6 +231,7 @@ def dispatch_get_logs(
                 },
                 'avalanche': {
                     'nusd': 6619002,
+                    'neth': 7378400,
                 },
                 'bsc': {
                     'nusd': 12431591,
