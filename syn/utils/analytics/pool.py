@@ -57,6 +57,11 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
             'admin': 6000000000,
             'swap': 4000000
         },
+        'neth': {
+            'address': '0x77a7e60555bC18B4Be44C181b2575eee46212d44',
+            'admin': 6000000000,
+            'swap': 4000000,
+        },
     },
     'bsc': {
         'nusd': {
