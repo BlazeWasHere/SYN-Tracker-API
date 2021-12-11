@@ -83,12 +83,13 @@ def get_chain_volume_total() -> Dict[str, Any]:
     for chain in SYN_DATA.keys():
         jobs[chain] = gevent.spawn(get_chain_volume, chain, 'IN')
 
+    gevent.joinall(jobs.values())
+
     for chain, job in jobs.items():
         assert chain not in res
         ret = raise_if(job.get(), None)['data']
 
         for data in ret.values():
-
             for date, _data in data['data'].items():
                 add_to_dict(res[date], chain, _data['price_usd'])
 
@@ -209,14 +210,16 @@ def get_chain_volume(chain: str, direction: str = '*') -> Dict[str, Any]:
     symbols = list(symbol_to_address[chain].keys())
     res = defaultdict(dict)
 
-    for token, job in jobs.items():
-        assert token not in res
-        res[token] = raise_if(job.get(), None)
-
     # Create totals including everything.
     volume: Dict[str, Dict[str, Union[float, str]]] = {}
     total_usd_current: int = 0
     total_usd_adj: int = 0
+
+    gevent.joinall(jobs.values())
+
+    for token, job in jobs.items():
+        assert token not in res
+        res[token] = raise_if(job.get(), None)
 
     for token, v in res.items():
         total_usd_current += v['stats']['usd']['current']
