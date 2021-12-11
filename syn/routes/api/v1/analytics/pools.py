@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, get_args
 from collections import defaultdict
 from itertools import chain
 from decimal import Decimal
@@ -18,6 +18,7 @@ from gevent.greenlet import Greenlet
 from gevent.pool import Pool
 import gevent
 
+from syn.utils.analytics.pool import Pools, get_swap_volume_for_pool
 from syn.utils.data import SYN_DATA, cache, _forced_update
 from syn.utils.contract import get_virtual_price
 from syn.utils.helpers import raise_if
@@ -90,6 +91,21 @@ def price_virtual():
             _convert_ret(raise_if(x.get(), None)[k], res[k])
 
     return jsonify(res)
+
+
+@pools_bp.route('/volume/<chain:chain>/',
+                defaults={'pool': ''},
+                methods=['GET'])
+@pools_bp.route('/volume/<chain:chain>/<pool>', methods=['GET'])
+@cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
+def volume_pool(chain: str, pool: Pools):
+    if pool not in get_args(Pools):
+        return (jsonify({
+            'error': 'invalid pool',
+            'valids': get_args(Pools),
+        }), 400)
+
+    return jsonify(get_swap_volume_for_pool(pool, chain))
 
 
 #@pools_bp.route('/price/virtual/<chain>/<date:date>', methods=['GET'])

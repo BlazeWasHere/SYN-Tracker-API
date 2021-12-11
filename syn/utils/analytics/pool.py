@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Dict, Literal, Optional, Union, cast
+from typing import Any, Dict, Literal, Optional, Union, cast, get_args
 from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
@@ -18,8 +18,11 @@ import simplejson as json
 from web3 import Web3
 
 from syn.utils.data import SYN_DATA, POOL_ABI, TOKEN_DECIMALS, LOGS_REDIS_URL
-from syn.utils.helpers import convert, handle_decimals
+from syn.utils.helpers import convert, get_all_keys, handle_decimals
+from syn.utils.price import CoingeckoIDS, get_historic_price
 from syn.utils.explorer.data import TOKENS_IN_POOL
+
+Pools = Literal['nusd', 'neth']
 
 TOPICS = {
     '0xc6c1e0630dbe9130cc068028486c0d118ddcea348550819defd5cb8c257f8a38':
@@ -239,3 +242,35 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
                        log['blockNumber'])
     LOGS_REDIS_URL.set(f'{chain}:pool:{address}:TX_INDEX',
                        log['transactionIndex'])
+
+
+def get_swap_volume_for_pool(pool: Pools, chain: str) -> Dict[str, Any]:
+    assert pool in get_args(Pools), f'invalid pool: {pool!r}'
+
+    res = defaultdict(dict)
+
+    ret: Dict[str, Dict[str, str]] = get_all_keys(f'{chain}:pool:*:{pool}',
+                                                  client=LOGS_REDIS_URL,
+                                                  index=2,
+                                                  serialize=True)
+
+    for k, v in ret.items():
+        # For simplicity's sake, we disregard virtual prices & pool token
+        # fluctuations, so nusd, dai, usdc, busd, ... = $1
+        if pool == 'neth':
+            price = get_historic_price(CoingeckoIDS.ETH, k)
+        elif pool == 'nusd':
+            price = 1
+
+        res[k] = {
+            'lp_fees': Decimal(v['lp_fees']),
+            'admin_fees': Decimal(v['admin_fees']),
+            'tx_count': v['tx_count'],
+        }
+
+        res[k].update({
+            'lp_fees_usd': price * res[k]['lp_fees'],
+            'admin_fees_usd': price * res[k]['admin_fees'],
+        })
+
+    return res

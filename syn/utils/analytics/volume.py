@@ -27,7 +27,7 @@ from syn.utils.cache import timed_cache
 def create_totals(
         res: Dict[str, Any],
         chain: str,
-        address: Union[str, CoingeckoIDS],
+        address: Union[str, CoingeckoIDS, float, int],
         is_out: bool = True,
         key: str = 'volume') -> Tuple[Dict[str, Decimal], float, float]:
     total_volume: DefaultDict[str, Decimal] = defaultdict(Decimal)
@@ -64,6 +64,8 @@ def create_totals(
 
     if isinstance(address, CoingeckoIDS):
         price = get_price_coingecko(address)
+    elif isinstance(address, (int, float)):
+        price = address
     else:
         price = get_price_for_address(chain, address)
 

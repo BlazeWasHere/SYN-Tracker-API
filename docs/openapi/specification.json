@@ -18,6 +18,10 @@
         "pattern": "/([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/",
         "example": "2021-11-29"
       },
+      "Pools": {
+        "type": "string",
+        "enum": ["nusd", "neth"]
+      },
       "Chains": {
         "type": "string",
         "enum": [
@@ -1147,6 +1151,66 @@
           }
         },
         "summary": "view virtual price for all chains of a pool",
+        "tags": ["Pools"]
+      }
+    },
+    "/api/v1/analytics/pools/volume/{chain}/{pool}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          },
+          {
+            "in": "path",
+            "name": "pool",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pools"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                      "admin_fees": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "admin_fees_usd": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "lp_fees": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "lp_fees_usd": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "tx_count": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "swap volume and fees produced for a pool on a chain",
         "tags": ["Pools"]
       }
     },
