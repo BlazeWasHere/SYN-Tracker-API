@@ -284,30 +284,33 @@ def get_swap_volume_for_pool(pool: Pools, chain: str) -> Dict[str, Any]:
 
     res = defaultdict(dict)
 
-    ret: Dict[str, Dict[str, str]] = get_all_keys(f'{chain}:pool:*:{pool}:*',
-                                                  client=LOGS_REDIS_URL,
-                                                  index=2,
-                                                  serialize=True)
+    for tx_type in ['add_remove', 'swap_base', 'swap_nusd']:
+        ret: Dict[str, Dict[str, str]] = get_all_keys(
+            f'{chain}:pool:*:{pool}:{tx_type}',
+            client=LOGS_REDIS_URL,
+            index=2,
+            serialize=True
+        )
 
-    for k, v in ret.items():
-        # For simplicity's sake, we disregard virtual prices & pool token
-        # fluctuations, so nusd, dai, usdc, busd, ... = $1
-        if pool == 'neth':
-            price = get_historic_price(CoingeckoIDS.ETH, k)
-        elif pool == 'nusd':
-            price = 1
+        for k, v in ret.items():
+            # For simplicity's sake, we disregard virtual prices & pool token
+            # fluctuations, so nusd, dai, usdc, busd, ... = $1
+            if pool == 'neth':
+                price = get_historic_price(CoingeckoIDS.ETH, k)
+            elif pool == 'nusd':
+                price = 1
 
-        res[k] = {
-            'volume': Decimal(v['volume']),
-            'lp_fees': Decimal(v['lp_fees']),
-            'admin_fees': Decimal(v['admin_fees']),
-            'tx_count': v['tx_count'],
-        }
+            res[k][tx_type] = {
+                'volume': Decimal(v['volume']),
+                'lp_fees': Decimal(v['lp_fees']),
+                'admin_fees': Decimal(v['admin_fees']),
+                'tx_count': v['tx_count'],
+            }
 
-        res[k].update({
-            'volume_usd': price * res[k]['volume'],
-            'lp_fees_usd': price * res[k]['lp_fees'],
-            'admin_fees_usd': price * res[k]['admin_fees'],
-        })
+            res[k][tx_type].update({
+                'volume_usd': price * res[k][tx_type]['volume'],
+                'lp_fees_usd': price * res[k][tx_type]['lp_fees'],
+                'admin_fees_usd': price * res[k][tx_type]['admin_fees'],
+            })
 
     return res
