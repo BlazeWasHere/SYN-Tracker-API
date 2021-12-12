@@ -186,12 +186,15 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
         admin_lps_fees = handle_decimals(total_fees * admin_fee, FEE_DECIMALS)
         lp_fees = total_fees - admin_lps_fees
     elif topic == TOPICS_REVERSE['NewSwapFee']:
-        _chain_fee[chain]['swap'] = data['newSwapFee']
+        _chain_fee[chain][pool]['swap'] = data['newSwapFee']
         newfee = 'swap'
     elif topic == TOPICS_REVERSE['NewAdminFee']:
-        _chain_fee[chain]['admin'] = data['newAdminFee']
+        _chain_fee[chain][pool]['admin'] = data['newAdminFee']
         newfee = 'admin'
-    elif topic == TOPICS_REVERSE['AddLiquidity']:
+    elif topic in [
+            TOPICS_REVERSE['AddLiquidity'],
+            TOPICS_REVERSE['RemoveLiquidityImbalance']
+    ]:
         fees = data['fees']
         # Pools are (WETH, NETH) & (STABLES) - all practically have the same peg.
         total_fees = Decimal(0)
