@@ -214,7 +214,26 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
         LOGS_REDIS_URL.rpush(f'{chain}:pool:skipped', block_n)
         return
 
-    key = f'{chain}:pool:{date}:{pool}'
+    if topic in [
+        TOPICS_REVERSE['AddLiquidity'],
+        TOPICS_REVERSE['RemoveLiquidityOne'],
+        TOPICS_REVERSE['RemoveLiquidityImbalance']
+    ]:
+        tx_type = ':add_remove'
+    elif topic == TOPICS_REVERSE['TokenSwap']:
+        # We want to track "base swaps" - swaps between non-nUSD tokens
+        # Swaps on Ethereum are always "base"
+        # Swaps on other chains are base if both tokens ID > 0,
+        # as nUSD is always the first token in the pool (ID = 0)
+        if chain == 'ethereum' or \
+                (data['soldId'] > 0 and data['boughtId'] > 0):
+            tx_type = ':swap_base'
+        else:
+            tx_type = ':swap_nusd'
+    else:
+        tx_type = ''
+
+    key = f'{chain}:pool:{date}:{pool}{tx_type}'
     if newfee is not None:
         value = _chain_fee[chain][newfee]
     else:
