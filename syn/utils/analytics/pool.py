@@ -281,7 +281,7 @@ def get_swap_volume_for_pool(pool: Pools, chain: str) -> Dict[str, Any]:
 
     res = defaultdict(dict)
 
-    for tx_type in ['add_remove', 'swap_base', 'swap_nusd']:
+    for tx_type in ['add_remove', 'swap_base', 'swap_nexus']:
         ret: Dict[str, Dict[str, str]] = get_all_keys(
             f'{chain}:pool:*:{pool}:{tx_type}',
             client=LOGS_REDIS_URL,
