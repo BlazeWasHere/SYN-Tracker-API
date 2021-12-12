@@ -236,10 +236,11 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
             ret['admin_fees'] += value['admin_fees']
             ret['lp_fees'] += value['lp_fees']
 
-        # NOTE: many aggregators create txs with many pool events in 1 tx,
-        # so in reality this is more like `event_count` rather than `tx_count`.
-        # Quite inconsistent with :func:`bridge_callback`.
-        ret['tx_count'] += 1
+            # NOTE: many aggregators create txs with many pool events in 1 tx,
+            # so in reality this is more like `event_count` rather than `tx_count`.
+            # Quite inconsistent with :func:`bridge_callback`.
+            ret['tx_count'] += 1
+
         LOGS_REDIS_URL.set(key, json.dumps(ret))
     else:
         # TODO: possibly check if we got an earlier block before the one set in
