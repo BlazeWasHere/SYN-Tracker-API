@@ -42,7 +42,7 @@ TOPICS = {
 #: NOTE: all the fees here are INITIAL fees which can be changed later on,
 #: thus us tracking `NewSwapFee` and `NewAdminFee`
 #: Similar schema as :file:`syn/utils/explorer/data.py#L90`
-# TODO: pls somone check these numbers, whoever is reading this code, ty!
+# All fee numbers appear to have been checked
 POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     'ethereum': {
         'nusd': {
@@ -79,15 +79,13 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     },
     'arbitrum': {
         'nusd': {
-            # Check.
             'address': '0x0db3fe3b770c95a0b99d1ed6f2627933466c0dd8',
             'admin': 6000000000,
             'swap': 4000000,
         },
         'neth': {
-            # Check.
             'address': '0xa067668661c84476afcdc6fa5d758c4c01c34352',
-            'admin': 6000000000,
+            'admin': 0,
             'swap': 4000000,
         },
     },
@@ -100,7 +98,6 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     },
     'harmony': {
         'nusd': {
-            # Check.
             'address': '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e',
             'admin': 6000000000,
             'swap': 4000000,
@@ -108,13 +105,11 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     },
     'boba': {
         'nusd': {
-            # Check.
             'address': '0x75ff037256b36f15919369ac58695550be72fead',
             'admin': 6000000000,
             'swap': 4000000,
         },
         'neth': {
-            # Check.
             'address': '0x753bb855c8fe814233d26bb23af61cb3d2022be5',
             'admin': 6000000000,
             'swap': 4000000,
@@ -122,7 +117,6 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     },
     'optimism': {
         'neth': {
-            # Check.
             'address': '0xe27bff97ce92c3e1ff7aa9f86781fdd6d48f5ee9',
             'admin': 6000000000,
             'swap': 4000000,
