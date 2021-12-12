@@ -179,12 +179,14 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
     if topic in [
             TOPICS_REVERSE['RemoveLiquidityOne'], TOPICS_REVERSE['TokenSwap']
     ]:
+        decimals = TOKEN_DECIMALS[chain][
+                    TOKENS_IN_POOL[chain][pool][data['boughtId']].lower()]
         total_fees = Decimal(
             data['tokensBought']) * Decimal(swap_fee) / Decimal(
-                (FEE_DENOMINATOR - swap_fee) * 10**TOKEN_DECIMALS[chain][
-                    TOKENS_IN_POOL[chain][pool][data['boughtId']].lower()])
+                (FEE_DENOMINATOR - swap_fee) * 10**decimals)
         admin_lps_fees = handle_decimals(total_fees * admin_fee, FEE_DECIMALS)
         lp_fees = total_fees - admin_lps_fees
+        volume = handle_decimals(data['tokensBought'], decimals)
     elif topic == TOPICS_REVERSE['NewSwapFee']:
         _chain_fee[chain][pool]['swap'] = data['newSwapFee']
         newfee = 'swap'
@@ -196,12 +198,15 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
             TOPICS_REVERSE['RemoveLiquidityImbalance']
     ]:
         fees = data['fees']
+        amounts = data['tokenAmounts']
         # Pools are (WETH, NETH) & (STABLES) - all practically have the same peg.
         total_fees = Decimal(0)
+        volume = Decimal(0)
 
         for i, token in TOKENS_IN_POOL[chain][pool].items():
-            total_fees += handle_decimals(fees[i],
-                                          TOKEN_DECIMALS[chain][token.lower()])
+            decimals = TOKEN_DECIMALS[chain][token.lower()]
+            total_fees += handle_decimals(fees[i], decimals)
+            volume += handle_decimals(amounts[i], decimals)
 
         admin_lps_fees = handle_decimals(total_fees * admin_fee, FEE_DECIMALS)
         lp_fees = total_fees - admin_lps_fees
@@ -241,6 +246,7 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
         value = {
             'lp_fees': lp_fees,  # type: ignore
             'admin_fees': admin_lps_fees,  # type: ignore
+            'volume': volume,  # type: ignore
             'tx_count': 1,
         }
 
@@ -254,6 +260,7 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
             # A swap event.
             ret['admin_fees'] += value['admin_fees']
             ret['lp_fees'] += value['lp_fees']
+            ret['volume'] += value['volume']
 
             # NOTE: many aggregators create txs with many pool events in 1 tx,
             # so in reality this is more like `event_count` rather than `tx_count`.
