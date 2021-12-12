@@ -226,21 +226,24 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
     ]:
         tx_type = ':add_remove'
     elif topic == TOPICS_REVERSE['TokenSwap']:
-        # We want to track "base swaps" - swaps between non-nUSD tokens
+        # We want to track "base swaps" - swaps between non-nexus tokens
         # Swaps on Ethereum are always "base"
         # Swaps on other chains are base if both tokens ID > 0,
-        # as nUSD is always the first token in the pool (ID = 0)
+        # as nexus token is always the first token in the pool (ID = 0)
         if chain == 'ethereum' or \
                 (data['soldId'] > 0 and data['boughtId'] > 0):
             tx_type = ':swap_base'
         else:
-            tx_type = ':swap_nusd'
+            tx_type = ':swap_nexus'
     else:
-        tx_type = ''
+        tx_type = ':new_fee'
 
     key = f'{chain}:pool:{date}:{pool}{tx_type}'
     if newfee is not None:
-        value = _chain_fee[chain][pool][newfee]
+        key_fee = 'newfee_' + newfee
+        value = {
+            key_fee: _chain_fee[chain][pool][newfee]
+        }
     else:
         # Vars WILL NOT be unbound, stupid linter.
         value = {
@@ -255,7 +258,7 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
 
         if newfee is not None:
             # New fee was set.
-            ret['newfee_' + newfee] = value
+            ret[key_fee] = value[key_fee]
         else:
             # A swap event.
             ret['admin_fees'] += value['admin_fees']
