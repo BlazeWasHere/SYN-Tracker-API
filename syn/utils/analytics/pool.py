@@ -240,7 +240,7 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
 
     key = f'{chain}:pool:{date}:{pool}{tx_type}'
     if newfee is not None:
-        value = _chain_fee[chain][newfee]
+        value = _chain_fee[chain][pool][newfee]
     else:
         # Vars WILL NOT be unbound, stupid linter.
         value = {
