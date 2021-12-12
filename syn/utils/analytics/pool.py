@@ -244,9 +244,9 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
     else:
         # Vars WILL NOT be unbound, stupid linter.
         value = {
+            'volume': volume,  # type: ignore
             'lp_fees': lp_fees,  # type: ignore
             'admin_fees': admin_lps_fees,  # type: ignore
-            'volume': volume,  # type: ignore
             'tx_count': 1,
         }
 
@@ -284,7 +284,7 @@ def get_swap_volume_for_pool(pool: Pools, chain: str) -> Dict[str, Any]:
 
     res = defaultdict(dict)
 
-    ret: Dict[str, Dict[str, str]] = get_all_keys(f'{chain}:pool:*:{pool}',
+    ret: Dict[str, Dict[str, str]] = get_all_keys(f'{chain}:pool:*:{pool}:*',
                                                   client=LOGS_REDIS_URL,
                                                   index=2,
                                                   serialize=True)
@@ -298,12 +298,14 @@ def get_swap_volume_for_pool(pool: Pools, chain: str) -> Dict[str, Any]:
             price = 1
 
         res[k] = {
+            'volume': Decimal(v['volume']),
             'lp_fees': Decimal(v['lp_fees']),
             'admin_fees': Decimal(v['admin_fees']),
             'tx_count': v['tx_count'],
         }
 
         res[k].update({
+            'volume_usd': price * res[k]['volume'],
             'lp_fees_usd': price * res[k]['lp_fees'],
             'admin_fees_usd': price * res[k]['admin_fees'],
         })
