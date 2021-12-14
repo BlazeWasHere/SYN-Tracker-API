@@ -22,6 +22,36 @@
         "type": "string",
         "enum": ["nusd", "neth"]
       },
+      "SwapVolumeResponse": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "admin_fees": {
+                "type": "number",
+                "format": "float"
+              },
+              "admin_fees_usd": {
+                "type": "number",
+                "format": "float"
+              },
+              "lp_fees": {
+                "type": "number",
+                "format": "float"
+              },
+              "lp_fees_usd": {
+                "type": "number",
+                "format": "float"
+              },
+              "tx_count": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
       "Chains": {
         "type": "string",
         "enum": [
@@ -1179,31 +1209,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "object",
-                    "properties": {
-                      "admin_fees": {
-                        "type": "number",
-                        "format": "float"
-                      },
-                      "admin_fees_usd": {
-                        "type": "number",
-                        "format": "float"
-                      },
-                      "lp_fees": {
-                        "type": "number",
-                        "format": "float"
-                      },
-                      "lp_fees_usd": {
-                        "type": "number",
-                        "format": "float"
-                      },
-                      "tx_count": {
-                        "type": "number"
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/SwapVolumeResponse"
                 }
               }
             },
