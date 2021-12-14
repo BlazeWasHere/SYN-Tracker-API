@@ -42,7 +42,7 @@ TOPICS = {
 #: NOTE: all the fees here are INITIAL fees which can be changed later on,
 #: thus us tracking `NewSwapFee` and `NewAdminFee`
 #: Similar schema as :file:`syn/utils/explorer/data.py#L90`
-# TODO: pls somone check these numbers, whoever is reading this code, ty!
+# All fee numbers appear to have been checked
 POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     'ethereum': {
         'nusd': {
@@ -79,15 +79,13 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     },
     'arbitrum': {
         'nusd': {
-            # Check.
             'address': '0x0db3fe3b770c95a0b99d1ed6f2627933466c0dd8',
             'admin': 6000000000,
             'swap': 4000000,
         },
         'neth': {
-            # Check.
             'address': '0xa067668661c84476afcdc6fa5d758c4c01c34352',
-            'admin': 6000000000,
+            'admin': 0,
             'swap': 4000000,
         },
     },
@@ -100,7 +98,6 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     },
     'harmony': {
         'nusd': {
-            # Check.
             'address': '0x3ea9b0ab55f34fb188824ee288ceaefc63cf908e',
             'admin': 6000000000,
             'swap': 4000000,
@@ -108,13 +105,11 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     },
     'boba': {
         'nusd': {
-            # Check.
             'address': '0x75ff037256b36f15919369ac58695550be72fead',
             'admin': 6000000000,
             'swap': 4000000,
         },
         'neth': {
-            # Check.
             'address': '0x753bb855c8fe814233d26bb23af61cb3d2022be5',
             'admin': 6000000000,
             'swap': 4000000,
@@ -122,7 +117,6 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     },
     'optimism': {
         'neth': {
-            # Check.
             'address': '0xe27bff97ce92c3e1ff7aa9f86781fdd6d48f5ee9',
             'admin': 6000000000,
             'swap': 4000000,
@@ -179,26 +173,34 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
     if topic in [
             TOPICS_REVERSE['RemoveLiquidityOne'], TOPICS_REVERSE['TokenSwap']
     ]:
+        decimals = TOKEN_DECIMALS[chain][
+                    TOKENS_IN_POOL[chain][pool][data['boughtId']].lower()]
         total_fees = Decimal(
             data['tokensBought']) * Decimal(swap_fee) / Decimal(
-                (FEE_DENOMINATOR - swap_fee) * 10**TOKEN_DECIMALS[chain][
-                    TOKENS_IN_POOL[chain][pool][data['boughtId']].lower()])
+                (FEE_DENOMINATOR - swap_fee) * 10**decimals)
         admin_lps_fees = handle_decimals(total_fees * admin_fee, FEE_DECIMALS)
         lp_fees = total_fees - admin_lps_fees
+        volume = handle_decimals(data['tokensBought'], decimals)
     elif topic == TOPICS_REVERSE['NewSwapFee']:
-        _chain_fee[chain]['swap'] = data['newSwapFee']
+        _chain_fee[chain][pool]['swap'] = data['newSwapFee']
         newfee = 'swap'
     elif topic == TOPICS_REVERSE['NewAdminFee']:
-        _chain_fee[chain]['admin'] = data['newAdminFee']
+        _chain_fee[chain][pool]['admin'] = data['newAdminFee']
         newfee = 'admin'
-    elif topic == TOPICS_REVERSE['AddLiquidity']:
+    elif topic in [
+            TOPICS_REVERSE['AddLiquidity'],
+            TOPICS_REVERSE['RemoveLiquidityImbalance']
+    ]:
         fees = data['fees']
+        amounts = data['tokenAmounts']
         # Pools are (WETH, NETH) & (STABLES) - all practically have the same peg.
         total_fees = Decimal(0)
+        volume = Decimal(0)
 
         for i, token in TOKENS_IN_POOL[chain][pool].items():
-            total_fees += handle_decimals(fees[i],
-                                          TOKEN_DECIMALS[chain][token.lower()])
+            decimals = TOKEN_DECIMALS[chain][token.lower()]
+            total_fees += handle_decimals(fees[i], decimals)
+            volume += handle_decimals(amounts[i], decimals)
 
         admin_lps_fees = handle_decimals(total_fees * admin_fee, FEE_DECIMALS)
         lp_fees = total_fees - admin_lps_fees
@@ -211,12 +213,35 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
         LOGS_REDIS_URL.rpush(f'{chain}:pool:skipped', block_n)
         return
 
-    key = f'{chain}:pool:{date}:{pool}'
+    if topic in [
+        TOPICS_REVERSE['AddLiquidity'],
+        TOPICS_REVERSE['RemoveLiquidityOne'],
+        TOPICS_REVERSE['RemoveLiquidityImbalance']
+    ]:
+        tx_type = ':add_remove'
+    elif topic == TOPICS_REVERSE['TokenSwap']:
+        # We want to track "base swaps" - swaps between non-nexus tokens
+        # Swaps on Ethereum are always "base"
+        # Swaps on other chains are base if both tokens ID > 0,
+        # as nexus token is always the first token in the pool (ID = 0)
+        if chain == 'ethereum' or \
+                (data['soldId'] > 0 and data['boughtId'] > 0):
+            tx_type = ':swap_base'
+        else:
+            tx_type = ':swap_nexus'
+    else:
+        tx_type = ':new_fee'
+
+    key = f'{chain}:pool:{date}:{pool}{tx_type}'
     if newfee is not None:
-        value = _chain_fee[chain][newfee]
+        key_fee = 'newfee_' + newfee
+        value = {
+            key_fee: _chain_fee[chain][pool][newfee]
+        }
     else:
         # Vars WILL NOT be unbound, stupid linter.
         value = {
+            'volume': volume,  # type: ignore
             'lp_fees': lp_fees,  # type: ignore
             'admin_fees': admin_lps_fees,  # type: ignore
             'tx_count': 1,
@@ -227,16 +252,18 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
 
         if newfee is not None:
             # New fee was set.
-            ret['newfee_' + newfee] = value
+            ret[key_fee] = value[key_fee]
         else:
             # A swap event.
             ret['admin_fees'] += value['admin_fees']
             ret['lp_fees'] += value['lp_fees']
+            ret['volume'] += value['volume']
 
-        # NOTE: many aggregators create txs with many pool events in 1 tx,
-        # so in reality this is more like `event_count` rather than `tx_count`.
-        # Quite inconsistent with :func:`bridge_callback`.
-        ret['tx_count'] += 1
+            # NOTE: many aggregators create txs with many pool events in 1 tx,
+            # so in reality this is more like `event_count` rather than `tx_count`.
+            # Quite inconsistent with :func:`bridge_callback`.
+            ret['tx_count'] += 1
+
         LOGS_REDIS_URL.set(key, json.dumps(ret))
     else:
         # TODO: possibly check if we got an earlier block before the one set in
@@ -254,28 +281,33 @@ def get_swap_volume_for_pool(pool: Pools, chain: str) -> Dict[str, Any]:
 
     res = defaultdict(dict)
 
-    ret: Dict[str, Dict[str, str]] = get_all_keys(f'{chain}:pool:*:{pool}',
-                                                  client=LOGS_REDIS_URL,
-                                                  index=2,
-                                                  serialize=True)
+    for tx_type in ['add_remove', 'swap_base', 'swap_nexus']:
+        ret: Dict[str, Dict[str, str]] = get_all_keys(
+            f'{chain}:pool:*:{pool}:{tx_type}',
+            client=LOGS_REDIS_URL,
+            index=2,
+            serialize=True
+        )
 
-    for k, v in ret.items():
-        # For simplicity's sake, we disregard virtual prices & pool token
-        # fluctuations, so nusd, dai, usdc, busd, ... = $1
-        if pool == 'neth':
-            price = get_historic_price(CoingeckoIDS.ETH, k)
-        elif pool == 'nusd':
-            price = 1
+        for k, v in ret.items():
+            # For simplicity's sake, we disregard virtual prices & pool token
+            # fluctuations, so nusd, dai, usdc, busd, ... = $1
+            if pool == 'neth':
+                price = get_historic_price(CoingeckoIDS.ETH, k)
+            elif pool == 'nusd':
+                price = 1
 
-        res[k] = {
-            'lp_fees': Decimal(v['lp_fees']),
-            'admin_fees': Decimal(v['admin_fees']),
-            'tx_count': v['tx_count'],
-        }
+            res[k][tx_type] = {
+                'volume': Decimal(v['volume']),
+                'lp_fees': Decimal(v['lp_fees']),
+                'admin_fees': Decimal(v['admin_fees']),
+                'tx_count': v['tx_count'],
+            }
 
-        res[k].update({
-            'lp_fees_usd': price * res[k]['lp_fees'],
-            'admin_fees_usd': price * res[k]['admin_fees'],
-        })
+            res[k][tx_type].update({
+                'volume_usd': price * res[k][tx_type]['volume'],
+                'lp_fees_usd': price * res[k][tx_type]['lp_fees'],
+                'admin_fees_usd': price * res[k][tx_type]['admin_fees'],
+            })
 
     return res
