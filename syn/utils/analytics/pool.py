@@ -173,11 +173,11 @@ def pool_callback(chain: str, address: str, log: LogReceipt,
 
         key = lambda x: datetime.fromisoformat(x)
 
-        if _admin_fees is not None:
+        if _admin_fees:
             _chain_fee[chain][pool]['admin'] = int(_admin_fees[max(
                 _admin_fees.keys(), key=key)])
 
-        if _swap_fees is not None:
+        if _swap_fees:
             _chain_fee[chain][pool]['swap'] = int(_swap_fees[max(
                 _swap_fees.keys(), key=key)])
 
