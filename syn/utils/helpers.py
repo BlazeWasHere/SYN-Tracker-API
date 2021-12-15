@@ -115,7 +115,8 @@ def store_volume_dict_to_redis(chain: str, _dict: Dict[str, Any]) -> None:
 def get_all_keys(pattern: str,
                  serialize: bool = False,
                  client: Redis = REDIS,
-                 index: Union[List[int], int] = 1) -> Dict[str, Any]:
+                 index: Union[List[int], int] = 1,
+                 use_max_of_duped_keys: bool = False) -> Dict[str, Any]:
     res = cast(Dict[str, Any], defaultdict(dict))
     assert isinstance(index, (int, list))
 
@@ -139,7 +140,10 @@ def get_all_keys(pattern: str,
                         assert len(index) == 2
                         key = ':'.join(key.split(':')[index[0]:index[1]])
 
-        res[key] = ret
+        if use_max_of_duped_keys and key in res and res[key]:
+            res[key] = max(res[key], ret)
+        else:
+            res[key] = ret
 
     return res
 

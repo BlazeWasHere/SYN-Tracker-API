@@ -28,7 +28,8 @@ def syncing():
     ret = get_all_keys('*MAX_BLOCK_STORED',
                        serialize=True,
                        index=0,
-                       client=LOGS_REDIS_URL)
+                       client=LOGS_REDIS_URL,
+                       use_max_of_duped_keys=True)
     res = defaultdict(dict)
 
     for chain, v in ret.items():
