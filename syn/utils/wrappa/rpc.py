@@ -244,23 +244,30 @@ def get_logs(
     topics: List[str] = list(TOPICS),
     key_namespace: str = 'logs',
     start_blocks: Dict[str, int] = _start_blocks,
+    prefer_db_values: bool = True,
 ) -> None:
     w3: Web3 = SYN_DATA[chain]['w3']
     _chain = f'[{chain}]'
     chain_len = max(len(c) for c in SYN_DATA) + 2
     tx_index = -1
 
-    if start_block is None:
+    if start_block is None or prefer_db_values:
         _key_block = f'{chain}:{key_namespace}:{address}:MAX_BLOCK_STORED'
         _key_index = f'{chain}:{key_namespace}:{address}:TX_INDEX'
 
         if (ret := LOGS_REDIS_URL.get(_key_block)) is not None:
-            start_block = max(int(ret), start_blocks[chain])
+            _start_block = max(int(ret), start_blocks[chain])
 
             if (ret := LOGS_REDIS_URL.get(_key_index)) is not None:
                 tx_index = int(ret)
         else:
-            start_block = start_blocks[chain]
+            _start_block = start_blocks[chain]
+
+        if start_block is not None and prefer_db_values:
+            # We don't want to go back in blocks we already checked.
+            start_block = max(_start_block, start_block)
+        else:
+            start_block = _start_block
 
     if till_block is None:
         till_block = w3.eth.block_number
