@@ -100,6 +100,7 @@ T = TypeVar('T')
 def bridge_callback(chain: str,
                     address: str,
                     log: LogReceipt,
+                    first_run: bool,
                     abi: str = BRIDGE_ABI) -> None:
     w3: Web3 = SYN_DATA[chain]['w3']
     contract = w3.eth.contract(w3.toChecksumAddress(address), abi=abi)
@@ -130,7 +131,7 @@ def bridge_callback(chain: str,
             else:
                 raise RuntimeError(f'sanity check? got invalid abi: {abi}')
 
-            return bridge_callback(chain, address, log, abi)
+            return bridge_callback(chain, address, log, first_run, abi)
 
         args = data['args']  # type: ignore
     elif direction == Direction.IN:
@@ -236,7 +237,7 @@ def bridge_callback(chain: str,
 
 def get_logs(
     chain: str,
-    callback: Callable[[str, str, LogReceipt], None],
+    callback: Callable[[str, str, LogReceipt, bool], None],
     address: str,
     start_block: int = None,
     till_block: int = None,
@@ -282,6 +283,7 @@ def get_logs(
 
     total_events = 0
     initial_block = start_block
+    first_run = True
 
     while start_block < till_block:
         to_block = min(start_block + max_blocks, till_block)
@@ -301,7 +303,10 @@ def get_logs(
               and log['transactionIndex'] <= tx_index:
                 continue
 
-            callback(chain, address, log)
+            callback(chain, address, log, first_run)
+
+            if first_run:
+                first_run = False
 
         start_block += max_blocks + 1
 

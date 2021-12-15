@@ -140,7 +140,8 @@ def _address_to_pool(chain: str,
     raise RuntimeError(f"{address} not found in {chain}'s pools")
 
 
-def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
+def pool_callback(chain: str, address: str, log: LogReceipt,
+                  first_run: bool) -> None:
     w3: Web3 = SYN_DATA[chain]['w3']
     contract = w3.eth.contract(w3.toChecksumAddress(address), abi=POOL_ABI)
 
@@ -162,6 +163,24 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
             'swap': cast(int, POOLS[chain][pool]['swap']),
         }
 
+    key_admin = f'{chain}:pool:{pool}:newadminfees'
+    key_swap = f'{chain}:pool:{pool}:newswapfees'
+
+    if first_run:
+        # Check previously set `newAdminFee` and `newSwapFee`.
+        _admin_fees = LOGS_REDIS_URL.hgetall(key_admin)
+        _swap_fees = LOGS_REDIS_URL.hgetall(key_swap)
+
+        key = lambda x: datetime.fromisoformat(x)
+
+        if _admin_fees is not None:
+            _chain_fee[chain][pool]['admin'] = int(_admin_fees[max(
+                _admin_fees.keys(), key=key)])
+
+        if _swap_fees is not None:
+            _chain_fee[chain][pool]['swap'] = int(_swap_fees[max(
+                _swap_fees.keys(), key=key)])
+
     TOPICS_REVERSE = {v: k for k, v in TOPICS.items()}
     admin_fee = _chain_fee[chain][pool]['admin']
     swap_fee = _chain_fee[chain][pool]['swap']
@@ -173,8 +192,8 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
     if topic in [
             TOPICS_REVERSE['RemoveLiquidityOne'], TOPICS_REVERSE['TokenSwap']
     ]:
-        decimals = TOKEN_DECIMALS[chain][
-                    TOKENS_IN_POOL[chain][pool][data['boughtId']].lower()]
+        decimals = TOKEN_DECIMALS[chain][TOKENS_IN_POOL[chain][pool][
+            data['boughtId']].lower()]
         total_fees = Decimal(
             data['tokensBought']) * Decimal(swap_fee) / Decimal(
                 (FEE_DENOMINATOR - swap_fee) * 10**decimals)
@@ -182,9 +201,11 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
         lp_fees = total_fees - admin_lps_fees
         volume = handle_decimals(data['tokensBought'], decimals)
     elif topic == TOPICS_REVERSE['NewSwapFee']:
+        LOGS_REDIS_URL.hset(key_swap, str(date), data['newSwapFee'])
         _chain_fee[chain][pool]['swap'] = data['newSwapFee']
         newfee = 'swap'
     elif topic == TOPICS_REVERSE['NewAdminFee']:
+        LOGS_REDIS_URL.hset(key_admin, str(date), data['newAdminFee'])
         _chain_fee[chain][pool]['admin'] = data['newAdminFee']
         newfee = 'admin'
     elif topic in [
@@ -214,9 +235,9 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
         return
 
     if topic in [
-        TOPICS_REVERSE['AddLiquidity'],
-        TOPICS_REVERSE['RemoveLiquidityOne'],
-        TOPICS_REVERSE['RemoveLiquidityImbalance']
+            TOPICS_REVERSE['AddLiquidity'],
+            TOPICS_REVERSE['RemoveLiquidityOne'],
+            TOPICS_REVERSE['RemoveLiquidityImbalance']
     ]:
         tx_type = ':add_remove'
     elif topic == TOPICS_REVERSE['TokenSwap']:
@@ -235,9 +256,7 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
     key = f'{chain}:pool:{date}:{pool}{tx_type}'
     if newfee is not None:
         key_fee = 'newfee_' + newfee
-        value = {
-            key_fee: _chain_fee[chain][pool][newfee]
-        }
+        value = {key_fee: _chain_fee[chain][pool][newfee]}
     else:
         # Vars WILL NOT be unbound, stupid linter.
         value = {
@@ -252,7 +271,7 @@ def pool_callback(chain: str, address: str, log: LogReceipt) -> None:
 
         if newfee is not None:
             # New fee was set.
-            ret[key_fee] = value[key_fee]
+            ret[key_fee] = value[key_fee]  # type: ignore -> NOT UNBOUND!!!
         else:
             # A swap event.
             ret['admin_fees'] += value['admin_fees']
@@ -282,12 +301,11 @@ def get_swap_volume_for_pool(pool: Pools, chain: str) -> Dict[str, Any]:
     res = defaultdict(dict)
 
     for tx_type in ['add_remove', 'swap_base', 'swap_nexus']:
-        ret: Dict[str, Dict[str, str]] = get_all_keys(
-            f'{chain}:pool:*:{pool}:{tx_type}',
-            client=LOGS_REDIS_URL,
-            index=2,
-            serialize=True
-        )
+        x = Dict[str, Dict[str, str]]
+        ret: x = get_all_keys(f'{chain}:pool:*:{pool}:{tx_type}',
+                              client=LOGS_REDIS_URL,
+                              index=2,
+                              serialize=True)
 
         for k, v in ret.items():
             # For simplicity's sake, we disregard virtual prices & pool token
@@ -305,9 +323,12 @@ def get_swap_volume_for_pool(pool: Pools, chain: str) -> Dict[str, Any]:
             }
 
             res[k][tx_type].update({
-                'volume_usd': price * res[k][tx_type]['volume'],
-                'lp_fees_usd': price * res[k][tx_type]['lp_fees'],
-                'admin_fees_usd': price * res[k][tx_type]['admin_fees'],
+                'volume_usd':
+                price * res[k][tx_type]['volume'],
+                'lp_fees_usd':
+                price * res[k][tx_type]['lp_fees'],
+                'admin_fees_usd':
+                price * res[k][tx_type]['admin_fees'],
             })
 
     return res
