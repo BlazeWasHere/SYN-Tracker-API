@@ -127,13 +127,6 @@ def bridge_callback(chain: str,
         # All IN transactions are guaranteed to be
         # from validators to Bridge contract
         args = parse_tx_in(tx_data)
-        args_logs = parse_logs_in(log)
-        for key in args:
-            if key in args_logs and args[key] != args_logs[key]:
-                print(f'Chain = {chain}, tx_hash = {tx_hash.hex()}')
-                print(args)
-                print(args_logs)
-                raise RuntimeError(f'Mismatch on {chain}: {tx_hash.hex()}')
     else:
         raise RuntimeError(f'sanity check? got {direction}')
 
