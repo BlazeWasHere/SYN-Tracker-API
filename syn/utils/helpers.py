@@ -11,6 +11,8 @@ from typing import Any, List, Dict, Literal, Optional, TypeVar, Union, cast, \
     Callable
 from datetime import datetime, timedelta
 from collections import defaultdict
+
+from eth_typing import HexStr
 from hexbytes import HexBytes
 import contextlib
 import decimal
@@ -408,3 +410,117 @@ def worker_assert_lock(r: Redis, name: str,
     assert lock.locked(), 'lock does not exist'
     assert lock._held, f'lock not held by worker({id})'
     return lock
+
+
+def parse_tx_in(tx_input: HexStr) -> Dict[str, Union[int, str]]:
+    """
+    Parse transaction input for IN bridge transaction
+    :param tx_input: transaction input from eth.get_transaction()
+    :return: to, token, amount, fee
+    """
+    result: Dict[str, Union[int, str]] = {}
+    inp = tx_input[2:]  # Skip 0x
+    inp = inp[8:]  # Skip method hash
+
+    address_to = inp[:64]  # Get 'to'
+    result['to'] = '0x' + address_to[-40:]  # last 40 symbols is the address
+    inp = inp[64:]  # Skip 'to'
+
+    token = inp[:64]  # Get 'token'
+    result['token'] = '0x' + token[-40:]  # last 40 symbols is the address
+    inp = inp[64:]  # Skip 'token'
+
+    result['amount'] = int(inp[:64], 16)  # Get 'amount'
+    inp = inp[64:]  # Skip 'amount'
+
+    result['fee'] = int(inp[:64], 16)  # Get 'fee'
+
+    return result
+
+
+def parse_logs_in(
+        log_data: HexStr,
+        event: str
+) -> Dict[str, Union[int, str, bool]]:
+    """
+    Parse log event for IN bridge transaction
+    :param log_data: log data from eth.get_logs()
+    :param event: bridge event name
+    :return: token, amount, fee, [token_index_to, swap_success]
+    """
+    result: Dict[str, Union[int, str, bool]] = {}
+    data = log_data[2:]  # Skip 0x
+
+    token = data[:64]  # Get 'token'
+    result['token'] = '0x' + token[-40:]  # last 40 symbols is the address
+    data = data[64:]  # Skip 'token'
+
+    result['amount'] = int(data[:64], 16)  # Get 'amount'
+    data = data[64:]  # Skip 'amount'
+
+    result['fee'] = int(data[:64], 16)  # Get 'fee'
+    data = data[64:]  # Skip 'fee'
+
+    if event == 'TokenMintAndSwap':
+        data = data[64:]  # Skip 'token_index_from'
+
+        result['token_index_to'] = int(data[:64], 16)  # Get 'token_index_to'
+        data = data[64:]  # Skip 'token_index_to'
+
+        data = data[64:]  # Skip 'min_dy'
+        data = data[64:]  # Skip 'deadline'
+
+        result['swap_success'] = int(data[:64], 16) == 1  # Get 'swap_success'
+    elif event == 'TokenWithdrawAndRemove':
+        token_index_to = int(data[:64], 16)  # Get 'token_index_to'
+        data = data[64:]  # Skip 'token_index_to'
+
+        if token_index_to > 3:
+            # Older events have swapTokenAmount at this place
+            # If extracted value is >3, this is not an index,
+            # but rather an amount of tokens.
+            # Real token index is the next argument
+            token_index_to = int(data[:64], 16)  # Get real 'token_index_to'
+            data = data[64:]  # Skip 'token_index_to'
+
+        result['token_index_to'] = token_index_to
+
+        data = data[64:]  # Skip 'swap_min_amount'
+        data = data[64:]  # Skip 'deadline'
+        result['swap_success'] = int(data[:64], 16) == 1  # Get 'swap_success'
+
+    return result
+
+
+def parse_logs_out(
+        log_data: HexStr,
+        event: str
+) -> Dict[str, Union[int, str]]:
+    """
+    Parse log event for OUT bridge transaction
+    :param log_data: log data from eth.get_logs()
+    :param event: bridge event name
+    :return: chain_id, token, amount, [token_index_to]
+    """
+    result: Dict[str, Union[int, str]] = {}
+    data = log_data[2:]  # Skip 0x
+
+    result['chain_id'] = int(data[:64], 16)  # Get 'chain_id'
+    data = data[64:]  # Skip 'chain_id'
+
+    token = data[:64]  # Get 'token'
+    result['token'] = '0x' + token[-40:]  # last 40 symbols is the address
+    data = data[64:]  # Skip 'token'
+
+    result['amount'] = int(data[:64], 16)  # Get amount
+    data = data[64:]  # Skip 'amount'
+
+    if event.endswith('Swap'):
+        # TokenDepositAndSwap or TokenRedeemAndSwap
+        # events have identical structure
+        data = data[64:]  # Skip 'token_index_from'
+        result['token_index_to'] = int(data[:64], 16)  # Get 'token_index_to'
+    elif event == 'TokenRedeemAndRemove':
+        result['token_index_to'] = int(data[:64], 16)  # Get 'token_index_to'
+
+    return result

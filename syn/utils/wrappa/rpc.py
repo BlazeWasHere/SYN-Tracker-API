@@ -22,7 +22,7 @@ import gevent
 from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
     OLDERBRIDGE_ABI, TOKEN_DECIMALS
 from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals, \
-    get_airdrop_value_for_block, convert
+    get_airdrop_value_for_block, convert, parse_logs_out, parse_tx_in
 from syn.utils.explorer.data import TOPICS, Direction, TOPIC_TO_EVENT
 
 _start_blocks = {
@@ -114,26 +114,13 @@ def bridge_callback(chain: str,
     if topic not in TOPICS:
         raise RuntimeError(f'sanity check? got invalid topic: {topic}')
 
+    args: Dict[str, Union[int, str]]
     direction = TOPICS[topic]
     if direction == Direction.OUT:
         # For OUT transactions the bridged asset
         # and its amount are stored in the logs data
         event = TOPIC_TO_EVENT[topic]
-        try:
-            data = contract.events[event]().processLog(log)
-        except LogTopicError:
-            if abi == OLDERBRIDGE_ABI:
-                raise TypeError(log, chain)
-            elif abi == OLDBRIDGE_ABI:
-                abi = OLDERBRIDGE_ABI
-            elif abi == BRIDGE_ABI:
-                abi = OLDBRIDGE_ABI
-            else:
-                raise RuntimeError(f'sanity check? got invalid abi: {abi}')
-
-            return bridge_callback(chain, address, log, first_run, abi)
-
-        args = data['args']  # type: ignore
+        args = parse_logs_out(log['data'], event)
     elif direction == Direction.IN:
         # For IN transactions the bridged asset
         # and its amount are stored in the tx.input
@@ -141,8 +128,7 @@ def bridge_callback(chain: str,
 
         # All IN transactions are guaranteed to be
         # from validators to Bridge contract
-        _, args = contract.decode_function_input(
-            tx_info['input'])  # type: ignore
+        args = parse_tx_in(tx_info)
     else:
         raise RuntimeError(f'sanity check? got {direction}')
 
