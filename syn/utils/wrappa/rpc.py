@@ -297,9 +297,12 @@ def get_logs(
         y = time.time() - _start
         total_events += len(logs)
 
+        percent = 100 * (to_block - initial_block) \
+            / (till_block - initial_block)
+
         print(f'{key_namespace} | {_chain:{chain_len}} elapsed {y:5.1f}s'
-              f' ({y - x:4.2f}s), found {total_events:5} events, so far'
-              f' at block {start_block}')
+              f' ({y - x:5.1f}s), found {total_events:5} events,'
+              f' {percent:4.1f}% done: so far at block {start_block}')
         x = y
 
     gevent.joinall(jobs)
