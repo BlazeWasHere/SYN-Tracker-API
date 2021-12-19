@@ -78,26 +78,7 @@ TOPICS = {
     Direction.IN,
 }
 
-TOPIC_TO_EVENT = {
-    '0x91f25e9be0134ec851830e0e76dc71e06f9dade75a9b84e9524071dbbc319425':
-    'TokenRedeemAndSwap',
-    '0x4f56ec39e98539920503fd54ee56ae0cbebe9eb15aa778f18de67701eeae7c65':
-    'TokenMintAndSwap',
-    '0x9a7024cde1920aa50cdde09ca396229e8c4d530d5cfdc6233590def70a94408c':
-    'TokenRedeemAndRemove',
-    '0xdc5bad4651c5fbe9977a696aadc65996c468cde1448dd468ec0d83bf61c4b57c':
-    'TokenRedeem',
-    '0xbf14b9fde87f6e1c29a7e0787ad1d0d64b4648d8ae63da21524d9fd0f283dd38':
-    'TokenMint',
-    '0x79c15604b92ef54d3f61f0c40caab8857927ca3d5092367163b4562c1699eb5f':
-    'TokenDepositAndSwap',
-    '0xc1a608d0f8122d014d03cc915a91d98cef4ebaf31ea3552320430cba05211b6d':
-    'TokenWithdrawAndRemove',
-    '0xda5273705dbef4bf1b902a131c2eac086b7e1476a8ab0cb4da08af1fe1bd8e3b':
-    'TokenDeposit',
-    '0x8b0afdc777af6946e53045a4a75212769075d30455a212ac51c9b16f9c5c9b26':
-    'TokenWithdraw',
-}
+TOPIC_TO_EVENT = dict(zip(TOPICS.keys(), EVENTS.keys()))
 
 _TKS = DefaultDict[str, Dict[str, Dict[int, str]]]
 #: Example schema:
