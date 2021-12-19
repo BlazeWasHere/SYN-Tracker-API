@@ -12,21 +12,21 @@ from datetime import datetime
 from pprint import pformat
 import time
 
-from web3.exceptions import LogTopicError
-from web3.types import FilterParams, LogReceipt
+from web3.types import FilterParams, LogReceipt, TxData
 from gevent.pool import Pool
 import simplejson as json
 from web3 import Web3
 import gevent
 
-from syn.utils.data import BRIDGE_ABI, OLDBRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, \
-    OLDERBRIDGE_ABI, TOKEN_DECIMALS
+from syn.utils.data import BRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, TOKEN_DECIMALS
 from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals, \
-    get_airdrop_value_for_block, convert
-from syn.utils.explorer.data import TOPICS, Direction, TOPIC_TO_EVENT
+    get_airdrop_value_for_block, convert, parse_logs_out, parse_tx_in, \
+    parse_logs_in
+from syn.utils.explorer.data import TOPICS, Direction
 
 _start_blocks = {
-    'ethereum': 13136427,
+    # 'ethereum': 13136427,  # 2021-09-01
+    'ethereum': 13033669,
     'arbitrum': 657404,
     'avalanche': 3376709,
     'bsc': 10065475,
@@ -103,7 +103,6 @@ def bridge_callback(chain: str,
                     first_run: bool,
                     abi: str = BRIDGE_ABI) -> None:
     w3: Web3 = SYN_DATA[chain]['w3']
-    contract = w3.eth.contract(w3.toChecksumAddress(address), abi=abi)
     tx_hash = log['transactionHash']
 
     block_n = log['blockNumber']
@@ -114,35 +113,20 @@ def bridge_callback(chain: str,
     if topic not in TOPICS:
         raise RuntimeError(f'sanity check? got invalid topic: {topic}')
 
+    args: Dict[str, Union[int, str]]
     direction = TOPICS[topic]
     if direction == Direction.OUT:
         # For OUT transactions the bridged asset
         # and its amount are stored in the logs data
-        event = TOPIC_TO_EVENT[topic]
-        try:
-            data = contract.events[event]().processLog(log)
-        except LogTopicError:
-            if abi == OLDERBRIDGE_ABI:
-                raise TypeError(log, chain)
-            elif abi == OLDBRIDGE_ABI:
-                abi = OLDERBRIDGE_ABI
-            elif abi == BRIDGE_ABI:
-                abi = OLDBRIDGE_ABI
-            else:
-                raise RuntimeError(f'sanity check? got invalid abi: {abi}')
-
-            return bridge_callback(chain, address, log, first_run, abi)
-
-        args = data['args']  # type: ignore
+        args = parse_logs_out(log)
     elif direction == Direction.IN:
         # For IN transactions the bridged asset
         # and its amount are stored in the tx.input
-        tx_info = w3.eth.get_transaction(tx_hash)
+        tx_data: TxData = w3.eth.get_transaction(tx_hash)
 
         # All IN transactions are guaranteed to be
         # from validators to Bridge contract
-        _, args = contract.decode_function_input(
-            tx_info['input'])  # type: ignore
+        args = parse_tx_in(tx_data)
     else:
         raise RuntimeError(f'sanity check? got {direction}')
 
@@ -152,8 +136,8 @@ def bridge_callback(chain: str,
 
     asset = args['token'].lower()
 
-    if 'chainId' in args:
-        _chain = f':{args["chainId"]}'
+    if 'chain_id' in args:
+        _chain = f':{args["chain_id"]}'
     else:
         _chain = ''
 
@@ -313,9 +297,12 @@ def get_logs(
         y = time.time() - _start
         total_events += len(logs)
 
+        percent = 100 * (to_block - initial_block) \
+            / (till_block - initial_block)
+
         print(f'{key_namespace} | {_chain:{chain_len}} elapsed {y:5.1f}s'
-              f' ({y - x:4.2f}s), found {total_events:5} events, so far'
-              f' at block {start_block}')
+              f' ({y - x:5.1f}s), found {total_events:5} events,'
+              f' {percent:4.1f}% done: so far at block {start_block}')
         x = y
 
     gevent.joinall(jobs)

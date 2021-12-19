@@ -11,12 +11,13 @@ from typing import Any, List, Dict, Literal, Optional, TypeVar, Union, cast, \
     Callable
 from datetime import datetime, timedelta
 from collections import defaultdict
+
 from hexbytes import HexBytes
 import contextlib
 import decimal
 import logging
 
-from web3.types import _Hash32, TxReceipt, LogReceipt
+from web3.types import _Hash32, TxReceipt, LogReceipt, TxData
 from gevent import Greenlet
 from web3.main import Web3
 import simplejson as json
@@ -211,11 +212,11 @@ def get_gas_stats_for_tx(chain: str,
 
 
 def dispatch_get_logs(
-    cb: Callable[[str, str, LogReceipt], None],
-    topics: List[str] = None,
-    key_namespace: str = 'logs',
-    address_key: Union[str, Literal[-1]] = 'bridge',
-    join_all: bool = True,
+        cb: Callable[[str, str, LogReceipt], None],
+        topics: List[str] = None,
+        key_namespace: str = 'logs',
+        address_key: Union[str, Literal[-1]] = 'bridge',
+        join_all: bool = True,
 ) -> Optional[List[Greenlet]]:
     from .wrappa.rpc import get_logs, TOPICS
 
@@ -275,10 +276,10 @@ def dispatch_get_logs(
         for x in addresses:
             address, start_block = x[0], x[1]
             if chain in [
-                    'harmony',
-                    'bsc',
-                    'ethereum',
-                    'moonriver',
+                'harmony',
+                'bsc',
+                'ethereum',
+                'moonriver',
             ]:
                 jobs.append(
                     gevent.spawn(get_logs,
@@ -332,10 +333,10 @@ def handle_decimals(num: Union[str, int, float, D],
     if type(num) != D:
         num = str(num)
 
-    res: D = D(num) / D(10**decimals)
+    res: D = D(num) / D(10 ** decimals)
 
     if precision is not None:
-        return res.quantize(D(10)**-precision)
+        return res.quantize(D(10) ** -precision)
 
     return res
 
@@ -408,3 +409,124 @@ def worker_assert_lock(r: Redis, name: str,
     assert lock.locked(), 'lock does not exist'
     assert lock._held, f'lock not held by worker({id})'
     return lock
+
+
+def parse_tx_in(tx_data: TxData) -> Dict[str, Union[int, str]]:
+    """
+    Parse transaction input for IN bridge transaction
+    :param tx_data: tx_data from eth.get_transaction()
+    :return: keys: to, token, amount, fee
+    """
+    result: Dict[str, Union[int, str]] = {}
+    inp = tx_data['input'][2:]  # Skip 0x
+    inp = inp[8:]  # Skip method hash
+
+    address_to = inp[:64]  # Get 'to'
+    result['to'] = '0x' + address_to[-40:]  # last 40 symbols is the address
+    inp = inp[64:]  # Skip 'to'
+
+    token = inp[:64]  # Get 'token'
+    result['token'] = '0x' + token[-40:]  # last 40 symbols is the address
+    inp = inp[64:]  # Skip 'token'
+
+    # In the input for IN tx 'amount' is the amount of tokens bridged
+    # (nUSD, nETH, SYN, synFRAX ...)
+    result['amount'] = int(inp[:64], 16)  # Get 'amount'
+    inp = inp[64:]  # Skip 'amount'
+
+    result['fee'] = int(inp[:64], 16)  # Get 'fee'
+
+    return result
+
+
+def parse_logs_in(log: LogReceipt) -> Dict[str, Union[int, str, bool]]:
+    """
+    Parse log event for IN bridge transaction
+    :param log: log receipt from eth.get_logs()
+    :return: keys: to, token, amount_received, fee, [token_index_to,
+    swap_success]
+    """
+    result: Dict[str, Union[int, str, bool]] = {}
+    data = log['data'][2:]  # Skip 0x
+
+    token = data[:64]  # Get 'token'
+    result['token'] = '0x' + token[-40:]  # last 40 symbols is the address
+    data = data[64:]  # Skip 'token'
+
+    # In the logs for IN tx 'amount' is what the user received
+    result['amount_received'] = int(data[:64], 16)  # Get 'amount'
+    data = data[64:]  # Skip 'amount'
+
+    result['fee'] = int(data[:64], 16)  # Get 'fee'
+    data = data[64:]  # Skip 'fee'
+
+    address_to = log['topics'][1].hex()  # Get 'to'
+    result['to'] = '0x' + address_to[-40:]  # last 40 symbols is the address
+
+    from syn.utils.explorer.data import TOPIC_TO_EVENT
+    event = TOPIC_TO_EVENT[log['topics'][0].hex()]  # Get event topic
+
+    if event == 'TokenMintAndSwap':
+        data = data[64:]  # Skip 'token_index_from'
+
+        result['token_index_to'] = int(data[:64], 16)  # Get 'token_index_to'
+        data = data[64:]  # Skip 'token_index_to'
+
+        data = data[64:]  # Skip 'min_dy'
+        data = data[64:]  # Skip 'deadline'
+
+        result['swap_success'] = int(data[:64], 16) == 1  # Get 'swap_success'
+    elif event == 'TokenWithdrawAndRemove':
+        token_index_to = int(data[:64], 16)  # Get 'token_index_to'
+        data = data[64:]  # Skip 'token_index_to'
+
+        if token_index_to > 3:
+            # Older events have swapTokenAmount at this place
+            # If extracted value is >3, this is not an index,
+            # but rather an amount of tokens.
+            # Real token index is the next argument
+            token_index_to = int(data[:64], 16)  # Get real 'token_index_to'
+            data = data[64:]  # Skip 'token_index_to'
+
+        result['token_index_to'] = token_index_to
+
+        data = data[64:]  # Skip 'swap_min_amount'
+        data = data[64:]  # Skip 'deadline'
+        result['swap_success'] = int(data[:64], 16) == 1  # Get 'swap_success'
+
+    return result
+
+
+def parse_logs_out(log: LogReceipt) -> Dict[str, Union[int, str]]:
+    """
+    Parse log event for OUT bridge transaction
+    :param log: log receipt from eth.get_logs()
+    :return: keys: to, chain_id, token, amount, [token_index_to]
+    """
+    result: Dict[str, Union[int, str]] = {}
+    data = log['data'][2:]  # Skip 0x
+
+    result['chain_id'] = int(data[:64], 16)  # Get 'chain_id'
+    data = data[64:]  # Skip 'chain_id'
+
+    token = data[:64]  # Get 'token'
+    result['token'] = '0x' + token[-40:]  # last 40 symbols is the address
+    data = data[64:]  # Skip 'token'
+
+    result['amount'] = int(data[:64], 16)  # Get amount
+    data = data[64:]  # Skip 'amount'
+
+    address_to = log['topics'][1].hex()  # Get 'to'
+    result['to'] = '0x' + address_to[-40:]  # last 40 symbols is the address
+
+    from syn.utils.explorer.data import TOPIC_TO_EVENT
+    event = TOPIC_TO_EVENT[log['topics'][0].hex()]  # Get event topic
+    if event.endswith('Swap'):
+        # TokenDepositAndSwap or TokenRedeemAndSwap
+        # events have identical structure
+        data = data[64:]  # Skip 'token_index_from'
+        result['token_index_to'] = int(data[:64], 16)  # Get 'token_index_to'
+    elif event == 'TokenRedeemAndRemove':
+        result['token_index_to'] = int(data[:64], 16)  # Get 'token_index_to'
+
+    return result
