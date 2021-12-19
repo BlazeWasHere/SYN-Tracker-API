@@ -212,11 +212,11 @@ def get_gas_stats_for_tx(chain: str,
 
 
 def dispatch_get_logs(
-        cb: Callable[[str, str, LogReceipt], None],
-        topics: List[str] = None,
-        key_namespace: str = 'logs',
-        address_key: Union[str, Literal[-1]] = 'bridge',
-        join_all: bool = True,
+    cb: Callable[[str, str, LogReceipt], None],
+    topics: List[str] = None,
+    key_namespace: str = 'logs',
+    address_key: Union[str, Literal[-1]] = 'bridge',
+    join_all: bool = True,
 ) -> Optional[List[Greenlet]]:
     from .wrappa.rpc import get_logs, TOPICS
 
@@ -276,10 +276,10 @@ def dispatch_get_logs(
         for x in addresses:
             address, start_block = x[0], x[1]
             if chain in [
-                'harmony',
-                'bsc',
-                'ethereum',
-                'moonriver',
+                    'harmony',
+                    'bsc',
+                    'ethereum',
+                    'moonriver',
             ]:
                 jobs.append(
                     gevent.spawn(get_logs,
@@ -333,10 +333,10 @@ def handle_decimals(num: Union[str, int, float, D],
     if type(num) != D:
         num = str(num)
 
-    res: D = D(num) / D(10 ** decimals)
+    res: D = D(num) / D(10**decimals)
 
     if precision is not None:
-        return res.quantize(D(10) ** -precision)
+        return res.quantize(D(10)**-precision)
 
     return res
 
@@ -418,7 +418,7 @@ def parse_tx_in(tx_data: TxData) -> Dict[str, Union[int, str]]:
     :return: keys: to, token, amount, fee
     """
     result: Dict[str, Union[int, str]] = {}
-    inp = tx_data['input'][2:]  # Skip 0x
+    inp = tx_data['input'][2:]  # type: ignore + Skip 0x
     inp = inp[8:]  # Skip method hash
 
     address_to = inp[:64]  # Get 'to'

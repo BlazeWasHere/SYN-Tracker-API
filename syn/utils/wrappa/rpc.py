@@ -97,11 +97,8 @@ MAX_BLOCKS = 5000
 T = TypeVar('T')
 
 
-def bridge_callback(chain: str,
-                    address: str,
-                    log: LogReceipt,
-                    first_run: bool,
-                    abi: str = BRIDGE_ABI) -> None:
+def bridge_callback(chain: str, address: str, log: LogReceipt,
+                    first_run: bool) -> None:
     w3: Web3 = SYN_DATA[chain]['w3']
     tx_hash = log['transactionHash']
 
@@ -134,7 +131,7 @@ def bridge_callback(chain: str,
         raise RuntimeError(
             f'No token: chain = {chain}, tx_hash = {convert(tx_hash)}')
 
-    asset = args['token'].lower()
+    asset = cast(str, args['token']).lower()
 
     if 'chain_id' in args:
         _chain = f':{args["chain_id"]}'

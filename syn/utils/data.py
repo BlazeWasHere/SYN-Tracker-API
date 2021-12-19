@@ -42,10 +42,6 @@ _abis_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           'explorer', 'abis')
 with open(os.path.join(_abis_path, 'bridge.json')) as f:
     BRIDGE_ABI = json.load(f)['abi']
-with open(os.path.join(_abis_path, 'oldBridge.json')) as f:
-    OLDBRIDGE_ABI = json.load(f)['abi']
-with open(os.path.join(_abis_path, 'olderBridge.json')) as f:
-    OLDERBRIDGE_ABI = json.load(f)['abi']
 with open(os.path.join(_abis_path, 'pool.json')) as f:
     POOL_ABI = json.load(f)['abi']
 
