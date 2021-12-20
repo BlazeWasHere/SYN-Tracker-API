@@ -342,6 +342,7 @@ TOKENS = {
         '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f',  # 1USDT
         '0xed2a7edd7413021d440b09d654f3b87712abab66',  # nUSD
         '0xcf664087a5bb0237a0bad6742852ec6c8d69a27a',  # ONE
+        '0x1852f70512298d56e9c8fdd905e02581e04ddb2a',  # synFRAX
     ],
     'boba': [
         '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc',  # USDC
