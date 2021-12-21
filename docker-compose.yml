@@ -13,6 +13,7 @@ services:
 
   redis:
     image: redis
+    restart: always
     expose:
       - 6379
     networks:
