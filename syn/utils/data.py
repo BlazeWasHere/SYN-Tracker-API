@@ -334,7 +334,6 @@ TOKENS = {
         '0x78de9326792ce1d6eca0c978753c6953cdeedd73',  # JUMP
         '0x91fa20244fb509e8289ca630e5db3e9166233fdc',  # gOHM
         '0x1852f70512298d56e9c8fdd905e02581e04ddb2a',  # synFRAX
-        '0xfa7191d292d5633f702b0bd7e3e3bccc0e633200',  # synFRAX but the older one (not used anymore)
     ],
     'harmony': [
         '0xe55e19fb4f2d85af758950957714292dac1e25b2',  # SYN

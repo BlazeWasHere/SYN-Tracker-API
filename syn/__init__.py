@@ -59,18 +59,7 @@ def _first_run() -> None:
     lock.release()
 
 
-#gevent.spawn(_first_run)
-from syn.utils.analytics.pool import pool_callback, TOPICS
-from syn.utils.wrappa.rpc import get_logs
-
-get_logs('ethereum',
-         pool_callback,
-         '0x1116898DdA4015eD8dDefb84b6e8Bc24528Af2d8',
-         max_blocks=1024,
-         topics=list(TOPICS),
-         start_block=13816358 - 5000,
-         key_namespace='pool',
-         prefer_db_values=False)
+gevent.spawn(_first_run)
 
 
 def init() -> Flask:
