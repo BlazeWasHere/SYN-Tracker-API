@@ -284,7 +284,11 @@ def get_logs(
               and log['transactionIndex'] <= tx_index:
                 continue
 
-            callback(chain, address, log, first_run)
+            try:
+                callback(chain, address, log, first_run)
+            except Exception as e:
+                print(chain, log)
+                raise e
 
             if first_run:
                 first_run = False
