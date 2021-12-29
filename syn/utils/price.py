@@ -197,7 +197,7 @@ ADDRESS_TO_CGID = {
 }
 
 
-@redis_cache()
+@redis_cache(filter=lambda res: res != 0)
 def get_historic_price(_id: CoingeckoIDS,
                        date: str,
                        currency: str = "usd") -> Decimal:
@@ -208,8 +208,14 @@ def get_historic_price(_id: CoingeckoIDS,
     if POPULATE_CACHE:
         time.sleep(randint(5, 20))
 
-    r = requests.get(COINGECKO_HISTORIC_URL.format(
-        _id.value, date)).json(use_decimal=True)
+    r = requests.get(COINGECKO_HISTORIC_URL.format(_id.value, date))
+
+    if r.status_code == 429:
+        # TODO(blaze): have a bailout.
+        time.sleep(randint(0, 5))
+        return get_historic_price(_id, date, currency)
+    else:
+        r = r.json(use_decimal=True)
 
     try:
         return Decimal(r['market_data']['current_price'][currency])
