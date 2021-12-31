@@ -291,6 +291,7 @@ TOKENS = {
         '0x130025ee738a66e691e6a7a62381cb33c6d9ae83',  # JUMP
         '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51',  # NFD
         '0xc13b7a43223bb9bf4b69bd68ab20ca1b79d81c75',  # JGN
+        '0x88918495892baf4536611e38e75d771dc6ec0863',  # gOHM
     ],
     'polygon': [
         '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695',  # SYN
@@ -350,6 +351,7 @@ TOKENS = {
         '0xcf664087a5bb0237a0bad6742852ec6c8d69a27a',  # ONE
         '0x1852f70512298d56e9c8fdd905e02581e04ddb2a',  # synFRAX
         '0xfa7191d292d5633f702b0bd7e3e3bccc0e633200',  # old synFRAX
+        '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00',  # gOHM
     ],
     'boba': [
         '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc',  # USDC
@@ -360,6 +362,7 @@ TOKENS = {
         '0x6b4712ae9797c199edd44f897ca09bc57628a1cf',  # nUSD
         '0xf74195bb8a5cf652411867c5c2c5b8c2a402be35',  # DAI
         '0xd203de32170130082896b4111edf825a4774c18e',  # WETH
+        '0xd22c0a4af486c7fa08e282e9eb5f30f9aaa62c95',  # gOHM
     ],
     'moonriver': [
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445',  # SYN
