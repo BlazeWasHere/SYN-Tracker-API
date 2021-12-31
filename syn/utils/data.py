@@ -7,7 +7,7 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Dict, List, TypedDict
+from typing import Dict, List, TypedDict, cast
 from collections import defaultdict
 import json
 import os
@@ -33,6 +33,7 @@ load_dotenv(override=True)
 COINGECKO_HISTORIC_URL = "https://api.coingecko.com/api/v3/coins/{0}/history?date={1}&localization=false"
 COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_currencies={1}"
 
+BRIDGE_CONFIG_ABI = """[{"inputs":[{"internalType":"address","name":"tokenAddress","type":"address"},{"internalType":"uint256","name":"chainID","type":"uint256"}],"name":"getToken","outputs":[{"components":[{"internalType":"uint256","name":"chainId","type":"uint256"},{"internalType":"address","name":"tokenAddress","type":"address"},{"internalType":"uint8","name":"tokenDecimals","type":"uint8"},{"internalType":"uint256","name":"maxSwap","type":"uint256"},{"internalType":"uint256","name":"minSwap","type":"uint256"},{"internalType":"uint256","name":"swapFee","type":"uint256"},{"internalType":"uint256","name":"maxSwapFee","type":"uint256"},{"internalType":"uint256","name":"minSwapFee","type":"uint256"},{"internalType":"bool","name":"hasUnderlying","type":"bool"},{"internalType":"bool","name":"isUnderlying","type":"bool"}],"internalType":"struct BridgeConfig.Token","name":"token","type":"tuple"}],"stateMutability":"view","type":"function"}]"""
 MINICHEF_ABI = """[{"inputs":[],"name":"synapsePerSecond","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
 TOTAL_SUPPLY_ABI = """[{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]"""
 BASEPOOL_ABI = """[{"inputs":[{"internalType":"uint8","name":"index","type":"uint8"}],"name":"getToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"getAdminBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getVirtualPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
@@ -257,6 +258,11 @@ for key, value in SYN_DATA.items():
             w3.eth.contract(Web3.toChecksumAddress(value['bridge']),
                             abi=BRIDGE_ABI)
         })
+
+# On mainnet only.
+BRIDGE_CONFIG = cast(Web3, SYN_DATA['ethereum']['w3']).eth.contract(
+    Web3.toChecksumAddress('0x7fd806049608b7d04076b8187dd773343e0589e6'),
+    abi=BRIDGE_CONFIG_ABI)
 
 TOKENS = {
     'ethereum': [

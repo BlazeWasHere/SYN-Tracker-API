@@ -7,16 +7,18 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Optional, List, Any, Union, Dict
+from typing import Literal, Optional, List, Any, Tuple, Union, Dict
 from decimal import Decimal
 
 from web3.types import BlockIdentifier
 import web3.exceptions
 from web3 import Web3
 
-from .data import SYN_DATA, MAX_UINT8, SYN_DECIMALS
+from .data import BRIDGE_CONFIG, SYN_DATA, MAX_UINT8, SYN_DECIMALS
 from .helpers import handle_decimals
 from .cache import timed_cache
+
+_TokenInfo = Tuple[int, str, int, int, int, int, int, int, bool, bool]
 
 
 # TODO(blaze): better type hints.
@@ -104,3 +106,19 @@ def get_synapse_emissions(chain: str,
         _multiplier = multiplier
 
     return ret * _multiplier
+
+
+def get_bridge_token_info(chain: str,
+                          token: str) -> Union[Literal[False], _TokenInfo]:
+    from syn.utils.explorer.data import CHAINS
+
+    chain_id = {v: k for k, v in CHAINS.items()}[chain]
+    token = Web3.toChecksumAddress(token)
+
+    ret = BRIDGE_CONFIG.functions.getToken(token, chain_id).call()
+    # Does not exist - function's default ret.
+    if ret == (0, '0x0000000000000000000000000000000000000000', 0, 0, 0, 0, 0,
+               0, False, False):
+        return False
+
+    return ret

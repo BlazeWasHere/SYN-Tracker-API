@@ -18,11 +18,11 @@ import simplejson as json
 from web3 import Web3
 import gevent
 
-from syn.utils.data import BRIDGE_ABI, SYN_DATA, LOGS_REDIS_URL, TOKEN_DECIMALS
+from syn.utils.data import SYN_DATA, LOGS_REDIS_URL, TOKEN_DECIMALS
 from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals, \
-    get_airdrop_value_for_block, convert, parse_logs_out, parse_tx_in, \
-    parse_logs_in
+    get_airdrop_value_for_block, convert, parse_logs_out, parse_tx_in
 from syn.utils.explorer.data import TOPICS, Direction
+from syn.utils.contract import get_bridge_token_info
 
 _start_blocks = {
     # 'ethereum': 13136427,  # 2021-09-01
@@ -139,8 +139,14 @@ def bridge_callback(chain: str, address: str, log: LogReceipt,
         _chain = ''
 
     if asset not in TOKEN_DECIMALS[chain]:
-        raise RuntimeError(
-            f'Decimals? token = {asset}, tx_hash = {convert(tx_hash)}')
+        ret = get_bridge_token_info(chain, asset)
+
+        if not ret:
+            # Someone tried to bridge an unsupported token - ignore it.
+            return
+        else:
+            print(f'new token {chain} {asset} {ret}')
+            TOKEN_DECIMALS[chain].update({asset.lower(): ret[2]})
 
     decimals = TOKEN_DECIMALS[chain][asset]
     # Amount is in nUSD/nETH/SYN/etc
