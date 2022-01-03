@@ -36,6 +36,7 @@ _start_blocks = {
     'boba': 16188,
     'moonriver': 890949,
     'optimism': 30718,
+    'aurora': 56092179,
 }
 
 airdrop_ranges = {
@@ -89,6 +90,10 @@ airdrop_ranges = {
     'optimism': {
         0: [None, 541401],
         0.002: [541402, None],
+    },
+    'aurora': {
+        # Currenty 0 gas needed for txs on Aurora.
+        0: [None, None],
     },
 }
 

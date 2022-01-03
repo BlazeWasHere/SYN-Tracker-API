@@ -25,6 +25,7 @@ CHAINS = {
     288: 'boba',
     1285: 'moonriver',
     10: 'optimism',
+    1313161554: 'aurora',
 }
 
 

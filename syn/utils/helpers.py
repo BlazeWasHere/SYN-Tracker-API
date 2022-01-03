@@ -261,6 +261,9 @@ def dispatch_get_logs(
                 'optimism': {
                     'neth': 30819,
                 },
+                'aurora': {
+                    'nusd': 56441515,
+                }
             }
 
             if 'pool_contract' in SYN_DATA[chain]:

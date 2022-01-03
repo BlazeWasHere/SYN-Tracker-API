@@ -104,6 +104,10 @@ CUSTOM = {
     },
     'moonriver': {},
     'optimism': {},
+    'aurora': {
+        # nUSD
+        '0x07379565cd8b0cae7c60dc78e7f601b34af2a21c': 1,
+    }
 }
 
 ADDRESS_TO_CGID = {
@@ -140,6 +144,7 @@ ADDRESS_TO_CGID = {
         '0xd8ca34fd379d9ca3c6ee3b3905678320f5b45195': CoingeckoIDS.GOHM,
         '0xeee3371b89fc43ea970e908536fcddd975135d8a': CoingeckoIDS.DOG,
         '0x48a34796653afdaa1647986b33544c911578e767': CoingeckoIDS.FRAX,
+        '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619': CoingeckoIDS.ETH,
     },
     'avalanche': {
         '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': CoingeckoIDS.SYN,
@@ -197,7 +202,12 @@ ADDRESS_TO_CGID = {
         '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': CoingeckoIDS.SYN,
         '0x809dc529f07651bd43a172e8db6f4a7a0d771036': CoingeckoIDS.ETH,
         '0x121ab82b49b2bc4c7901ca46b8277962b4350204': CoingeckoIDS.ETH,
-    }
+    },
+    'aurora': {
+        '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
+        '0xb12bfca5a55806aaf64e99521918a4bf0fc40802': CoingeckoIDS.USDC,
+        '0x4988a896b1227218e4a686fde5eabdcabd91571f': CoingeckoIDS.USDT,
+    },
 }
 
 

@@ -196,7 +196,14 @@ SYN_DATA = {
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
         "ethpool": "0xe27bff97ce92c3e1ff7aa9f86781fdd6d48f5ee9",
         "minichef": "0xe8c610fcb63A4974F02Da52f0B4523937012Aaa0",
-    }
+    },
+    "aurora": {
+        "rpc": os.getenv('AURORA_RPC'),
+        "address": "0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445",
+        "bridge": "0xaed5b25be1c3163c907a471082640450f928ddfe",
+        "pool": "0xcef6c2e20898c2604886b888552ca6ccf66933b0",
+        "minichef": "0x809dc529f07651bd43a172e8db6f4a7a0d771036",
+    },
 }
 
 TREASURY = {
@@ -210,6 +217,7 @@ TREASURY = {
     'moonriver': '0x4bA30618fDcb184eC01a9B3CAe258CFc5786E70E',
     'optimism': '0x2431CBdc0792F5485c4cb0a9bEf06C4f21541D52',
     'harmony': '0x0172e7190Bbc0C2Aa98E4d1281d41D0c07178605',
+    'aurora': '0xbb227fcf45f9dc5def87208c534eab1006d8cc8d',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
@@ -374,6 +382,12 @@ TOKENS = {
         '0x809dc529f07651bd43a172e8db6f4a7a0d771036',  # nETH
         '0x5a5fff6f753d7c11a56a52fe47a177a87e431655',  # SYN
         '0x121ab82b49b2bc4c7901ca46b8277962b4350204',  # WETH
+    ],
+    'aurora': [
+        '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445',  # SYN
+        '0xb12bfca5a55806aaf64e99521918a4bf0fc40802',  # USDC
+        '0x4988a896b1227218e4a686fde5eabdcabd91571f',  # USDT
+        '0x07379565cd8b0cae7c60dc78e7f601b34af2a21c',  # nUSD
     ],
 }
 
