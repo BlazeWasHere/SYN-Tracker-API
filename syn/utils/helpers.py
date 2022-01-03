@@ -283,6 +283,7 @@ def dispatch_get_logs(
                     'bsc',
                     'ethereum',
                     'moonriver',
+                    'aurora',
             ]:
                 jobs.append(
                     gevent.spawn(get_logs,
