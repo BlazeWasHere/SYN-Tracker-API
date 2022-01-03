@@ -38,6 +38,7 @@ _chain_to_cgid = {
     'boba': CoingeckoIDS.ETH,
     'moonriver': CoingeckoIDS.MOVR,
     'optimism': CoingeckoIDS.ETH,
+    'aurora': CoingeckoIDS.ETH,
 }
 
 
