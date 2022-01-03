@@ -64,7 +64,8 @@
           "harmony",
           "boba",
           "optimism",
-          "moonriver"
+          "moonriver",
+          "aurora"
         ]
       },
       "AirdropResponse": {
