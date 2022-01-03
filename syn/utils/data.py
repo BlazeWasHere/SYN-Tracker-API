@@ -312,6 +312,7 @@ TOKENS = {
         '0xd8ca34fd379d9ca3c6ee3b3905678320f5b45195',  # gOHM
         '0xeee3371b89fc43ea970e908536fcddd975135d8a',  # DOG
         '0x48a34796653afdaa1647986b33544c911578e767',  # synFRAX
+        '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',  # WETH
     ],
     'avalanche': [
         '0xd586e7f844cea2f87f50152665bcbc2c279d8d70',  # DAI
