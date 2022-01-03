@@ -217,7 +217,7 @@ TREASURY = {
     'moonriver': '0x4bA30618fDcb184eC01a9B3CAe258CFc5786E70E',
     'optimism': '0x2431CBdc0792F5485c4cb0a9bEf06C4f21541D52',
     'harmony': '0x0172e7190Bbc0C2Aa98E4d1281d41D0c07178605',
-    'aurora': '0xbb227fcf45f9dc5def87208c534eab1006d8cc8d',
+    'aurora': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
