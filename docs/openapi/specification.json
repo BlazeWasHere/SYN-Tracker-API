@@ -1267,7 +1267,7 @@
         "tags": ["Pools"]
       }
     },
-    "/api/v1/analytics/fees/airdrop/{chain}": {
+    "/api/v1/analytics/fees/airdrop/{chain}/": {
       "get": {
         "parameters": [
           {
