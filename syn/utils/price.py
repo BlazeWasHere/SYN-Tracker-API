@@ -182,6 +182,7 @@ ADDRESS_TO_CGID = {
         '0x3c2b8be99c50593081eaa2a724f0b8285f5aba8f': CoingeckoIDS.USDT,
         '0xcf664087a5bb0237a0bad6742852ec6c8d69a27a': CoingeckoIDS.ONE,
         '0x1852f70512298d56e9c8fdd905e02581e04ddb2a': CoingeckoIDS.FRAX,
+        '0xfa7191d292d5633f702b0bd7e3e3bccc0e633200': CoingeckoIDS.FRAX,
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00': CoingeckoIDS.GOHM,
     },
     'boba': {
