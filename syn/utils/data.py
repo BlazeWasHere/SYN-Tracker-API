@@ -361,6 +361,7 @@ TOKENS = {
         '0x1852f70512298d56e9c8fdd905e02581e04ddb2a',  # synFRAX
         '0xfa7191d292d5633f702b0bd7e3e3bccc0e633200',  # old synFRAX
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00',  # gOHM
+        '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb',  # nETH
     ],
     'boba': [
         '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc',  # USDC

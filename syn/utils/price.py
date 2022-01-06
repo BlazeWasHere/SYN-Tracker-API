@@ -9,18 +9,16 @@
 
 from datetime import datetime
 from decimal import Decimal
+from random import randint
 from enum import Enum
 import logging
+import time
 
 import dateutil.parser
 import requests
 
 from .data import COINGECKO_BASE_URL, COINGECKO_HISTORIC_URL, POPULATE_CACHE
 from .cache import timed_cache, redis_cache
-
-if POPULATE_CACHE:
-    from random import randint
-    import time
 
 logger = logging.Logger(__name__)
 
@@ -184,6 +182,7 @@ ADDRESS_TO_CGID = {
         '0x1852f70512298d56e9c8fdd905e02581e04ddb2a': CoingeckoIDS.FRAX,
         '0xfa7191d292d5633f702b0bd7e3e3bccc0e633200': CoingeckoIDS.FRAX,
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00': CoingeckoIDS.GOHM,
+        '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb': CoingeckoIDS.ETH,
     },
     'boba': {
         '0xb554a55358ff0382fb21f0a478c3546d1106be8c': CoingeckoIDS.SYN,
