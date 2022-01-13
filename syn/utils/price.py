@@ -258,7 +258,7 @@ def get_historic_price_for_address(chain: str, address: str,
                                    date: str) -> Decimal:
     if address in CUSTOM[chain]:
         return Decimal(CUSTOM[chain][address])
-    elif address not in CUSTOM[chain]:
+    elif address not in ADDRESS_TO_CGID[chain]:
         # TODO(blaze): Should trigger something to parent functions to not
         # cache this response.
         logger.warning(f'returning amount 0 for token {address} on {chain}')
