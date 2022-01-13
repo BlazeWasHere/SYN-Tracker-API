@@ -47,6 +47,8 @@ class CoingeckoIDS(Enum):
     WSOHM = 'wrapped-staked-olympus'
     JGN = 'juggernaut'
     GOHM = 'governance-ohm'
+    SOLAR = 'solarbeam'
+    GMX = 'gmx'
 
 
 CUSTOM = {
@@ -154,6 +156,7 @@ ADDRESS_TO_CGID = {
         '0x321e7092a180bb43555132ec53aaa65a5bf84251': CoingeckoIDS.GOHM,
         '0xcc5672600b948df4b665d9979357bef3af56b300': CoingeckoIDS.FRAX,
         '0x53f7c5869a859f0aec3d334ee8b4cf01e3492f21': CoingeckoIDS.ETH,
+        '0x62edc0692bd897d2295872a9ffcac5425011c661': CoingeckoIDS.GMX,
     },
     'arbitrum': {
         '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,
@@ -164,6 +167,7 @@ ADDRESS_TO_CGID = {
         '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': CoingeckoIDS.ETH,
         '0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1': CoingeckoIDS.GOHM,
         '0x85662fd123280827e11c59973ac9fcbe838dc3b4': CoingeckoIDS.FRAX,
+        '0xfc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a': CoingeckoIDS.GMX,
     },
     'fantom': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
@@ -197,6 +201,7 @@ ADDRESS_TO_CGID = {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
         '0xe96ac70907fff3efee79f502c985a7a21bce407d': CoingeckoIDS.FRAX,
         '0x3bf21ce864e58731b6f28d68d5928bcbeb0ad172': CoingeckoIDS.GOHM,
+        '0x76906411d07815491a5e577022757ad941fb5066': CoingeckoIDS.SOLAR,
     },
     'optimism': {
         '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': CoingeckoIDS.SYN,
@@ -253,6 +258,11 @@ def get_historic_price_for_address(chain: str, address: str,
                                    date: str) -> Decimal:
     if address in CUSTOM[chain]:
         return Decimal(CUSTOM[chain][address])
+    elif address not in CUSTOM[chain]:
+        # TODO(blaze): Should trigger something to parent functions to not
+        # cache this response.
+        logger.warning(f'returning amount 0 for token {address} on {chain}')
+        return Decimal(0)
     elif ADDRESS_TO_CGID[chain][address] == CoingeckoIDS.SYN:
         return get_historic_price_syn(date)
 
@@ -262,8 +272,7 @@ def get_historic_price_for_address(chain: str, address: str,
 def get_price_for_address(chain: str, address: str) -> Decimal:
     if address in CUSTOM[chain]:
         return Decimal(CUSTOM[chain][address])
-
-    if address not in ADDRESS_TO_CGID[chain]:
+    elif address not in ADDRESS_TO_CGID[chain]:
         logger.warning(f'returning amount 0 for token {address} on {chain}')
         return Decimal(0)
 
@@ -278,8 +287,3 @@ def get_price_coingecko(_id: CoingeckoIDS, currency: str = "usd") -> Decimal:
 
     r = requests.get(COINGECKO_BASE_URL.format(_id.value, currency))
     return Decimal(r.json(use_decimal=True)[_id.value][currency])
-
-
-def init() -> None:
-    """Fire up the LRU cache."""
-    [get_price_coingecko(x) for x in CoingeckoIDS]
