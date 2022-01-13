@@ -39,6 +39,7 @@ _chain_to_cgid = {
     'moonriver': CoingeckoIDS.MOVR,
     'optimism': CoingeckoIDS.ETH,
     'aurora': CoingeckoIDS.ETH,
+    'moonbeam': CoingeckoIDS.GLMR,
 }
 
 

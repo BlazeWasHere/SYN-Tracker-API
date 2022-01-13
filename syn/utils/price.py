@@ -49,6 +49,7 @@ class CoingeckoIDS(Enum):
     GOHM = 'governance-ohm'
     SOLAR = 'solarbeam'
     GMX = 'gmx'
+    GLMR = 'moonbeam'
 
 
 CUSTOM = {
@@ -213,6 +214,14 @@ ADDRESS_TO_CGID = {
         '0xb12bfca5a55806aaf64e99521918a4bf0fc40802': CoingeckoIDS.USDC,
         '0x4988a896b1227218e4a686fde5eabdcabd91571f': CoingeckoIDS.USDT,
     },
+    'moonbeam': {
+        '0xf44938b0125a6662f9536281ad2cd6c499f22004': CoingeckoIDS.SYN,
+        '0x0db6729c03c85b0708166ca92801bcb5cac781fc': CoingeckoIDS.SOLAR,
+        '0xd2666441443daa61492ffe0f37717578714a4521': CoingeckoIDS.GOHM,
+        '0xdd47a348ab60c61ad6b60ca8c31ea5e00ebfab4f': CoingeckoIDS.FRAX,
+        '0x3192ae73315c3634ffa217f71cf6cbc30fee349a': CoingeckoIDS.ETH,
+        '0xbf180c122d85831dcb55dc673ab47c8ab9bcefb4': CoingeckoIDS.ETH,
+    }
 }
 
 

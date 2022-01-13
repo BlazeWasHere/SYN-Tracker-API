@@ -204,6 +204,12 @@ SYN_DATA = {
         "pool": "0xcef6c2e20898c2604886b888552ca6ccf66933b0",
         "minichef": "0x809dc529f07651bd43a172e8db6f4a7a0d771036",
     },
+    "moonbeam": {
+        "rpc": os.getenv('MOONBEAM_RPC'),
+        "address": "0xf44938b0125a6662f9536281ad2cd6c499f22004",
+        'bridge': '0x84a420459cd31c3c34583f67e0f0fb191067d32f',
+        "minichef": "0xd5609cd0e1675331e4fb1d43207c8d9d83aab17c",
+    }
 }
 
 TREASURY = {
@@ -218,6 +224,7 @@ TREASURY = {
     'optimism': '0x2431CBdc0792F5485c4cb0a9bEf06C4f21541D52',
     'harmony': '0x0172e7190Bbc0C2Aa98E4d1281d41D0c07178605',
     'aurora': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
+    'moonbeam': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
@@ -394,6 +401,14 @@ TOKENS = {
         '0x4988a896b1227218e4a686fde5eabdcabd91571f',  # USDT
         '0x07379565cd8b0cae7c60dc78e7f601b34af2a21c',  # nUSD
     ],
+    'moonbeam': [
+        '0x3192ae73315c3634ffa217f71cf6cbc30fee349a',  # WETH
+        '0xbf180c122d85831dcb55dc673ab47c8ab9bcefb4',  # nETH
+        '0xf44938b0125a6662f9536281ad2cd6c499f22004',  # SYN
+        '0x0db6729c03c85b0708166ca92801bcb5cac781fc',  # veSOLAR
+        '0xd2666441443daa61492ffe0f37717578714a4521',  # gOHM
+        '0xdd47a348ab60c61ad6b60ca8c31ea5e00ebfab4f',  # synFRAX
+    ]
 }
 
 MAX_UINT8 = 2**8 - 1

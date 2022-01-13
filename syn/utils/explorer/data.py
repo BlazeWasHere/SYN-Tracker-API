@@ -26,6 +26,7 @@ CHAINS = {
     1285: 'moonriver',
     10: 'optimism',
     1313161554: 'aurora',
+    1284: 'moonbeam',
 }
 
 
