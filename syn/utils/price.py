@@ -108,7 +108,8 @@ CUSTOM = {
     'aurora': {
         # nUSD
         '0x07379565cd8b0cae7c60dc78e7f601b34af2a21c': 1,
-    }
+    },
+    'moonbeam': {},
 }
 
 ADDRESS_TO_CGID = {
