@@ -223,6 +223,7 @@ ADDRESS_TO_CGID = {
         '0xdd47a348ab60c61ad6b60ca8c31ea5e00ebfab4f': CoingeckoIDS.FRAX,
         '0x3192ae73315c3634ffa217f71cf6cbc30fee349a': CoingeckoIDS.ETH,
         '0xbf180c122d85831dcb55dc673ab47c8ab9bcefb4': CoingeckoIDS.ETH,
+        '0x1d4c2a246311bb9f827f4c768e277ff5787b7d7e': CoingeckoIDS.MOVR,
     }
 }
 

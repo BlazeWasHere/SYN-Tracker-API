@@ -409,6 +409,7 @@ TOKENS = {
         '0x0db6729c03c85b0708166ca92801bcb5cac781fc',  # veSOLAR
         '0xd2666441443daa61492ffe0f37717578714a4521',  # gOHM
         '0xdd47a348ab60c61ad6b60ca8c31ea5e00ebfab4f',  # synFRAX
+        '0x1d4c2a246311bb9f827f4c768e277ff5787b7d7e',  # MOVR
     ]
 }
 
