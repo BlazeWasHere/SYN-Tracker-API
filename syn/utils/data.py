@@ -390,6 +390,7 @@ TOKENS = {
         '0x1a93b23281cc1cde4c4741353f3064709a16197d',  # FRAX
         '0x3bf21ce864e58731b6f28d68d5928bcbeb0ad172',  # gOHM
         '0x76906411d07815491a5e577022757ad941fb5066',  # veSOLAR
+        '0x98878b06940ae243284ca214f92bb71a2b032b8a',  # WMOVR
     ],
     'optimism': [
         '0x809dc529f07651bd43a172e8db6f4a7a0d771036',  # nETH
@@ -410,6 +411,7 @@ TOKENS = {
         '0xd2666441443daa61492ffe0f37717578714a4521',  # gOHM
         '0xdd47a348ab60c61ad6b60ca8c31ea5e00ebfab4f',  # synFRAX
         '0x1d4c2a246311bb9f827f4c768e277ff5787b7d7e',  # MOVR
+        '0xa1f8890e39b4d8e33efe296d698fe42fb5e59cc3',  # AVAX
     ]
 }
 

@@ -205,6 +205,7 @@ ADDRESS_TO_CGID = {
         '0xe96ac70907fff3efee79f502c985a7a21bce407d': CoingeckoIDS.FRAX,
         '0x3bf21ce864e58731b6f28d68d5928bcbeb0ad172': CoingeckoIDS.GOHM,
         '0x76906411d07815491a5e577022757ad941fb5066': CoingeckoIDS.SOLAR,
+        '0x98878b06940ae243284ca214f92bb71a2b032b8a': CoingeckoIDS.MOVR,
     },
     'optimism': {
         '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': CoingeckoIDS.SYN,
@@ -224,6 +225,7 @@ ADDRESS_TO_CGID = {
         '0x3192ae73315c3634ffa217f71cf6cbc30fee349a': CoingeckoIDS.ETH,
         '0xbf180c122d85831dcb55dc673ab47c8ab9bcefb4': CoingeckoIDS.ETH,
         '0x1d4c2a246311bb9f827f4c768e277ff5787b7d7e': CoingeckoIDS.MOVR,
+        '0xa1f8890e39b4d8e33efe296d698fe42fb5e59cc3': CoingeckoIDS.AVAX,
     }
 }
 
