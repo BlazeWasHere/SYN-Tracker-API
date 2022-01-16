@@ -206,6 +206,7 @@ ADDRESS_TO_CGID = {
         '0x3bf21ce864e58731b6f28d68d5928bcbeb0ad172': CoingeckoIDS.GOHM,
         '0x76906411d07815491a5e577022757ad941fb5066': CoingeckoIDS.SOLAR,
         '0x98878b06940ae243284ca214f92bb71a2b032b8a': CoingeckoIDS.MOVR,
+        '0x1a93b23281cc1cde4c4741353f3064709a16197d': CoingeckoIDS.FRAX,
     },
     'optimism': {
         '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': CoingeckoIDS.SYN,
