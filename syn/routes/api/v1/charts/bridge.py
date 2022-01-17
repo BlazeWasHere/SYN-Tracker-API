@@ -17,9 +17,10 @@ charts_bridge_bp = Blueprint('charts_bridge_bp', __name__)
 TIMEOUT = 15 * 60
 
 
-@charts_bridge_bp.route('/<chain:chain>/<direction>',
+@charts_bridge_bp.route('/<chain:chain>',
                         defaults={'direction': 'in'},
                         methods=['GET'])
+@charts_bridge_bp.route('/<chain:chain>/<direction>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
 def chain_direction_chart(chain: str, direction: str):
     if direction.upper() not in ['IN', 'OUT']:
