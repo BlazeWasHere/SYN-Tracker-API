@@ -73,6 +73,7 @@ def init() -> Flask:
 
     from .routes.api.v1.analytics.emissions import emissions_bp
     from .routes.api.v1.analytics.treasury import treasury_bp
+    from .routes.api.v1.charts.bridge import charts_bridge_bp
     from .routes.api.v1.analytics.volume import volume_bp
     from .routes.api.v1.analytics.pools import pools_bp
     from .routes.api.v1.analytics.fees import fees_bp
@@ -88,6 +89,8 @@ def init() -> Flask:
     app.register_blueprint(fees_bp, url_prefix='/api/v1/analytics/fees')
     app.register_blueprint(pools_bp, url_prefix='/api/v1/analytics/pools')
     app.register_blueprint(volume_bp, url_prefix='/api/v1/analytics/volume')
+    app.register_blueprint(charts_bridge_bp,
+                           url_prefix='/api/v1/charts/bridge')
     app.register_blueprint(treasury_bp,
                            url_prefix='/api/v1/analytics/treasury')
     app.register_blueprint(emissions_bp,
