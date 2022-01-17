@@ -335,6 +335,7 @@ TOKENS = {
         '0x53f7c5869a859f0aec3d334ee8b4cf01e3492f21',  # avWETH
         '0x62edc0692bd897d2295872a9ffcac5425011c661',  # GMX
         '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7',  # WAVAX
+        '0x20a9dc684b4d0407ef8c9a302beaaa18ee15f656',  # GMX
     ],
     'arbitrum': [
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',  # DAI
