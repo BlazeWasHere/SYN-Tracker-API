@@ -26,6 +26,10 @@ for chain, v in TOKENS_INFO.items():
         assert token not in symbol_to_address[chain], \
             f'duped token? {token} @ {chain} | {symbol_to_address[chain][token]}'
 
+        # Skip GMX wrapper - use GMX instead.
+        if chain == 'avalanche' and token == '0x20a9dc684b4d0407ef8c9a302beaaa18ee15f656':
+            continue
+
         symbol_to_address[chain].update({data['symbol'].lower(): token})
 
 

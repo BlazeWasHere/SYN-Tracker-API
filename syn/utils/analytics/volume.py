@@ -227,7 +227,11 @@ def get_chain_volume(chain: str, direction: str = '*') -> Dict[str, Any]:
         total_usd_current += v['stats']['usd']['current']
         total_usd_adj += v['stats']['usd']['adjusted']
         volume[token] = v['stats']['volume']
-        volume[token].update({'token': symbols[addresses.index(token)]})
+
+        if chain == 'avalanche' and token == '0x62edc0692bd897d2295872a9ffcac5425011c661':
+            volume[token].update({'token': 'gmx'})
+        else:
+            volume[token].update({'token': symbols[addresses.index(token)]})
 
     return {
         'stats': {
