@@ -292,6 +292,16 @@ def get_logs(
         }
 
         logs: List[LogReceipt] = w3.eth.get_logs(params)
+        # Apparently, some RPC nodes don't bother
+        # sorting events in a chronological order.
+        # Let's sort them by block (from oldest to newest)
+        # And by transaction index (within the same block,
+        # also in ascending order)
+        logs = sorted(
+            logs,
+            key=lambda k: (k['blockNumber'], k['transactionIndex'])
+        )
+
         for log in logs:
             # Skip transactions from the very first block
             # that are already in the DB
