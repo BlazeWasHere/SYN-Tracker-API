@@ -18,16 +18,14 @@ from syn.utils.data import LOGS_REDIS_URL
 
 
 def chart_chain_bridge_volume(
-    chain: str,
-    direction: str = 'IN',
-) -> DefaultDict[str, List[Dict[str, Union[int, float]]]]:
+        chain: str) -> DefaultDict[str, List[Dict[str, Union[int, float]]]]:
     res = defaultdict(list)
 
-    if direction not in ['IN', 'OUT']:
-        raise TypeError(f'expected direction as IN or OUT got {direction!r}')
+    # if direction not in ['IN', 'OUT']:
+    #     raise TypeError(f'expected direction as IN or OUT got {direction!r}')
 
     ret: Dict[str, Dict[str, str]] = get_all_keys(
-        f'{chain}:bridge:*:{direction}',
+        f'{chain}:bridge:*:IN',
         client=LOGS_REDIS_URL,
         index=False,
         serialize=True,

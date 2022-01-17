@@ -17,16 +17,7 @@ charts_bridge_bp = Blueprint('charts_bridge_bp', __name__)
 TIMEOUT = 15 * 60
 
 
-@charts_bridge_bp.route('/<chain:chain>',
-                        defaults={'direction': 'in'},
-                        methods=['GET'])
-@charts_bridge_bp.route('/<chain:chain>/<direction>', methods=['GET'])
+@charts_bridge_bp.route('/<chain:chain>', methods=['GET'])
 @cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
-def chain_direction_chart(chain: str, direction: str):
-    if direction.upper() not in ['IN', 'OUT']:
-        return (jsonify({
-            'error': 'invalid direction',
-            'valids': ['in', 'out'],
-        }), 400)
-
-    return jsonify(chart_chain_bridge_volume(chain, direction.upper()))
+def chain_direction_chart(chain: str):
+    return jsonify(chart_chain_bridge_volume(chain))
