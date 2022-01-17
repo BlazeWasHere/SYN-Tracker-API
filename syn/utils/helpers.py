@@ -192,7 +192,10 @@ def get_gas_stats_for_tx(chain: str,
     # Optimism seems to be pricing gas on both L1 and L2,
     # so we aggregate these and use gas_spent on L1 to
     # determine the "gas price", as L1 gas >>> L2 gas
-    if chain == 'optimism':
+
+    # Turns out, Boba does the same. Who would've thought that
+    # L2s are not that different?
+    if chain in ['optimism', 'boba']:
         paid_for_gas = receipt['gasUsed'] * ret['gasPrice']  # type: ignore
         paid_for_gas += hex_to_int(receipt['l1Fee'])  # type: ignore
         gas_used = hex_to_int(receipt['l1GasUsed'])  # type: ignore
