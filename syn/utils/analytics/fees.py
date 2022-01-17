@@ -152,7 +152,7 @@ def get_chain_validator_gas_fees(
 
         add_to_dict(res[date], 'gas_price', x['gas_price'])
         add_to_dict(res[date], 'transaction_fee', x['gas_paid'])
-        add_to_dict(res[date], 'price_usd', x['gas_paid'] * price)
+        add_to_dict(res[date], 'transaction_fee_usd', x['gas_paid'] * price)
         add_to_dict(res[date], 'tx_count', v['txCount'])
 
     return res
@@ -172,7 +172,7 @@ def get_chain_bridge_fees(chain: str, address: str):
 
         res[k] = {
             'fees': v['fees'],
-            'price_usd': v['fees'] * price,
+            'fees_usd': v['fees'] * price,
             'tx_count': v['txCount'],
         }
 
@@ -214,7 +214,7 @@ def get_chain_airdrop_amounts(chain: str,
         price = get_historic_price(_chain_to_cgid[chain], date)
 
         add_to_dict(res[date], 'airdrop', v['airdrops'])
-        add_to_dict(res[date], 'price_usd', v['airdrops'] * price)
+        add_to_dict(res[date], 'airdrop_usd', v['airdrops'] * price)
         add_to_dict(res[date], 'tx_count', v['txCount'])
 
     total, total_usd, total_usd_current = create_totals(res,

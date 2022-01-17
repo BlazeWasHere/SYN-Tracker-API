@@ -48,13 +48,13 @@ def create_totals(
                 total_volume[_k] += _v[key]
                 _total_volume[_k] += _v[key]
                 _total_txcount += _v['tx_count']
-                _total_usd += _v['price_usd']
+                _total_usd += _v['volume_usd']
 
             v['total'] = {'usd': _total_usd, 'tx_count': _total_txcount}
         else:
             total_volume[chain] += v[key]
             total_txcount += v['tx_count']
-            total_usd += v['price_usd']
+            total_usd += v['volume_usd']
 
     # Now create a `total` including every day.
     if is_out:
@@ -93,7 +93,7 @@ def get_chain_volume_total() -> Dict[str, Any]:
 
         for data in ret.values():
             for date, _data in data['data'].items():
-                add_to_dict(res[date], chain, _data['price_usd'])
+                add_to_dict(res[date], chain, _data['volume_usd'])
 
     totals: Dict[str, Decimal] = {}
 
@@ -149,7 +149,7 @@ def get_chain_volume_for_address(address: str,
 
             res[k] = {
                 'volume': Decimal(v['amount']),
-                'price_usd': Decimal(v['amount']) * price,
+                'volume_usd': Decimal(v['amount']) * price,
                 'tx_count': v['txCount'],
             }
     elif 'OUT' in direction:
@@ -169,7 +169,7 @@ def get_chain_volume_for_address(address: str,
             res[date][to_chain] = {
                 'volume': Decimal(v['amount']),
                 'tx_count': v['txCount'],
-                'price_usd': Decimal(v['amount']) * price,
+                'volume_usd': Decimal(v['amount']) * price,
             }
     else:
         raise TypeError(f'{direction!r} is invalid.')
