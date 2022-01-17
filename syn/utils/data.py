@@ -446,6 +446,12 @@ def __cb(w3: Web3, chain: str, token: str) -> None:
     })
 
 
+# Wrapper of GMX.
+TOKENS_INFO['avalanche'].update({
+    '0x20a9dc684b4d0407ef8c9a302beaaa18ee15f656':
+    TOKENS_INFO['avalanche']['0x62edc0692bd897d2295872a9ffcac5425011c661']
+})
+
 __pool = Pool(size=16)
 for chain, tokens in TOKENS.items():
     w3: Web3 = SYN_DATA[chain]['w3']
