@@ -180,6 +180,7 @@ ADDRESS_TO_CGID = {
         '0x049d68029688eabf473097a2fc38ef61633a3c7a': CoingeckoIDS.USDT,
         '0x91fa20244fb509e8289ca630e5db3e9166233fdc': CoingeckoIDS.GOHM,
         '0x1852f70512298d56e9c8fdd905e02581e04ddb2a': CoingeckoIDS.FRAX,
+        '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00': CoingeckoIDS.ETH,
     },
     'harmony': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
