@@ -190,15 +190,15 @@ def get_gas_stats_for_tx(chain: str,
     ret = w3.eth.get_transaction(txhash)
 
     # Optimism seems to be pricing gas on both L1 and L2,
-    # so we aggregate these and use gas_spent on L1 to
-    # determine the "gas price", as L1 gas >>> L2 gas
+    # so we aggregate these and use gas_spent on L2 to
+    # determine the "gas price", L2 gasUsed numbers are somewhat consistent
 
     # Turns out, Boba does the same. Who would've thought that
     # L2s are not that different?
     if chain in ['optimism', 'boba']:
         paid_for_gas = receipt['gasUsed'] * ret['gasPrice']  # type: ignore
         paid_for_gas += hex_to_int(receipt['l1Fee'])  # type: ignore
-        gas_used = hex_to_int(receipt['l1GasUsed'])  # type: ignore
+        gas_used = receipt['gasUsed']  # type: ignore
         gas_price = D(paid_for_gas) / (D(1e9) * D(gas_used))
 
         return {
@@ -426,7 +426,8 @@ def parse_tx_in(tx_data: TxData) -> Dict[str, Union[int, str]]:
     :return: keys: to, token, amount, fee
     """
     result: Dict[str, Union[int, str]] = {}
-    inp = tx_data['input'][2:]  # type: ignore + Skip 0x
+    # Skip 0x
+    inp = tx_data['input'][2:]  # type: ignore
     inp = inp[8:]  # Skip method hash
 
     address_to = inp[:64]  # Get 'to'
