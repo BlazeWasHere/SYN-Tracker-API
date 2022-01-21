@@ -14,8 +14,7 @@ from flask import Blueprint, jsonify
 import simplejson as json
 from web3 import Web3
 
-from syn.utils.data import LOGS_REDIS_URL, SYN_DATA, cache, _forced_update, \
-    DEFAULT_TIMEOUT
+from syn.utils.data import LOGS_REDIS_URL, SYN_DATA, cache, _forced_update
 from syn.utils.helpers import get_all_keys
 
 utils_bp = Blueprint('utils_bp', __name__)
@@ -40,7 +39,7 @@ def syncing():
 
 
 @utils_bp.route('/date2block/<chain:chain>/<date:date>', methods=['GET'])
-@cache.cached(timeout=DEFAULT_TIMEOUT, forced_update=_forced_update)
+@cache.cached(forced_update=_forced_update)
 def chain_date_to_block(chain: str, date: datetime):
     _date = str(date.date())
 

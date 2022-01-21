@@ -20,11 +20,12 @@ from dotenv import load_dotenv, find_dotenv
 from flask_apscheduler import APScheduler
 from gevent.greenlet import Greenlet
 from web3.contract import Contract
-from flask_caching import Cache
 from gevent.pool import Pool
 from web3 import Web3
 import gevent
 import redis
+
+from syn.utils.patches.cache import PatchedCache
 
 load_dotenv(find_dotenv('.env.sample'))
 # If `.env` exists, let it override the sample env file.
@@ -86,10 +87,8 @@ CACHE_CONFIG = {
     'CACHE_REDIS_HOST': REDIS_HOST,
     'CACHE_REDIS_PORT': REDIS_PORT
 }
-# 1 Hour.
-DEFAULT_TIMEOUT = 60 * 60
 
-cache = Cache(config=CACHE_CONFIG)
+cache = PatchedCache(config=CACHE_CONFIG)
 
 SCHEDULER_CONFIG = {
     'SCHEDULER_JOBSTORES': {
