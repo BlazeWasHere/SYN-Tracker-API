@@ -42,8 +42,6 @@ class PatchedCache(Cache):
         def decorator(f):
             @functools.wraps(f)
             def decorated_function(*args, **kwargs):
-                print(self.cache, _cache, time())
-
                 #: Bypass the cache entirely.
                 if self._bypass_cache(unless, f, *args, **kwargs):
                     return f(*args, **kwargs)
@@ -60,6 +58,12 @@ class PatchedCache(Cache):
                         cache_key = _make_cache_key(args,
                                                     kwargs,
                                                     use_request=True)
+
+                    nonlocal forced_update
+                    if forced_update is None:
+                        from syn.utils.data import _forced_update
+                        forced_update = _forced_update
+
                     if (callable(forced_update)
                             and (forced_update(*args, **kwargs) if wants_args(
                                 forced_update) else forced_update()) is True):

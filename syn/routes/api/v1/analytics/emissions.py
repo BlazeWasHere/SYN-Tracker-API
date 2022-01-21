@@ -15,15 +15,15 @@ from flask import Blueprint, jsonify, request
 from gevent import Greenlet
 import gevent
 
-from syn.utils.data import SYN_DATA, _forced_update, cache
 from syn.utils.contract import get_synapse_emissions
+from syn.utils.data import SYN_DATA, cache
 from syn.utils import verify
 
 emissions_bp = Blueprint('emissions_bp', __name__)
 
 
 @emissions_bp.route('/weekly/<chain:chain>', methods=['GET'])
-@cache.cached(forced_update=_forced_update, query_string=True)
+@cache.cached(query_string=True)
 def weekly_emissions_chain(chain: str):
     block = request.args.get('block', 'latest')
     if block != 'latest':
@@ -46,7 +46,7 @@ def weekly_emissions_chain(chain: str):
 
 
 @emissions_bp.route('/weekly', methods=['GET'])
-@cache.cached(forced_update=_forced_update)
+@cache.cached()
 def weekly_emissions():
     res: Dict[str, Decimal] = {}
     jobs: List[Greenlet] = []

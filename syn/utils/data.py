@@ -25,7 +25,7 @@ from web3 import Web3
 import gevent
 import redis
 
-from syn.utils.patches.cache import PatchedCache
+from syn.patches.cache import PatchedCache
 
 load_dotenv(find_dotenv('.env.sample'))
 # If `.env` exists, let it override the sample env file.

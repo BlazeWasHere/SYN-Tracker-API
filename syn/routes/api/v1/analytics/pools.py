@@ -19,8 +19,8 @@ from gevent.pool import Pool
 import gevent
 
 from syn.utils.analytics.pool import Pools, get_swap_volume_for_pool
-from syn.utils.data import SYN_DATA, cache, _forced_update
 from syn.utils.contract import get_virtual_price
+from syn.utils.data import SYN_DATA, cache
 from syn.utils.helpers import raise_if
 from syn.utils import verify
 
@@ -53,7 +53,7 @@ def _convert_ret(ret: Dict[str, Any], res: Dict[str, Decimal]) -> None:
 
 
 @pools_bp.route('/price/virtual/<chain:chain>', methods=['GET'])
-@cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
+@cache.cached(timeout=TIMEOUT, query_string=True)
 def price_virtual_chain(chain: str):
     block = request.args.get('block', 'latest')
     if block != 'latest':
@@ -76,7 +76,7 @@ def price_virtual_chain(chain: str):
 
 
 @pools_bp.route('/price/virtual', methods=['GET'])
-@cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
+@cache.cached(timeout=TIMEOUT)
 def price_virtual():
     res: Dict[str, Dict[str, Decimal]] = defaultdict(dict)
     jobs: Dict[str, List[Greenlet]] = {}
@@ -97,7 +97,7 @@ def price_virtual():
                 defaults={'pool': ''},
                 methods=['GET'])
 @pools_bp.route('/volume/<chain:chain>/<pool>', methods=['GET'])
-@cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
+@cache.cached(timeout=TIMEOUT)
 def volume_pool(chain: str, pool: Pools):
     if pool not in get_args(Pools):
         return (jsonify({
@@ -109,7 +109,7 @@ def volume_pool(chain: str, pool: Pools):
 
 
 #@pools_bp.route('/price/virtual/<chain>/<date:date>', methods=['GET'])
-#@cache.cached(forced_update=_forced_update)
+#@cache.cached()
 #def price_virtual_chain_historical(chain: str, date: datetime):
 #    if chain not in SYN_DATA:
 #        return (jsonify({

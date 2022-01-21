@@ -16,7 +16,7 @@ from syn.utils.analytics.fees import get_admin_fees, get_chain_bridge_fees, \
     get_chain_airdrop_amounts
 from syn.utils.analytics.treasury import get_treasury_erc20_balances
 from syn.routes.api.v1.analytics.volume import symbol_to_address
-from syn.utils.data import cache, _forced_update
+from syn.utils.data import cache
 from syn.utils import verify
 
 fees_bp = Blueprint('fees_bp', __name__)
@@ -26,7 +26,7 @@ TIMEOUT = 60 * 15
 
 
 @fees_bp.route('/admin/<chain:chain>', methods=['GET'])
-@cache.cached(timeout=TIMEOUT, forced_update=_forced_update, query_string=True)
+@cache.cached(timeout=TIMEOUT, query_string=True)
 def adminfees_chain(chain: str):
     block = request.args.get('block', 'latest')
     if block != 'latest':
@@ -44,7 +44,7 @@ def adminfees_chain(chain: str):
 
 
 @fees_bp.route('/admin/<chain:chain>/pending', methods=['GET'])
-@cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
+@cache.cached(timeout=TIMEOUT)
 def pending_adminfees_chain(chain: str):
     block = request.args.get('block', 'latest')
     if block != 'latest':
@@ -80,7 +80,7 @@ def pending_adminfees_chain(chain: str):
                defaults={'token': None},
                methods=['GET'])
 @fees_bp.route('/validator/<chain:chain>/<token>', methods=['GET'])
-@cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
+@cache.cached(timeout=TIMEOUT)
 def chain_validator_gas_fees(chain: str, token: str):
     if token is not None and token not in symbol_to_address[chain]:
         return (jsonify({
@@ -99,7 +99,7 @@ def chain_validator_gas_fees(chain: str, token: str):
                },
                methods=['GET'])
 @fees_bp.route('/bridge/<chain:chain>/<token>', methods=['GET'])
-@cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
+@cache.cached(timeout=TIMEOUT)
 def chain_bridge_fees(chain: str, token: str):
     if token not in symbol_to_address[chain]:
         return (jsonify({
@@ -121,7 +121,7 @@ def chain_bridge_fees(chain: str, token: str):
                defaults={'token': None},
                methods=['GET'])
 @fees_bp.route('/airdrop/<chain:chain>/<token>', methods=['GET'])
-@cache.cached(timeout=TIMEOUT, forced_update=_forced_update)
+@cache.cached(timeout=TIMEOUT)
 def airdrop_chain_fees(chain: str, token: str):
     if token is not None and token not in symbol_to_address[chain]:
         return (jsonify({

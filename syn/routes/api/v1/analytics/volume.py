@@ -14,7 +14,7 @@ from flask import Blueprint, jsonify
 
 from syn.utils.analytics.volume import get_chain_volume_for_address, \
     get_chain_volume, get_chain_volume_total, get_chain_tx_count_total
-from syn.utils.data import cache, _forced_update, TOKENS_INFO
+from syn.utils.data import cache, TOKENS_INFO
 
 volume_bp = Blueprint('volume_bp', __name__)
 
@@ -34,7 +34,7 @@ for chain, v in TOKENS_INFO.items():
 
 
 @volume_bp.route('/<chain:chain>/filter/<token>/<direction>', methods=['GET'])
-@cache.cached(timeout=60 * 5, forced_update=_forced_update)
+@cache.cached(timeout=60 * 5)
 def chain_filter_token_direction(chain: str, token: str, direction: str):
     if direction.upper() not in ['IN', 'OUT']:
         return (jsonify({
@@ -59,7 +59,7 @@ def chain_filter_token_direction(chain: str, token: str, direction: str):
                  defaults={'direction': ''},
                  methods=['GET'])
 @volume_bp.route('/<chain:chain>/<direction>', methods=['GET'])
-@cache.cached(timeout=60 * 15, forced_update=_forced_update)
+@cache.cached(timeout=60 * 15)
 def chain_volume(chain: str, direction: str):
     if direction.upper() not in ['IN', 'OUT']:
         return (jsonify({
@@ -74,12 +74,12 @@ def chain_volume(chain: str, direction: str):
 
 
 @volume_bp.route('/total', methods=['GET'])
-@cache.cached(timeout=60 * 15, forced_update=_forced_update)
+@cache.cached(timeout=60 * 15)
 def chain_volume_total():
     return jsonify(get_chain_volume_total())
 
 
 @volume_bp.route('/total/tx_count', methods=['GET'])
-@cache.cached(timeout=60 * 15, forced_update=_forced_update)
+@cache.cached(timeout=60 * 15)
 def chain_tx_count_total():
     return jsonify(get_chain_tx_count_total())
