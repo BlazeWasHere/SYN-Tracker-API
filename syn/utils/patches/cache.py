@@ -19,7 +19,6 @@ from flask_caching import Cache, wants_args
 from flask import request, url_for
 
 logger = logging.getLogger('flask_caching')
-logging.basicConfig(level=logging.DEBUG)
 # {
 #    cache_key: expiry
 # }
