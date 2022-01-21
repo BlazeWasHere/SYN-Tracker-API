@@ -9,13 +9,16 @@
 
 from flask import Blueprint, jsonify
 
-from .circ import get_all_chains_circ_supply, get_chain_circ_cupply, SYN_DATA
+from syn.routes.api.v1.circ import get_all_chains_circ_supply, \
+    get_chain_circ_cupply
 from syn.utils.price import CoingeckoIDS, get_price_coingecko
+from syn.utils.data import cache
 
 mcap_bp = Blueprint('mcap_bp', __name__)
 
 
 @mcap_bp.route('/', methods=['GET'])
+@cache.cached()
 def mcap():
     return jsonify({
         'market_cap':
@@ -24,6 +27,7 @@ def mcap():
 
 
 @mcap_bp.route('/<chain:chain>', methods=['GET'])
+@cache.cached()
 def mcap_chain(chain: str):
     ret = get_chain_circ_cupply(chain)
     return jsonify({'market_cap': get_price_coingecko(CoingeckoIDS.SYN) * ret})
