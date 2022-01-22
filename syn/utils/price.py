@@ -236,19 +236,19 @@ ADDRESS_TO_CGID = {
 @redis_cache(filter=lambda res: res != 0)
 def get_historic_price(_id: CoingeckoIDS,
                        date: str,
-                       currency: str = "usd",
-                       sleep: bool = False) -> Decimal:
+                       currency: str = "usd") -> Decimal:
     date = dateutil.parser.parse(date).strftime('%d-%m-%Y')
 
     # CG rate limits us @ 10-50 r/m, let's hope this makes us not trigger it.
-    if POPULATE_CACHE or sleep:
+    if POPULATE_CACHE:
         time.sleep(randint(5, 20))
 
     r = requests.get(COINGECKO_HISTORIC_URL.format(_id.value, date))
 
     if r.status_code == 429:
         # TODO(blaze): have a bailout.
-        return get_historic_price(_id, date, currency, sleep=True)
+        time.sleep(randint(5, 20))
+        return get_historic_price(_id, date, currency)
     else:
         r = r.json(use_decimal=True)
 
