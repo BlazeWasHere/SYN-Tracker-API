@@ -17,8 +17,8 @@ import time
 import dateutil.parser
 import requests
 
-from .data import COINGECKO_BASE_URL, COINGECKO_HISTORIC_URL, POPULATE_CACHE
-from .cache import timed_cache, redis_cache
+from .data import COINGECKO_HISTORIC_URL, POPULATE_CACHE
+from .cache import redis_cache
 
 logger = logging.Logger(__name__)
 
@@ -296,11 +296,6 @@ def get_price_for_address(chain: str, address: str) -> Decimal:
     return get_price_coingecko(ADDRESS_TO_CGID[chain][address])
 
 
-@timed_cache(60 * 10, maxsize=500)
 def get_price_coingecko(_id: CoingeckoIDS, currency: str = "usd") -> Decimal:
-    # CG rate limits us @ 10-50 r/m, let's hope this makes us not trigger it.
-    if POPULATE_CACHE:
-        time.sleep(randint(5, 20))
-
-    r = requests.get(COINGECKO_BASE_URL.format(_id.value, currency))
-    return Decimal(r.json(use_decimal=True)[_id.value][currency])
+    # Proxy method for get_historic_price() with `_date` as today.
+    return get_historic_price(_id, datetime.now().date().isoformat(), currency)
