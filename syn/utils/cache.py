@@ -12,9 +12,12 @@ from functools import lru_cache, wraps
 from datetime import timedelta
 import time
 
+from flask_caching.backends import SimpleCache
 import simplejson as json
 
 from .data import REDIS
+
+_redis_cache = SimpleCache()
 
 
 # Gotta love SO: https://stackoverflow.com/a/63674816
@@ -84,23 +87,33 @@ def redis_cache(key: Optional[Callable[..., str]] = None,
             else:
                 _key = key(*args, **kwargs, is_class=is_class)
 
+            # Check internal cache.
+            if (data := _redis_cache.get(_key)) is not None:
+                return data
+
+            # Check redis cache.
             if (data := REDIS.get(_key)) is not None:
                 if isinstance(data, str):
                     try:
-                        return json.loads(data, use_decimal=True)
-                    except:
-                        return data
+                        data = json.loads(data, use_decimal=True)
+                    except json.JSONDecodeError:
+                        pass
+
+                # 5m
+                _redis_cache.add(_key, data, timeout=60 * 5)
 
                 return data
 
+            # Missed, update cache.
             res = fn(*args, **kwargs)
 
             if filter(res):
                 if not isinstance(res, (str, bytes, float, int)):
-                    _res = json.dumps(res)
-                    REDIS.set(_key, _res, expires_at)
-                else:
-                    REDIS.set(_key, res, expires_at)
+                    res = json.dumps(res)
+
+                # 5m
+                _redis_cache.add(_key, res, timeout=60 * 5)
+                REDIS.set(_key, res, expires_at)
 
             return res
 
