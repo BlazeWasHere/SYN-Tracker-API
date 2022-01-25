@@ -67,16 +67,20 @@ def chain_volume(chain: str, direction: str):
             'valids': ['in', 'out'],
         }), 400)
 
-    if direction.upper() == 'OUT':
-        direction = 'OUT:*'
-
     return jsonify(get_chain_volume(chain, direction.upper()))
 
 
 @volume_bp.route('/total', methods=['GET'])
-@cache.cached(timeout=60 * 15)
+@volume_bp.route('/total/in', methods=['GET'])
+@cache.cached()
 def chain_volume_total():
-    return jsonify(get_chain_volume_total())
+    return jsonify(get_chain_volume_total(direction='IN'))
+
+
+@volume_bp.route('/total/out', methods=['GET'])
+@cache.cached()
+def chain_volume_total_out():
+    return jsonify(get_chain_volume_total(direction='OUT'))
 
 
 @volume_bp.route('/total/tx_count', methods=['GET'])
