@@ -109,11 +109,13 @@ def redis_cache(key: Optional[Callable[..., str]] = None,
 
             if filter(res):
                 if not isinstance(res, (str, bytes, float, int)):
-                    res = json.dumps(res)
+                    _redis_cache.add(_key, res, timeout=60 * 5)
+                    _res = json.dumps(res)
+                else:
+                    _redis_cache.add(_key, res, timeout=60 * 5)
+                    _res = res
 
-                # 5m
-                _redis_cache.add(_key, res, timeout=60 * 5)
-                REDIS.set(_key, res, expires_at)
+                REDIS.set(_key, _res, expires_at)
 
             return res
 
