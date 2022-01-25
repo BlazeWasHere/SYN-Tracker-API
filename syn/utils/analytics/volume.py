@@ -75,7 +75,9 @@ def create_totals(
     return total_volume, total_usd, total_usd_current
 
 
-def get_chain_volume_total() -> Dict[str, Any]:
+def get_chain_volume_total(direction: str) -> Dict[str, Any]:
+    assert direction in ['IN', 'OUT']
+
     def recursive_defaultdict() -> DefaultDict:
         return defaultdict(recursive_defaultdict)
 
@@ -83,7 +85,7 @@ def get_chain_volume_total() -> Dict[str, Any]:
     jobs: Dict[str, Greenlet] = {}
 
     for chain in SYN_DATA.keys():
-        jobs[chain] = gevent.spawn(get_chain_volume, chain, 'IN')
+        jobs[chain] = gevent.spawn(get_chain_volume, chain, direction)
 
     gevent.joinall(jobs.values())
 
@@ -135,49 +137,35 @@ def get_chain_tx_count_total() -> Dict[str, Dict[str, Decimal]]:
 def get_chain_volume_for_address(address: str,
                                  chain: str,
                                  direction: str = '*') -> Dict[str, Any]:
+    assert direction in ['IN', 'OUT:*']
+
     res = defaultdict(dict)
 
-    if 'IN' in direction:
-        ret: Dict[str, Dict[str, str]] = get_all_keys(
-            f'{chain}:bridge:*:{address}:{direction}',
-            client=LOGS_REDIS_URL,
-            index=2,
-            serialize=True)
+    ret: Dict[str, Dict[str, str]] = get_all_keys(
+        f'{chain}:bridge:*:{address}:{direction}',
+        client=LOGS_REDIS_URL,
+        index=2 if direction == 'IN' else False,
+        serialize=True,
+    )
 
-        for k, v in ret.items():
-            price = get_historic_price_for_address(chain, address, k)
-
-            res[k] = {
-                'volume': Decimal(v['amount']),
-                'price_usd': Decimal(v['amount']) * price,
-                'tx_count': v['txCount'],
-            }
-    elif 'OUT' in direction:
-        ret: Dict[str, Dict[str, str]] = get_all_keys(
-            f'{chain}:bridge:*:{address}:{direction}',
-            client=LOGS_REDIS_URL,
-            serialize=True,
-            index=False,
-        )
-
-        for k, v in ret.items():
-            to_chain = CHAINS[int(k.split(':')[-1])]
+    for k, v in ret.items():
+        if direction == 'IN':
+            date = k
+        else:
             date = k.split(':')[2]
 
-            price = get_historic_price_for_address(chain, address, date)
+        price = get_historic_price_for_address(chain, address, date)
+        res[date] = {'tx_count': v['txCount']}
 
-            res[date][to_chain] = {
-                'volume': Decimal(v['amount']),
-                'tx_count': v['txCount'],
-                'price_usd': Decimal(v['amount']) * price,
-            }
-    else:
-        raise TypeError(f'{direction!r} is invalid.')
+        add_to_dict(res[date], 'volume', Decimal(v['amount']))
+        add_to_dict(res[date], 'price_usd', res[date]['volume'] * price)
 
-    # In direction 'OUT', we add the `to_chain` key so it adds a level of nesting.
-    nested = 'OUT' in direction
     total, total_usd, total_usd_current = create_totals(
-        res, chain, address, nested)
+        res,
+        chain,
+        address,
+        is_out=False,
+    )
     #total, total_usd, total_usd_current = 0, 0, 0
 
     return {
@@ -194,6 +182,11 @@ def get_chain_volume_for_address(address: str,
 
 def get_chain_volume(chain: str, direction: str = '*') -> Dict[str, Any]:
     from syn.routes.api.v1.analytics.volume import symbol_to_address
+
+    assert direction in ['IN', 'OUT']
+
+    if direction == 'OUT':
+        direction = 'OUT:*'
 
     # Get all tokens for the chain which we have stored.
     ret = get_all_keys(f'{chain}:bridge:*:{direction}',
