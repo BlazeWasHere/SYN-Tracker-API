@@ -155,8 +155,10 @@ def get_chain_volume_for_address(address: str,
             date = k.split(':')[2]
 
         price = get_historic_price_for_address(chain, address, date)
-        res[date] = {'tx_count': v['txCount']}
+        if date not in res:
+            res[date] = defaultdict(dict)
 
+        add_to_dict(res[date], 'tx_count', v['txCount'])
         add_to_dict(res[date], 'volume', Decimal(v['amount']))
         add_to_dict(res[date], 'price_usd', res[date]['volume'] * price)
 
