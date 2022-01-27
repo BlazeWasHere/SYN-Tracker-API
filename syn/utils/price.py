@@ -7,18 +7,16 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
-from random import randint
 from enum import Enum
 import logging
-import time
 
 import dateutil.parser
-import requests
 
-from .data import COINGECKO_HISTORIC_URL, POPULATE_CACHE
-from .cache import redis_cache
+from syn.utils.cache import redis_cache, _serialize_args_to_str
+from syn.utils.data import REDIS, POPULATE_CACHE
+from syn.utils.helpers import date_range
 
 logger = logging.Logger(__name__)
 
@@ -237,26 +235,24 @@ ADDRESS_TO_CGID = {
 def get_historic_price(_id: CoingeckoIDS,
                        date: str,
                        currency: str = "usd") -> Decimal:
-    date = dateutil.parser.parse(date).strftime('%d-%m-%Y')
-
-    # CG rate limits us @ 10-50 r/m, let's hope this makes us not trigger it.
+    # If this function is running here, price has not been indexed yet by
+    # the worker. Data should be returned by `redis_cache()`
     if POPULATE_CACHE:
-        time.sleep(randint(5, 20))
+        return Decimal()
 
-    r = requests.get(COINGECKO_HISTORIC_URL.format(_id.value, date))
+    _date = dateutil.parser.parse(date)
+    for date in date_range(_date, _date - timedelta(days=7)):
+        _key = _serialize_args_to_str(_id, date)
+        keys = [_key, f'{_key}:usd']
 
-    if r.status_code == 429:
-        # TODO(blaze): have a bailout.
-        time.sleep(randint(5, 20))
-        return get_historic_price(_id, date, currency)
-    else:
-        r = r.json(use_decimal=True)
+        for key in keys:
+            if (data := REDIS.get(key)) is not None:
+                # NOTE: data could be 0.
+                return Decimal(data)
 
-    try:
-        return Decimal(r['market_data']['current_price'][currency])
-    except KeyError:
-        # CG doesn't have the price.
-        return Decimal(0)
+    # TODO: alert the worker of a missing price?
+    # Did not converge, just fallback to 0.
+    return Decimal()
 
 
 def get_historic_price_syn(date: str, currency: str = "usd") -> Decimal:
