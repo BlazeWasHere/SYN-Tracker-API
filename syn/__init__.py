@@ -32,7 +32,7 @@ from flask.wrappers import Response
 import simplejson as json
 from flask import Flask
 
-from syn.cron import update_caches, update_getlogs, update_getlogs_pool
+from syn.cron import update_prices, update_getlogs, update_getlogs_pool
 from syn.utils.data import cache, SCHEDULER_CONFIG, schedular, \
     MESSAGE_QUEUE_REDIS
 from syn.utils.helpers import worker_assert_lock
@@ -50,7 +50,7 @@ def _first_run() -> None:
 
     update_getlogs_pool()
     update_getlogs()
-    update_caches()
+    update_prices()
 
     # We want schedular to start AFTER.
     schedular.start()
