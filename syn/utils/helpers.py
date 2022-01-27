@@ -8,7 +8,7 @@
 """
 
 from typing import Any, List, Dict, Literal, Optional, TypeVar, Union, cast, \
-    Callable
+    Callable, Generator
 from datetime import datetime, timedelta
 from collections import defaultdict
 
@@ -539,3 +539,22 @@ def parse_logs_out(log: LogReceipt) -> Dict[str, Union[int, str]]:
         result['token_index_to'] = int(data[:64], 16)  # Get 'token_index_to'
 
     return result
+
+
+def date_range(start: datetime, till: datetime) -> Generator[str, None, None]:
+    """
+    Yield an isoformat str of every day backwards from `start` to `till`.
+
+    >>> list(date_range(datetime.now(), datetime.now() - timedelta(days=7)))
+    ['2022-01-27', '2022-01-26', '2022-01-25', '2022-01-24', ...]
+
+    Args:
+        start (datetime): start date
+        till (datetime): end date
+
+    Yields:
+        Generator[str, None, None]: iterator of date strings.
+    """
+    days = abs((till - start).days)
+    for i in range(days):
+        yield str((start - timedelta(days=i)).date())
