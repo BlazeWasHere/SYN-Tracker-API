@@ -137,9 +137,12 @@ def get_chain_tx_count_total() -> Dict[str, Dict[str, Decimal]]:
 def get_chain_volume_for_address(address: str,
                                  chain: str,
                                  direction: str = '*') -> Dict[str, Any]:
+    def recursive_defaultdict() -> DefaultDict:
+        return defaultdict(recursive_defaultdict)
+
     assert direction in ['IN', 'OUT:*']
 
-    res = defaultdict(dict)
+    res = recursive_defaultdict()
 
     ret: Dict[str, Dict[str, str]] = get_all_keys(
         f'{chain}:bridge:*:{address}:{direction}',
@@ -155,8 +158,6 @@ def get_chain_volume_for_address(address: str,
             date = k.split(':')[2]
 
         price = get_historic_price_for_address(chain, address, date)
-        if date not in res:
-            res[date] = defaultdict(dict)
 
         add_to_dict(res[date], 'tx_count', v['txCount'])
         add_to_dict(res[date], 'volume', Decimal(v['amount']))
