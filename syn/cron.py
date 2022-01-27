@@ -1,29 +1,60 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-          Copyright Blaze 2021.
+		  Copyright Blaze 2021.
  Distributed under the Boost Software License, Version 1.0.
-    (See accompanying file LICENSE_1_0.txt or copy at
-          https://www.boost.org/LICENSE_1_0.txt)
+	(See accompanying file LICENSE_1_0.txt or copy at
+		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
 from contextlib import contextmanager
-from datetime import datetime
 from typing import Generator
 from functools import wraps
-import traceback
 import time
 import os
 
-import requests
-
 from syn.utils.helpers import dispatch_get_logs, worker_assert_lock
-from syn.utils.data import schedular, MESSAGE_QUEUE_REDIS, REDIS, \
-    COINGECKO_HISTORIC_URL
+from syn.utils.data import schedular, MESSAGE_QUEUE_REDIS
 from syn.utils.analytics.pool import pool_callback
-from syn.utils.cache import _serialize_args_to_str
 from syn.utils.wrappa.rpc import bridge_callback
-from syn.utils.price import CoingeckoIDS
+
+routes = [
+    '/api/v1/analytics/volume/ethereum/filter/nusd',
+    '/api/v1/analytics/volume/ethereum/filter/syn',
+    '/api/v1/analytics/volume/ethereum/filter/high',
+    '/api/v1/analytics/volume/ethereum/filter/dog',
+    '/api/v1/analytics/volume/ethereum/filter/usdt',
+    '/api/v1/analytics/volume/ethereum/filter/usdc',
+    '/api/v1/analytics/volume/ethereum/filter/dai',
+    '/api/v1/analytics/volume/ethereum',
+    '/api/v1/analytics/volume/bsc/filter/nusd',
+    '/api/v1/analytics/volume/bsc/filter/syn',
+    '/api/v1/analytics/volume/bsc/filter/high',
+    '/api/v1/analytics/volume/bsc/filter/dog',
+    '/api/v1/analytics/volume/bsc',
+    '/api/v1/analytics/volume/polygon/filter/syn',
+    '/api/v1/analytics/volume/polygon/filter/nusd',
+    '/api/v1/analytics/volume/polygon',
+    '/api/v1/analytics/volume/metapool/bsc',
+    '/api/v1/analytics/volume/metapool/avalanche',
+    '/api/v1/analytics/volume/metapool/polygon',
+    '/api/v1/analytics/volume/metapool/arbitrum',
+    '/api/v1/analytics/volume/metapool/fantom',
+    '/api/v1/analytics/pools/metapool/price/virtual',
+    '/api/v1/analytics/pools/basepool/price/virtual',
+    '/api/v1/analytics/pools/metapool/price/virtual/arbitrum',
+    '/api/v1/analytics/pools/metapool/price/virtual/bsc',
+    '/api/v1/analytics/pools/metapool/price/virtual/polygon',
+    '/api/v1/analytics/pools/metapool/price/virtual/avalanche',
+    '/api/v1/analytics/pools/metapool/price/virtual/harmony',
+    '/api/v1/analytics/pools/metapool/price/virtual/fantom',
+    '/api/v1/analytics/pools/basepool/price/virtual/arbitrum',
+    '/api/v1/analytics/pools/basepool/price/virtual/bsc',
+    '/api/v1/analytics/pools/basepool/price/virtual/polygon',
+    '/api/v1/analytics/pools/basepool/price/virtual/avalanche',
+    '/api/v1/analytics/pools/basepool/price/virtual/harmony',
+    '/api/v1/analytics/pools/basepool/price/virtual/fantom',
+]
 
 
 def acquire_lock(name: str):
@@ -49,31 +80,16 @@ def acquire_lock(name: str):
     return _decorator
 
 
-@schedular.task("cron", id="update_prices", hour=0, max_instances=1)
-@acquire_lock('update_prices')
-def update_prices():
+@schedular.task("interval", id="update_caches", minutes=15, max_instances=1)
+@acquire_lock('update_caches')
+def update_caches():
     start = time.time()
     print(f'(0) [{start}] Cron job start.')
-    date = datetime.now().strftime('%d-%m-%Y')
 
-    for x in CoingeckoIDS:
-        _key = _serialize_args_to_str(x, date)
-        keys = [_key, f'{_key}:usd']
-
-        for key in keys:
-            if REDIS.get(key) is None:
-                try:
-                    r = requests.get(
-                        COINGECKO_HISTORIC_URL.format(x.value, date))
-                    r = r.json()
-
-                    REDIS.setnx(_key, r['market_data']['current_price']['usd'])
-                    print(REDIS.get(_key))
-                except Exception:
-                    traceback.print_exc()
-                    print(key, r)
-            else:
-                print(f'{key} has a value??')
+    with schedular.app.test_client() as c:  # type: ignore
+        for route in routes:
+            print(f'(0) Updating cache for route ~> {route}')
+            c.get(route)
 
     print(f'(0) Cron job done. Elapsed: {time.time() - start:.2f}s')
 
