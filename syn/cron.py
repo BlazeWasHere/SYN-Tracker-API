@@ -11,10 +11,12 @@ from contextlib import contextmanager
 from typing import Generator, cast
 from datetime import datetime
 from functools import wraps
+from decimal import Decimal
 import traceback
 import time
 import os
 
+import simplejson as json
 import requests
 
 from syn.utils.helpers import dispatch_get_logs, worker_assert_lock
@@ -49,7 +51,7 @@ def acquire_lock(name: str):
     return _decorator
 
 
-def get_price(_id: str, date: str):
+def get_price(_id: str, date: str) -> Decimal:
     time.sleep(1)
     r = requests.get(COINGECKO_HISTORIC_URL.format(_id, date))
     return r.json(use_decimal=True)['market_data']['current_price']['usd']
@@ -69,7 +71,7 @@ def update_prices():
         for key in keys:
             if REDIS.get(key) is None:
                 try:
-                    REDIS.setnx(_key, get_price(x.value, date))
+                    REDIS.setnx(_key, json.dumps(get_price(x.value, date)))
                     print(REDIS.get(_key))
                 except Exception:
                     MESSAGE_QUEUE_REDIS.rpush('prices:missing', key)
@@ -109,7 +111,7 @@ def update_prices_missing():
             _id, date = x[0], x[1]
 
             try:
-                REDIS.setnx(key, get_price(_id, date))
+                REDIS.setnx(key, json.dumps(get_price(_id, date)))
             except Exception:
                 # Revert lpop.
                 MESSAGE_QUEUE_REDIS.rpush('prices:missing', key)
