@@ -50,6 +50,7 @@ def acquire_lock(name: str):
 
 
 def get_price(_id: str, date: str):
+    time.sleep(1)
     r = requests.get(COINGECKO_HISTORIC_URL.format(_id, date))
     return r.json(use_decimal=True)['market_data']['current_price']['usd']
 
