@@ -94,6 +94,9 @@ def update_prices_missing():
     keys = MESSAGE_QUEUE_REDIS.lrange('prices:missing', 0, -1)
 
     for key in keys:
+        # TODO(blaze): remove now or later?
+        MESSAGE_QUEUE_REDIS.lrem('prices:missing', 1, key)
+
         # Check if price is actually missing
         if (_ := REDIS.get(key)) is None or _ == '0':
             if (key.endswith(':usd')):
