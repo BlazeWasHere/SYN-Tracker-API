@@ -14,8 +14,8 @@ import logging
 
 import dateutil.parser
 
+from syn.utils.data import REDIS, POPULATE_CACHE, MESSAGE_QUEUE_REDIS
 from syn.utils.cache import redis_cache, _serialize_args_to_str
-from syn.utils.data import REDIS, POPULATE_CACHE
 from syn.utils.helpers import date_range
 
 logger = logging.Logger(__name__)
@@ -240,6 +240,11 @@ def get_historic_price(_id: CoingeckoIDS,
     if POPULATE_CACHE:
         return Decimal()
 
+    MESSAGE_QUEUE_REDIS.rpush('prices:missing',
+                              _serialize_args_to_str(_id, date, currency))
+    MESSAGE_QUEUE_REDIS.rpush('prices:missing',
+                              _serialize_args_to_str(_id, date))
+
     _date = dateutil.parser.parse(date)
     for date in date_range(_date, _date - timedelta(days=7)):
         _key = _serialize_args_to_str(_id, date)
@@ -249,9 +254,11 @@ def get_historic_price(_id: CoingeckoIDS,
             if (data := REDIS.get(key)) is not None:
                 # NOTE: data could be 0.
                 return Decimal(data)
+            else:
+                MESSAGE_QUEUE_REDIS.rpush('prices:missing', key)
 
-    # TODO: alert the worker of a missing price?
     # Did not converge, just fallback to 0.
+    logging.warning(f'returned 0 for {_id} @ {date}')
     return Decimal()
 
 
