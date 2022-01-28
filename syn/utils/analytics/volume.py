@@ -161,7 +161,7 @@ def get_chain_volume_for_address(address: str,
 
         add_to_dict(res[date], 'tx_count', v['txCount'])
         add_to_dict(res[date], 'volume', Decimal(v['amount']))
-        add_to_dict(res[date], 'price_usd', res[date]['volume'] * price)
+        add_to_dict(res[date], 'price_usd', Decimal(v['amount']) * price)
 
     total, total_usd, total_usd_current = create_totals(
         res,
