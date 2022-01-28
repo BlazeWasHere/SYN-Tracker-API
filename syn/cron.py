@@ -8,8 +8,8 @@
 """
 
 from contextlib import contextmanager
-from typing import Generator, cast
 from datetime import datetime
+from typing import Generator
 from functools import wraps
 from decimal import Decimal
 import traceback
@@ -72,7 +72,6 @@ def update_prices():
             if REDIS.get(key) is None:
                 try:
                     REDIS.setnx(_key, json.dumps(get_price(x.value, date)))
-                    print(REDIS.get(_key))
                 except Exception:
                     MESSAGE_QUEUE_REDIS.rpush('prices:missing', key)
                     traceback.print_exc()
@@ -92,10 +91,9 @@ def update_prices_missing():
     start = time.time()
     print(f'(1) [{start}] Cron job start.')
 
-    # Iterate from oldest -> newest request.
-    while (key := MESSAGE_QUEUE_REDIS.lpop('prices:missing')) is not None:
-        key = cast(str, key)
+    keys = MESSAGE_QUEUE_REDIS.lrange('prices:missing', 0, -1)
 
+    for key in keys:
         # Check if price is actually missing
         if (_ := REDIS.get(key)) is None or _ == '0':
             if (key.endswith(':usd')):
