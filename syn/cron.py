@@ -73,7 +73,7 @@ def update_prices():
                 try:
                     REDIS.setnx(_key, json.dumps(get_price(x.value, date)))
                 except Exception:
-                    MESSAGE_QUEUE_REDIS.rpush('prices:missing', key)
+                    MESSAGE_QUEUE_REDIS.sadd('prices:missing', key)
                     traceback.print_exc()
                     print(key)
             else:
