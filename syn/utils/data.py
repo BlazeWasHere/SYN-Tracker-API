@@ -362,6 +362,7 @@ TOKENS = {
         '0x91fa20244fb509e8289ca630e5db3e9166233fdc',  # gOHM
         '0x1852f70512298d56e9c8fdd905e02581e04ddb2a',  # synFRAX
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00',  # nETH
+        '0x74b23882a30290451a17c44f4f05243b6b58c76d',  # WETH
     ],
     'harmony': [
         '0xe55e19fb4f2d85af758950957714292dac1e25b2',  # SYN
