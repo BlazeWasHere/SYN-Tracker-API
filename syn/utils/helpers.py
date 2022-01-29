@@ -253,6 +253,7 @@ def dispatch_get_logs(
                 },
                 'fantom': {
                     'nusd': 21297076,
+                    'neth': 28288390,
                 },
                 'harmony': {
                     'nusd': 19163634,

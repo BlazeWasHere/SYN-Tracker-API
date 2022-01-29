@@ -167,6 +167,7 @@ SYN_DATA = {
         "usdlp": "0x43cf58380e69594fa2a5682de484ae00edd83e94",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
         "minichef": "0xaeD5b25BE1c3163c907a471082640450F928DDFE",
+        "ethpool": "0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1",
     },
     "harmony": {
         "rpc": os.getenv('HARMONY_RPC'),

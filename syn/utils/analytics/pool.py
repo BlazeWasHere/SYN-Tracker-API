@@ -95,6 +95,11 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
             'admin': 6000000000,
             'swap': 4000000,
         },
+        'neth': {
+            'address': '0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1',
+            'admin': 6000000000,
+            'swap': 2000000,
+        }
     },
     'harmony': {
         'nusd': {
@@ -138,8 +143,7 @@ FEE_DECIMALS = 10
 _chain_fee: Dict[str, Dict[str, Dict[str, int]]] = defaultdict(dict)
 
 
-def _address_to_pool(chain: str,
-                     address: str) -> Union[Literal['nusd'], Literal['neth']]:
+def _address_to_pool(chain: str, address: str) -> Literal['nusd', 'neth']:
     for k, v in POOLS[chain].items():
         if cast(str, v['address']).lower() == address.lower():
             return k  # type: ignore
