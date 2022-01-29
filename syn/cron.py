@@ -91,11 +91,11 @@ def update_prices_missing():
     start = time.time()
     print(f'(1) [{start}] Cron job start.')
 
-    keys = MESSAGE_QUEUE_REDIS.lrange('prices:missing', 0, -1)
+    keys = MESSAGE_QUEUE_REDIS.smembers('prices:missing')
 
     for key in keys:
         # TODO(blaze): remove now or later?
-        MESSAGE_QUEUE_REDIS.lrem('prices:missing', 1, key)
+        MESSAGE_QUEUE_REDIS.srem('prices:missing', 1, key)
 
         # Check if price is actually missing
         if (_ := REDIS.get(key)) is None or _ == '0':
@@ -115,7 +115,7 @@ def update_prices_missing():
                 REDIS.setnx(key, json.dumps(get_price(_id, date)))
             except Exception:
                 # Revert lpop.
-                MESSAGE_QUEUE_REDIS.rpush('prices:missing', key)
+                MESSAGE_QUEUE_REDIS.sadd('prices:missing', key)
                 traceback.print_exc()
                 print(key)
 

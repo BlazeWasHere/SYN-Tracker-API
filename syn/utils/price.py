@@ -240,10 +240,11 @@ def get_historic_price(_id: CoingeckoIDS,
     if POPULATE_CACHE:
         return Decimal()
 
-    MESSAGE_QUEUE_REDIS.rpush('prices:missing',
-                              _serialize_args_to_str(_id, date, currency))
-    MESSAGE_QUEUE_REDIS.rpush('prices:missing',
-                              _serialize_args_to_str(_id, date))
+    MESSAGE_QUEUE_REDIS.sadd(
+        'prices:missing', *[
+            _serialize_args_to_str(_id, date, currency),
+            _serialize_args_to_str(_id, date)
+        ])
 
     _date = dateutil.parser.parse(date)
     for date in date_range(_date, _date - timedelta(days=7)):
@@ -255,7 +256,7 @@ def get_historic_price(_id: CoingeckoIDS,
                 # NOTE: data could be 0.
                 return Decimal(data)
             else:
-                MESSAGE_QUEUE_REDIS.rpush('prices:missing', key)
+                MESSAGE_QUEUE_REDIS.sadd('prices:missing', key)
 
     # Did not converge, just fallback to 0.
     logging.warning(f'returned 0 for {_id} @ {date}')
