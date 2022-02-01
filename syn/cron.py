@@ -8,15 +8,13 @@
 """
 
 from contextlib import contextmanager
+from typing import Generator, cast
 from datetime import datetime
-from typing import Generator
 from functools import wraps
-from decimal import Decimal
 import traceback
 import time
 import os
 
-import simplejson as json
 import requests
 
 from syn.utils.helpers import dispatch_get_logs, worker_assert_lock
@@ -51,8 +49,7 @@ def acquire_lock(name: str):
     return _decorator
 
 
-def get_price(_id: str, date: str) -> Decimal:
-    time.sleep(1)
+def get_price(_id: str, date: str):
     r = requests.get(COINGECKO_HISTORIC_URL.format(_id, date))
     return r.json(use_decimal=True)['market_data']['current_price']['usd']
 
@@ -71,11 +68,14 @@ def update_prices():
         for key in keys:
             if REDIS.get(key) is None:
                 try:
-                    REDIS.setnx(_key, json.dumps(get_price(x.value, date)))
-                except Exception:
-                    MESSAGE_QUEUE_REDIS.sadd('prices:missing', key)
-                    traceback.print_exc()
-                    print(key)
+                    REDIS.setnx(_key, get_price(x.value, date))
+                    print(REDIS.get(_key))
+                except Exception as e:
+                    MESSAGE_QUEUE_REDIS.rpush('prices:missing', key)
+
+                    if not isinstance(e, KeyError):
+                        traceback.print_exc()
+                        print(key)
             else:
                 print(f'{key} has a value??')
 
@@ -91,11 +91,9 @@ def update_prices_missing():
     start = time.time()
     print(f'(1) [{start}] Cron job start.')
 
-    keys = MESSAGE_QUEUE_REDIS.smembers('prices:missing')
-
-    for key in keys:
-        # TODO(blaze): remove now or later?
-        MESSAGE_QUEUE_REDIS.srem('prices:missing', 1, key)
+    # Iterate from oldest -> newest request.
+    while (key := MESSAGE_QUEUE_REDIS.lpop('prices:missing')) is not None:
+        key = cast(str, key)
 
         # Check if price is actually missing
         if (_ := REDIS.get(key)) is None or _ == '0':
@@ -112,10 +110,10 @@ def update_prices_missing():
             _id, date = x[0], x[1]
 
             try:
-                REDIS.setnx(key, json.dumps(get_price(_id, date)))
+                REDIS.setnx(key, get_price(_id, date))
             except Exception:
                 # Revert lpop.
-                MESSAGE_QUEUE_REDIS.sadd('prices:missing', key)
+                MESSAGE_QUEUE_REDIS.rpush('prices:missing', key)
                 traceback.print_exc()
                 print(key)
 
