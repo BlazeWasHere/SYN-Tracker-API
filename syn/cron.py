@@ -115,11 +115,12 @@ def update_prices_missing():
 
             try:
                 REDIS.setnx(key, json.dumps(get_price(_id, date)))
-            except Exception:
-                # Revert lpop.
+            except Exception as e:
                 MESSAGE_QUEUE_REDIS.sadd('prices:missing', key)
-                traceback.print_exc()
-                print(key)
+
+                if not isinstance(e, KeyError):
+                    traceback.print_exc()
+                    print(key)
 
     print(f'(1) Cron job done. Elapsed: {time.time() - start:.2f}s')
 
