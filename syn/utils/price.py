@@ -232,7 +232,8 @@ ADDRESS_TO_CGID = {
 }
 
 
-@redis_cache(filter=lambda res: res != 0)
+# Fetch prices from cache but DO NOT actually cache responses.
+@redis_cache(filter=lambda _: False)
 def get_historic_price(_id: CoingeckoIDS,
                        date: str,
                        currency: str = "usd") -> Decimal:
