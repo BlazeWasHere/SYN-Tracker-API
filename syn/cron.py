@@ -112,7 +112,7 @@ def update_prices_missing():
 
             x = key.split(':')
             _id, date = x[0], x[1]
-            date = datetime.now().strftime('%d-%m-%Y')
+            date = datetime.fromisoformat(date).strftime('%d-%m-%Y')
 
             try:
                 REDIS.setnx(key, json.dumps(get_price(_id, date)))
