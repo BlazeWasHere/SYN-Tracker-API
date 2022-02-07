@@ -62,7 +62,10 @@ def get_price(_id: str, date: str) -> Decimal:
 def update_prices():
     start = time.time()
     print(f'(0) [{start}] Cron job start.')
-    date = datetime.now().strftime('%d-%m-%Y')
+
+    _now = datetime.now()
+    date = _now.strftime('%Y-%m-%d')
+    date_cg = _now.strftime('%d-%m-%Y')
 
     for x in CoingeckoIDS:
         _key = _serialize_args_to_str(x, date)
@@ -71,11 +74,11 @@ def update_prices():
         for key in keys:
             if REDIS.get(key) is None:
                 try:
-                    REDIS.setnx(_key, json.dumps(get_price(x.value, date)))
+                    REDIS.setnx(key, json.dumps(get_price(x.value, date_cg)))
                 except Exception as e:
                     MESSAGE_QUEUE_REDIS.sadd('prices:missing', key)
 
-                    if not isinstance(e, KeyError):
+                    if not type(e) == KeyError:
                         traceback.print_exc()
                         print(key)
             else:
@@ -103,11 +106,11 @@ def update_prices_missing():
         if (_ := REDIS.get(key)) is None or _ == '0':
             if (key.endswith(':usd')):
                 if (data := REDIS.get(key.replace(':usd', ''))) is not None:
-                    REDIS.set(key, data)
+                    REDIS.setnx(key, data)
                     continue
             else:
                 if (data := REDIS.get(f'{key}:usd')) is not None:
-                    REDIS.set(key, data)
+                    REDIS.setnx(key, data)
                     continue
 
             x = key.split(':')
@@ -119,7 +122,7 @@ def update_prices_missing():
             except Exception as e:
                 MESSAGE_QUEUE_REDIS.sadd('prices:missing', key)
 
-                if not isinstance(e, KeyError):
+                if not type(e) == KeyError:
                     traceback.print_exc()
                     print(key)
 
