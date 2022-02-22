@@ -1087,6 +1087,8 @@
     },
     "/api/v1/analytics/treasury/{chain}": {
       "get": {
+        "deprecated": true,
+        "description": "DEPRECATED: it is more reliable and accurate to use block explorers compared to this",
         "parameters": [
           {
             "in": "path",
