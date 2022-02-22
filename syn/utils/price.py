@@ -48,6 +48,8 @@ class CoingeckoIDS(Enum):
     SOLAR = 'solarbeam'
     GMX = 'gmx'
     GLMR = 'moonbeam'
+    CRO = 'crypto-com-chain'
+    METIS = 'metis-token'
 
 
 CUSTOM = {
@@ -108,6 +110,14 @@ CUSTOM = {
         '0x07379565cd8b0cae7c60dc78e7f601b34af2a21c': 1,
     },
     'moonbeam': {},
+    'cronos': {
+        # nUSD
+        '0x396c9c192dd323995346632581bef92a31ac623b': 1,
+    },
+    'metis': {
+        # nUSD
+        '0xed2a7edd7413021d440b09d654f3b87712abab66': 1,
+    }
 }
 
 ADDRESS_TO_CGID = {
@@ -213,6 +223,7 @@ ADDRESS_TO_CGID = {
         '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': CoingeckoIDS.SYN,
         '0x809dc529f07651bd43a172e8db6f4a7a0d771036': CoingeckoIDS.ETH,
         '0x121ab82b49b2bc4c7901ca46b8277962b4350204': CoingeckoIDS.ETH,
+        '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb': CoingeckoIDS.GOHM,
     },
     'aurora': {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
@@ -228,6 +239,14 @@ ADDRESS_TO_CGID = {
         '0xbf180c122d85831dcb55dc673ab47c8ab9bcefb4': CoingeckoIDS.ETH,
         '0x1d4c2a246311bb9f827f4c768e277ff5787b7d7e': CoingeckoIDS.MOVR,
         '0xa1f8890e39b4d8e33efe296d698fe42fb5e59cc3': CoingeckoIDS.AVAX,
+    },
+    'cronos': {
+        '0xfd0f80899983b8d46152aa1717d76cba71a31616': CoingeckoIDS.SYN,
+        '0xbb0a63a6ca2071c6c4bcac11a1a317b20e3e999c': CoingeckoIDS.GOHM,
+    },
+    'metis': {
+        '0x91fa20244fb509e8289ca630e5db3e9166233fdc': CoingeckoIDS.GOHM,
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
     }
 }
 

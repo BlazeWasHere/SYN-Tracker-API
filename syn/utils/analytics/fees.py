@@ -40,6 +40,8 @@ _chain_to_cgid = {
     'optimism': CoingeckoIDS.ETH,
     'aurora': CoingeckoIDS.ETH,
     'moonbeam': CoingeckoIDS.GLMR,
+    'cronos': CoingeckoIDS.CRO,
+    'metis': CoingeckoIDS.METIS,
 }
 
 

@@ -299,6 +299,16 @@ def dispatch_get_logs(
                                  topics=topics,
                                  start_block=start_block,
                                  key_namespace=key_namespace))
+            elif chain == 'cronos':
+                jobs.append(
+                    gevent.spawn(get_logs,
+                                 chain,
+                                 cb,
+                                 address,
+                                 max_blocks=2000,
+                                 topics=topics,
+                                 start_block=start_block,
+                                 key_namespace=key_namespace))
             elif chain == 'boba':
                 jobs.append(
                     gevent.spawn(get_logs,

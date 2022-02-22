@@ -38,6 +38,8 @@ _start_blocks = {
     'optimism': 30718,
     'aurora': 56092179,
     'moonbeam': 173355,
+    'cronos': 1578335,
+    'metis': 957508,
 }
 
 airdrop_ranges = {
@@ -297,10 +299,8 @@ def get_logs(
         # Let's sort them by block (from oldest to newest)
         # And by transaction index (within the same block,
         # also in ascending order)
-        logs = sorted(
-            logs,
-            key=lambda k: (k['blockNumber'], k['transactionIndex'])
-        )
+        logs = sorted(logs,
+                      key=lambda k: (k['blockNumber'], k['transactionIndex']))
 
         for log in logs:
             # Skip transactions from the very first block

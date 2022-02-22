@@ -209,6 +209,18 @@ SYN_DATA = {
         "address": "0xf44938b0125a6662f9536281ad2cd6c499f22004",
         'bridge': '0x84a420459cd31c3c34583f67e0f0fb191067d32f',
         "minichef": "0xd5609cd0e1675331e4fb1d43207c8d9d83aab17c",
+    },
+    "cronos": {
+        "rpc": os.getenv('CRONOS_RPC'),
+        "address": "0xfd0f80899983b8d46152aa1717d76cba71a31616",
+        "bridge": "0xe27bff97ce92c3e1ff7aa9f86781fdd6d48f5ee9",
+        "minichef": "0xa9e90579eb086bcda910dd94041ffe041fb4ac89",
+    },
+    "metis": {
+        "rpc": os.getenv('METIS_RPC'),
+        "address": "0xe55e19fb4f2d85af758950957714292dac1e25b2",
+        "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
+        "minichef": "0xa67b7147dce20d6f25fd9abfbcb1c3ca74e11f0b",
     }
 }
 
@@ -225,6 +237,8 @@ TREASURY = {
     'harmony': '0x0172e7190Bbc0C2Aa98E4d1281d41D0c07178605',
     'aurora': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
     'moonbeam': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
+    'cronos': '0x7f91f3111b2009eC7c079Be213570330a37e8aeC',
+    'metis': '0x44a5847E9d8d2ab037475b2bE4f07a1143D12c2c',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
@@ -399,6 +413,7 @@ TOKENS = {
         '0x809dc529f07651bd43a172e8db6f4a7a0d771036',  # nETH
         '0x5a5fff6f753d7c11a56a52fe47a177a87e431655',  # SYN
         '0x121ab82b49b2bc4c7901ca46b8277962b4350204',  # WETH
+        '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb',  # gOHM
     ],
     'aurora': [
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445',  # SYN
@@ -415,6 +430,16 @@ TOKENS = {
         '0xdd47a348ab60c61ad6b60ca8c31ea5e00ebfab4f',  # synFRAX
         '0x1d4c2a246311bb9f827f4c768e277ff5787b7d7e',  # MOVR
         '0xa1f8890e39b4d8e33efe296d698fe42fb5e59cc3',  # AVAX
+    ],
+    'cronos': [
+        '0xfd0f80899983b8d46152aa1717d76cba71a31616',  # SYN
+        '0x396c9c192dd323995346632581bef92a31ac623b',  # nUSD
+        '0xbb0a63a6ca2071c6c4bcac11a1a317b20e3e999c',  # gOHM
+    ],
+    'metis': [
+        '0x91fa20244fb509e8289ca630e5db3e9166233fdc',  # gOHM
+        '0xed2a7edd7413021d440b09d654f3b87712abab66',  # nUSD
+        '0xe55e19fb4f2d85af758950957714292dac1e25b2',  # SYN
     ]
 }
 

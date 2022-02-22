@@ -27,6 +27,8 @@ CHAINS = {
     10: 'optimism',
     1313161554: 'aurora',
     1284: 'moonbeam',
+    25: 'cronos',
+    1088: 'metis',
 }
 
 
