@@ -49,7 +49,7 @@ def _first_run() -> None:
 
     print(f'worker({os.getpid()}), acquired the lock')
 
-    # update_getlogs_pool()
+    update_getlogs_pool()
     update_getlogs()
     update_prices()
     update_prices_missing()
