@@ -158,6 +158,7 @@ SYN_DATA = {
         "bridge": "0x6f4e8eba4d337f874ab57478acc2cb5bacdc19c9",
         "ethpool": "0xa067668661c84476afcdc6fa5d758c4c01c34352",
         "minichef": "0x73186f2Cf2493f20836b17b21ae79fc12934E207",
+        "3pool": "0x9dd329f5411466d9e0c488ff72519ca9fef0cb40",
     },
     "fantom": {
         "rpc": os.getenv('FTM_RPC'),
@@ -168,6 +169,7 @@ SYN_DATA = {
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
         "minichef": "0xaeD5b25BE1c3163c907a471082640450F928DDFE",
         "ethpool": "0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1",
+        "3pool": "0x85662fd123280827e11c59973ac9fcbe838dc3b4",
     },
     "harmony": {
         "rpc": os.getenv('HARMONY_RPC'),
@@ -286,6 +288,13 @@ for key, value in SYN_DATA.items():
             'bridge_contract':
             w3.eth.contract(Web3.toChecksumAddress(value['bridge']),
                             abi=BRIDGE_ABI)
+        })
+
+    if value.get('3pool') is not None:
+        value.update({
+            '3pool_contract':
+            w3.eth.contract(Web3.toChecksumAddress(value['3pool']),
+                            abi=BASEPOOL_ABI)
         })
 
 # On mainnet only.

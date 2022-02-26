@@ -8,17 +8,20 @@
 """
 
 from typing import Literal, Optional, List, Any, Tuple, Union, Dict
+from collections import defaultdict
 from decimal import Decimal
 
 from web3.types import BlockIdentifier
 import web3.exceptions
 from web3 import Web3
 
-from .data import BRIDGE_CONFIG, SYN_DATA, MAX_UINT8, SYN_DECIMALS
+from .data import (BRIDGE_CONFIG, SYN_DATA, MAX_UINT8, SYN_DECIMALS,
+                   BASEPOOL_ABI)
 from .helpers import handle_decimals
 from .cache import timed_cache
 
 _TokenInfo = Tuple[int, str, int, int, int, int, int, int, bool, bool]
+_pool_cache: Dict[str, Dict[str, Dict[int, str]]] = defaultdict(dict)
 
 
 # TODO(blaze): better type hints.
@@ -122,3 +125,25 @@ def get_bridge_token_info(chain: str,
         return False
 
     return ret
+
+
+def get_pool_data(chain: str, address: str):
+    if address in _pool_cache[chain]:
+        return _pool_cache[chain][address]
+
+    w3: Web3 = SYN_DATA[chain]['w3']
+    contract = w3.eth.contract(w3.toChecksumAddress(address), abi=BASEPOOL_ABI)
+    res: Dict[int, str] = {}
+
+    for i in range(MAX_UINT8):
+        try:
+            # TODO: block indentifier?
+            res[i] = contract.functions.getToken(i).call()
+        except (web3.exceptions.ContractLogicError,
+                web3.exceptions.BadFunctionCallOutput):
+            # Out of range.
+            break
+
+    _pool_cache[chain][address] = res
+    print(type(res[0]))
+    return res

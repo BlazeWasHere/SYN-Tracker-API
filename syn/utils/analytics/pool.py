@@ -20,7 +20,7 @@ from web3 import Web3
 from syn.utils.data import SYN_DATA, POOL_ABI, TOKEN_DECIMALS, LOGS_REDIS_URL
 from syn.utils.helpers import convert, get_all_keys, handle_decimals
 from syn.utils.price import CoingeckoIDS, get_historic_price
-from syn.utils.explorer.data import TOKENS_IN_POOL
+from syn.utils.contract import get_pool_data
 
 Pools = Literal['nusd', 'neth']
 
@@ -88,6 +88,11 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
             'admin': 0,
             'swap': 4000000,
         },
+        '3pool': {
+            'address': '0x9dd329f5411466d9e0c488ff72519ca9fef0cb40',
+            'admin': 6000000000,
+            'swap': 2000000,
+        },
     },
     'fantom': {
         'nusd': {
@@ -99,7 +104,12 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
             'address': '0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1',
             'admin': 6000000000,
             'swap': 2000000,
-        }
+        },
+        '3pool': {
+            'address': '0x85662fd123280827e11c59973ac9fcbe838dc3b4',
+            'admin': 6000000000,
+            'swap': 2000000,
+        },
     },
     'harmony': {
         'nusd': {
@@ -146,6 +156,10 @@ _chain_fee: Dict[str, Dict[str, Dict[str, int]]] = defaultdict(dict)
 def _address_to_pool(chain: str, address: str) -> Literal['nusd', 'neth']:
     for k, v in POOLS[chain].items():
         if cast(str, v['address']).lower() == address.lower():
+            # 3pool is the new nusd pool (removing MIM).
+            if k == '3pool':
+                return 'nusd'
+
             return k  # type: ignore
 
     raise RuntimeError(f"{address} not found in {chain}'s pools")
@@ -195,6 +209,7 @@ def pool_callback(chain: str, address: str, log: LogReceipt,
     TOPICS_REVERSE = {v: k for k, v in TOPICS.items()}
     admin_fee = _chain_fee[chain][pool]['admin']
     swap_fee = _chain_fee[chain][pool]['swap']
+    pool_data = get_pool_data(chain, address)
     data = data['args']
 
     newfee: Optional[Union[Literal['swap'], Literal['admin']]] = None
@@ -203,8 +218,7 @@ def pool_callback(chain: str, address: str, log: LogReceipt,
     if topic in [
             TOPICS_REVERSE['RemoveLiquidityOne'], TOPICS_REVERSE['TokenSwap']
     ]:
-        decimals = TOKEN_DECIMALS[chain][TOKENS_IN_POOL[chain][pool][
-            data['boughtId']].lower()]
+        decimals = TOKEN_DECIMALS[chain][pool_data[data['boughtId']].lower()]
         total_fees = Decimal(
             data['tokensBought']) * Decimal(swap_fee) / Decimal(
                 (FEE_DENOMINATOR - swap_fee) * 10**decimals)
@@ -229,7 +243,7 @@ def pool_callback(chain: str, address: str, log: LogReceipt,
         total_fees = Decimal(0)
         volume = Decimal(0)
 
-        for i, token in TOKENS_IN_POOL[chain][pool].items():
+        for i, token in pool_data.items():
             decimals = TOKEN_DECIMALS[chain][token.lower()]
             total_fees += handle_decimals(fees[i], decimals)
             volume += handle_decimals(amounts[i], decimals)

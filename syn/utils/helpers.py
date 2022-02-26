@@ -250,10 +250,12 @@ def dispatch_get_logs(
                 'arbitrum': {
                     'nusd': 2876718,
                     'neth': 762758,
+                    '3pool': 5152261,
                 },
                 'fantom': {
                     'nusd': 21297076,
                     'neth': 28288390,
+                    '3pool': 29236172,
                 },
                 'harmony': {
                     'nusd': 19163634,
@@ -277,6 +279,10 @@ def dispatch_get_logs(
             if 'ethpool_contract' in SYN_DATA[chain]:
                 _start_block = _start_blocks[chain]['neth']
                 addresses.append([SYN_DATA[chain]['ethpool'], _start_block])
+
+            if '3pool_contract' in SYN_DATA[chain]:
+                _start_block = _start_blocks[chain]['3pool']
+                addresses.append([SYN_DATA[chain]['3pool'], _start_block])
 
         topics = topics or list(TOPICS)
 

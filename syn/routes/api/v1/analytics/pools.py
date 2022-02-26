@@ -35,8 +35,13 @@ def _dispatch(chain: str, block: Union[str, int]) -> List[Greenlet]:
     threads: List[Greenlet] = []
 
     if 'pool_contract' in SYN_DATA[chain]:
-        threads.append(
-            gpool.spawn(get_virtual_price, chain, block, 'pool_contract'))
+        # Track VP of the newer pools.
+        if '3pool_contract' in SYN_DATA[chain]:
+            func = '3pool_contract'
+        else:
+            func = 'pool_contract'
+
+        threads.append(gpool.spawn(get_virtual_price, chain, block, func))
 
     if 'ethpool_contract' in SYN_DATA[chain]:
         threads.append(
@@ -50,6 +55,8 @@ def _convert_ret(ret: Dict[str, Any], res: Dict[str, Decimal]) -> None:
         res['neth'] = ret['ethpool_contract']
     elif 'pool_contract' in ret:
         res['nusd'] = ret['pool_contract']
+    elif '3pool_contract' in ret:
+        res['nusd'] = ret['3pool_contract']
 
 
 @pools_bp.route('/price/virtual/<chain:chain>', methods=['GET'])
