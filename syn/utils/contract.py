@@ -145,5 +145,4 @@ def get_pool_data(chain: str, address: str):
             break
 
     _pool_cache[chain][address] = res
-    print(type(res[0]))
     return res
