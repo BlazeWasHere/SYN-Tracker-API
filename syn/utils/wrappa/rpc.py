@@ -101,6 +101,12 @@ airdrop_ranges = {
     'moonbeam': {
         0: [None, None],
     },
+    'cronos': {
+        0: [None, None],
+    },
+    'metis': {
+        0: [None, None],
+    },
 }
 
 pool = Pool(size=64)
