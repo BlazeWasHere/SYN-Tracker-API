@@ -448,9 +448,20 @@
         "tags": ["Admin Fees"]
       }
     },
-    "/api/v1/analytics/volume/total": {
+    "/api/v1/analytics/volume/total/{direction}": {
       "get": {
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "direction",
+            "required": true,
+            "description": "count the asset going IN or OUT of the chain",
+            "schema": {
+              "type": "string",
+              "enum": ["in", "out"]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
