@@ -1201,6 +1201,47 @@
         "tags": ["Pools"]
       }
     },
+    "/api/v1/analytics/pools/volume/total": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number",
+                          "format": "float"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "number",
+                        "format": "float"
+                      }
+                    },
+                    "totals": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "number",
+                        "format": "float"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "total volume of every chain in USD",
+        "tags": ["Pools"]
+      }
+    },
     "/api/v1/analytics/pools/volume/{chain}/{pool}": {
       "get": {
         "parameters": [

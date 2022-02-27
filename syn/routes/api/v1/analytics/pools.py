@@ -18,7 +18,8 @@ from gevent.greenlet import Greenlet
 from gevent.pool import Pool
 import gevent
 
-from syn.utils.analytics.pool import Pools, get_swap_volume_for_pool
+from syn.utils.analytics.pool import (Pools, get_swap_volume_for_pool,
+                                      get_swap_volume_total)
 from syn.utils.contract import get_virtual_price
 from syn.utils.data import SYN_DATA, cache
 from syn.utils.helpers import raise_if
@@ -113,6 +114,12 @@ def volume_pool(chain: str, pool: Pools):
         }), 400)
 
     return jsonify(get_swap_volume_for_pool(pool, chain))
+
+
+@pools_bp.route('/volume/total', methods=['GET'])
+@cache.cached()
+def swap_volume_total():
+    return jsonify(get_swap_volume_total())
 
 
 #@pools_bp.route('/price/virtual/<chain>/<date:date>', methods=['GET'])

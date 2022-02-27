@@ -7,18 +7,21 @@
           https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from typing import Any, Dict, Literal, Optional, Union, cast, get_args
+from typing import Any, Dict, Literal, Optional, Union, cast, get_args, List
 from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
 import logging
+import copy
 
 from web3.types import LogReceipt
 import simplejson as json
 from web3 import Web3
+import gevent
 
+from syn.utils.helpers import (add_to_dict, convert, get_all_keys,
+                               handle_decimals, raise_if)
 from syn.utils.data import SYN_DATA, POOL_ABI, TOKEN_DECIMALS, LOGS_REDIS_URL
-from syn.utils.helpers import convert, get_all_keys, handle_decimals
 from syn.utils.price import CoingeckoIDS, get_historic_price
 from syn.utils.contract import get_pool_data
 
@@ -357,3 +360,47 @@ def get_swap_volume_for_pool(pool: Pools, chain: str) -> Dict[str, Any]:
             })
 
     return res
+
+
+def get_swap_volume_for_chain(chain: str) -> Dict[str, Decimal]:
+    volumes: List[Dict[str, Any]] = []
+    res = defaultdict(Decimal)
+
+    if 'ethpool' in SYN_DATA[chain]:
+        volumes.append(get_swap_volume_for_pool('neth', chain))
+
+    if 'pool' in SYN_DATA[chain] or '3pool' in SYN_DATA[chain]:
+        volumes.append(get_swap_volume_for_pool('nusd', chain))
+
+    for data in volumes:
+        for k, v in data.items():
+            for _v in v.values():
+                res[k] += _v['volume_usd']
+
+    return res
+
+
+def get_swap_volume_total() -> Dict[str, Any]:
+    threads: Dict[str, gevent.Greenlet] = {}
+    res = defaultdict(dict)
+
+    for chain in SYN_DATA:
+        threads[chain] = gevent.spawn(get_swap_volume_for_chain, chain)
+
+    gevent.joinall(threads.values())
+
+    for chain, thread in threads.items():
+        ret = raise_if(thread.get(), None)
+
+        for date, v in ret.items():
+            add_to_dict(res[date], chain, v)
+
+    totals: Dict[str, Decimal] = {}
+
+    # Calculate totals for each day.
+    for date, data in copy.deepcopy(res).items():
+        for chain, v in data.items():
+            add_to_dict(res[date], 'total', v)
+            add_to_dict(totals, chain, v)
+
+    return {'data': res, 'totals': totals}
