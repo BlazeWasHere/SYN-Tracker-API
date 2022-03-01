@@ -221,7 +221,7 @@ SYN_DATA = {
     "metis": {
         "rpc": os.getenv('METIS_RPC'),
         "address": "0xe55e19fb4f2d85af758950957714292dac1e25b2",
-        "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
+        "bridge": "0x06fea8513ff03a0d3f61324da709d4cf06f42a5c",
         "minichef": "0xa67b7147dce20d6f25fd9abfbcb1c3ca74e11f0b",
     }
 }
@@ -446,9 +446,9 @@ TOKENS = {
         '0xbb0a63a6ca2071c6c4bcac11a1a317b20e3e999c',  # gOHM
     ],
     'metis': [
-        '0x91fa20244fb509e8289ca630e5db3e9166233fdc',  # gOHM
-        '0xed2a7edd7413021d440b09d654f3b87712abab66',  # nUSD
-        '0xe55e19fb4f2d85af758950957714292dac1e25b2',  # SYN
+        '0xfb21b70922b9f6e3c6274bcd6cb1aa8a0fe20b80',  # gOHM
+        '0x961318fc85475e125b99cc9215f62679ae5200ab',  # nUSD
+        '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00',  # SYN
     ]
 }
 

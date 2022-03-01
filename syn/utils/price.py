@@ -116,7 +116,7 @@ CUSTOM = {
     },
     'metis': {
         # nUSD
-        '0xed2a7edd7413021d440b09d654f3b87712abab66': 1,
+        '0x961318fc85475e125b99cc9215f62679ae5200ab': 1,
     }
 }
 
@@ -245,8 +245,8 @@ ADDRESS_TO_CGID = {
         '0xbb0a63a6ca2071c6c4bcac11a1a317b20e3e999c': CoingeckoIDS.GOHM,
     },
     'metis': {
-        '0x91fa20244fb509e8289ca630e5db3e9166233fdc': CoingeckoIDS.GOHM,
-        '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
+        '0xfb21b70922b9f6e3c6274bcd6cb1aa8a0fe20b80': CoingeckoIDS.GOHM,
+        '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00': CoingeckoIDS.SYN,
     }
 }
 
