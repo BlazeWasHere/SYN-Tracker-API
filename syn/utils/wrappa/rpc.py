@@ -20,7 +20,8 @@ import gevent
 
 from syn.utils.data import SYN_DATA, LOGS_REDIS_URL, TOKEN_DECIMALS
 from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals, \
-    get_airdrop_value_for_block, convert, parse_logs_out, parse_tx_in
+    get_airdrop_value_for_block, convert, parse_logs_out, parse_tx_in, \
+    retry
 from syn.utils.explorer.data import TOPICS, Direction
 from syn.utils.contract import get_bridge_token_info
 
@@ -299,7 +300,8 @@ def get_logs(
             'topics': [topics],  # type: ignore
         }
 
-        logs: List[LogReceipt] = w3.eth.get_logs(params)
+        logs: List[LogReceipt] = retry(w3.eth.get_logs, params)
+
         # Apparently, some RPC nodes don't bother
         # sorting events in a chronological order.
         # Let's sort them by block (from oldest to newest)
@@ -316,7 +318,7 @@ def get_logs(
                 continue
 
             try:
-                callback(chain, address, log, first_run)
+                retry(callback, chain, address, log, first_run)
             except Exception as e:
                 print(chain, log)
                 raise e

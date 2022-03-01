@@ -11,6 +11,7 @@ from typing import Any, List, Dict, Literal, Optional, TypeVar, Union, cast, \
     Callable, Generator
 from datetime import datetime, timedelta
 from collections import defaultdict
+import traceback
 
 from hexbytes import HexBytes
 import contextlib
@@ -575,3 +576,18 @@ def date_range(start: datetime, till: datetime) -> Generator[str, None, None]:
     days = abs((till - start).days)
     for i in range(days):
         yield str((start - timedelta(days=i)).date())
+
+
+def retry(func: Callable[..., T], *args, **kwargs) -> T:
+    attempts: int = kwargs.pop('attempts', 5)
+
+    for i in range(attempts):
+        try:
+            return func(*args, **kwargs)
+        except Exception:
+            print(f'retry attempt {i}, args: {args}')
+            traceback.print_exc()
+            gevent.sleep(3**i)
+
+    logging.critical(f'maximum retries ({attempts}) reached')
+    raise
