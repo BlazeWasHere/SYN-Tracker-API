@@ -108,19 +108,28 @@ def get_chain_volume_total(direction: str) -> Dict[str, Any]:
     return {'data': res, 'totals': totals}
 
 
-def get_chain_tx_count_total() -> Dict[str, Dict[str, Decimal]]:
+def get_chain_tx_count_total(direction: str) -> Dict[str, Dict[str, Decimal]]:
+    assert direction in ['IN', 'OUT']
+
     def recursive_defaultdict() -> DefaultDict:
         return defaultdict(recursive_defaultdict)
 
     res = recursive_defaultdict()
 
-    ret = get_all_keys(f'*:bridge:*:IN',
+    if direction == 'OUT':
+        direction = 'OUT:*'
+
+    ret = get_all_keys(f'*:bridge:*:{direction}',
                        serialize=True,
                        client=LOGS_REDIS_URL,
                        index=False)
 
     for k, v in ret.items():
-        chain, _, date, _, _ = k.split(':')
+        if direction == 'IN':
+            chain, _, date, _, _ = k.split(':')
+        else:
+            chain, _, date, _, _, _ = k.split(':')
+
         add_to_dict(res[chain], date, v['txCount'])
 
     totals: Dict[str, Decimal] = {}
