@@ -10,10 +10,11 @@
 from collections import defaultdict
 from typing import Dict
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 from syn.utils.analytics.volume import get_chain_volume_for_address, \
     get_chain_volume, get_chain_volume_total, get_chain_tx_count_total
+from syn.utils.helpers import filter_volume_data
 from syn.utils.data import cache, TOKENS_INFO
 
 volume_bp = Blueprint('volume_bp', __name__)
@@ -72,15 +73,17 @@ def chain_volume(chain: str, direction: str):
 
 @volume_bp.route('/total', methods=['GET'])
 @volume_bp.route('/total/in', methods=['GET'])
-@cache.cached()
+@cache.cached(query_string=True)
 def chain_volume_total():
-    return jsonify(get_chain_volume_total(direction='IN'))
+    data = get_chain_volume_total(direction='IN')
+    return jsonify(filter_volume_data(data, request.args))
 
 
 @volume_bp.route('/total/out', methods=['GET'])
-@cache.cached()
+@cache.cached(query_string=True)
 def chain_volume_total_out():
-    return jsonify(get_chain_volume_total(direction='OUT'))
+    data = get_chain_volume_total(direction='OUT')
+    return jsonify(filter_volume_data(data, request.args))
 
 
 @volume_bp.route('/total/tx_count', methods=['GET'])

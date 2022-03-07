@@ -15,7 +15,7 @@
       },
       "date": {
         "type": "string",
-        "pattern": "/([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/",
+        "format": "date",
         "example": "2021-11-29"
       },
       "Pools": {
@@ -459,6 +459,22 @@
             "schema": {
               "type": "string",
               "enum": ["in", "out"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "description": "fetch data from date",
+            "schema": {
+              "$ref": "#/components/schemas/date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "description": "fetch data till date",
+            "schema": {
+              "$ref": "#/components/schemas/date"
             }
           }
         ],

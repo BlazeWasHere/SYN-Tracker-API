@@ -13,15 +13,13 @@ from decimal import Decimal
 import copy
 
 from gevent.greenlet import Greenlet
-import dateutil.parser
 import gevent
 
-from syn.utils.price import CoingeckoIDS, get_historic_price_for_address, \
-    get_price_for_address, get_price_coingecko
-from syn.utils.helpers import add_to_dict, get_all_keys, raise_if
+from syn.utils.price import (CoingeckoIDS, get_historic_price_for_address,
+                             get_price_for_address, get_price_coingecko)
+from syn.utils.helpers import (add_to_dict, get_all_keys, raise_if,
+                               calculate_volume_totals)
 from syn.utils.data import LOGS_REDIS_URL, SYN_DATA
-from syn.utils.explorer.data import CHAINS
-from syn.utils.cache import timed_cache
 
 
 def create_totals(
@@ -97,15 +95,7 @@ def get_chain_volume_total(direction: str) -> Dict[str, Any]:
             for date, _data in data['data'].items():
                 add_to_dict(res[date], chain, _data['price_usd'])
 
-    totals: Dict[str, Decimal] = {}
-
-    # Calculate totals for each day.
-    for date, data in copy.deepcopy(res).items():
-        for chain, v in data.items():
-            add_to_dict(res[date], 'total', v)
-            add_to_dict(totals, chain, v)
-
-    return {'data': res, 'totals': totals}
+    return {'data': res, 'totals': calculate_volume_totals(res)}
 
 
 def get_chain_tx_count_total(direction: str) -> Dict[str, Dict[str, Decimal]]:
@@ -132,15 +122,7 @@ def get_chain_tx_count_total(direction: str) -> Dict[str, Dict[str, Decimal]]:
 
         add_to_dict(res[chain], date, v['txCount'])
 
-    totals: Dict[str, Decimal] = {}
-
-    # Calculate totals for each day.
-    for date, data in copy.deepcopy(res).items():
-        for chain, v in data.items():
-            add_to_dict(res[date], 'total', v)
-            add_to_dict(totals, chain, v)
-
-    return {'data': res, 'totals': totals}
+    return {'data': res, 'totals': calculate_volume_totals(res)}
 
 
 def get_chain_volume_for_address(address: str,

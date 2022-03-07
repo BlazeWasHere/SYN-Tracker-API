@@ -6,19 +6,21 @@
 	(See accompanying file LICENSE_1_0.txt or copy at
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
+from __future__ import annotations
 
 from typing import Any, List, Dict, Literal, Optional, TypeVar, Union, cast, \
-    Callable, Generator
-from datetime import datetime, timedelta
+    Callable, Generator, TYPE_CHECKING
+from datetime import datetime, timedelta, date
 from collections import defaultdict
-import traceback
-
-from hexbytes import HexBytes
 import contextlib
+import traceback
 import decimal
 import logging
+import copy
 
 from web3.types import _Hash32, TxReceipt, LogReceipt, TxData
+from werkzeug.datastructures import MultiDict
+from hexbytes import HexBytes
 from gevent import Greenlet
 from web3.main import Web3
 import simplejson as json
@@ -28,6 +30,9 @@ import redis_lock
 import gevent
 
 from .data import REDIS, TOKEN_DECIMALS, SYN_DATA
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsDunderGT
 
 logger = logging.Logger(__name__)
 D = decimal.Decimal
@@ -367,7 +372,8 @@ def handle_decimals(num: Union[str, int, float, D],
     return res
 
 
-def is_in_range(value: int, min: int, max: int) -> bool:
+def is_in_range(value: SupportsDunderGT, min: SupportsDunderGT,
+                max: SupportsDunderGT) -> bool:
     return min <= value <= max
 
 
@@ -591,3 +597,43 @@ def retry(func: Callable[..., T], *args, **kwargs) -> T:
 
     logging.critical(f'maximum retries ({attempts}) reached')
     raise
+
+
+def calculate_volume_totals(volume: Dict[str, Any]) -> Dict[str, D]:
+    totals: Dict[str, D] = {}
+
+    # Calculate totals for each day.
+    for date, data in copy.deepcopy(volume).items():
+        for chain, v in data.items():
+            add_to_dict(volume[date], 'total', v)
+            add_to_dict(totals, chain, v)
+
+    return totals
+
+
+def filter_volume_data(data: Dict[str, Any], args: "MultiDict[str, str]"):
+    from_date = args.get('from', type=date.fromisoformat)
+    to_date = args.get('to', type=date.fromisoformat)
+
+    if from_date is None and to_date is None:
+        # No filter given.
+        return data
+
+    def _filter(date: date) -> bool:
+        if from_date is not None and to_date is not None:
+            return is_in_range(date, from_date, to_date)
+        elif to_date is None and from_date is not None:
+            return from_date <= date
+        elif to_date is not None and from_date is None:
+            return date <= to_date
+
+        raise RuntimeError('did not converge: '
+                           f'{from_date=}, {to_date=}, {date=}')
+
+    res = defaultdict(dict)
+
+    for k, v in data['data'].items():
+        if _filter(date.fromisoformat(k)):
+            res[k] = v
+
+    return {'data': res, 'totals': calculate_volume_totals(res)}
