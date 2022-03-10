@@ -275,7 +275,10 @@ def dispatch_get_logs(
                 },
                 'aurora': {
                     'nusd': 56441515,
-                }
+                },
+                'metis': {
+                    'nusd': 1251758,
+                },
             }
 
             if 'pool_contract' in SYN_DATA[chain]:
