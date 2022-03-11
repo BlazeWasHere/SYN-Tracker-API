@@ -316,6 +316,7 @@ TOKENS = {
         '0x853d955acef822db058eb8505911ed77f175b99e',  # FRAX
         '0xca76543cf381ebbb277be79574059e32108e3e65',  # wsOHM
         '0x0ab87046fbb341d058f17cbc4c1133f25a20a52f',  # gOHM
+        '0x98585dfc8d9e7d48f0b1ae47ce33332cf4237d96',  # NEWO
     ],
     'bsc': [
         '0x23b891e5c62e0955ae2bd185990103928ab817b3',  # nUSD
@@ -360,6 +361,7 @@ TOKENS = {
         '0x62edc0692bd897d2295872a9ffcac5425011c661',  # GMX
         '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7',  # WAVAX
         #'0x20a9dc684b4d0407ef8c9a302beaaa18ee15f656',  # GMX
+        '0x4bfc90322dd638f81f034517359bd447f8e0235a',  # NEWO
     ],
     'arbitrum': [
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',  # DAI
@@ -374,6 +376,7 @@ TOKENS = {
         '0x8d9ba570d6cb60c7e3e0f31343efe75ab8e65fb1',  # gOHM
         '0x85662fd123280827e11c59973ac9fcbe838dc3b4',  # synFRAX
         '0xfc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a',  # GMX
+        '0x0877154a755b24d499b8e2bd7ecd54d3c92ba433',  # NEWO
     ],
     'fantom': [
         '0x04068da6c83afcfa0e13ba15a6696662335d5b75',  # USDC
