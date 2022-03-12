@@ -222,7 +222,7 @@ SYN_DATA = {
         "rpc": os.getenv('METIS_RPC'),
         "address": "0xe55e19fb4f2d85af758950957714292dac1e25b2",
         "bridge": "0x06fea8513ff03a0d3f61324da709d4cf06f42a5c",
-        "minichef": "0xa67b7147dce20d6f25fd9abfbcb1c3ca74e11f0b",
+        "minichef": "0xab0d8fc46249daacd5cb36c5f0bc4f0daf34ebf5",
         "pool": "0x555982d2e211745b96736665e19d9308b615f78e",
     },
 }
