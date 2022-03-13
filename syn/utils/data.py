@@ -220,7 +220,7 @@ SYN_DATA = {
     },
     "metis": {
         "rpc": os.getenv('METIS_RPC'),
-        "address": "0xe55e19fb4f2d85af758950957714292dac1e25b2",
+        "address": "0x67c10c397dd0ba417329543c1a40eb48aaa7cd00",
         "bridge": "0x06fea8513ff03a0d3f61324da709d4cf06f42a5c",
         "minichef": "0xab0d8fc46249daacd5cb36c5f0bc4f0daf34ebf5",
         "pool": "0x555982d2e211745b96736665e19d9308b615f78e",
@@ -241,7 +241,7 @@ TREASURY = {
     'aurora': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
     'moonbeam': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
     'cronos': '0x7f91f3111b2009eC7c079Be213570330a37e8aeC',
-    'metis': '0x44a5847E9d8d2ab037475b2bE4f07a1143D12c2c',
+    'metis': '0xEAEC50eBe1c2A981ED8be02C36b0863Fae322975',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
