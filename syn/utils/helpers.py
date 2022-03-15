@@ -334,7 +334,7 @@ def dispatch_get_logs(
                                  topics=topics,
                                  start_block=start_block,
                                  key_namespace=key_namespace))
-            elif chain == 'polygon':
+            elif chain in ['polygon', 'avalanche']:
                 jobs.append(
                     gevent.spawn(get_logs,
                                  chain,
