@@ -278,6 +278,7 @@ def dispatch_get_logs(
                 },
                 'metis': {
                     'nusd': 1251758,
+                    'neth': 1698938,
                 },
             }
 

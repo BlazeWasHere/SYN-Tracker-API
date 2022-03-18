@@ -224,6 +224,7 @@ SYN_DATA = {
         "bridge": "0x06fea8513ff03a0d3f61324da709d4cf06f42a5c",
         "minichef": "0xab0d8fc46249daacd5cb36c5f0bc4f0daf34ebf5",
         "pool": "0x555982d2e211745b96736665e19d9308b615f78e",
+        "ethpool": "0x09fec30669d63a13c666d2129230dd5588e2e240",
     },
 }
 
@@ -459,6 +460,8 @@ TOKENS = {
         '0x961318fc85475e125b99cc9215f62679ae5200ab',  # nUSD
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00',  # SYN
         '0xea32a96608495e54156ae48931a7c20f0dcc1a21',  # USDC
+        '0x931b8f17764362a3325d30681009f0edd6211231',  # nETH
+        '0x420000000000000000000000000000000000000a',  # WETH 
     ]
 }
 

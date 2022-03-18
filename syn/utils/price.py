@@ -259,6 +259,8 @@ ADDRESS_TO_CGID = {
         '0xfb21b70922b9f6e3c6274bcd6cb1aa8a0fe20b80': CoingeckoIDS.GOHM,
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00': CoingeckoIDS.SYN,
         '0xea32a96608495e54156ae48931a7c20f0dcc1a21': CoingeckoIDS.USDC,
+        '0x931b8f17764362a3325d30681009f0edd6211231': CoingeckoIDS.ETH,
+        '0x420000000000000000000000000000000000000a': CoingeckoIDS.ETH,
     },
 }
 
