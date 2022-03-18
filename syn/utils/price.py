@@ -51,6 +51,8 @@ class CoingeckoIDS(Enum):
     CRO = 'crypto-com-chain'
     METIS = 'metis-token'
     NEWO = 'new-order'
+    SDT = 'stake-dao'
+    LUNA = 'terra-luna'
 
 
 CUSTOM = {
@@ -172,6 +174,7 @@ ADDRESS_TO_CGID = {
         '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7': CoingeckoIDS.AVAX,
         '0x20a9dc684b4d0407ef8c9a302beaaa18ee15f656': CoingeckoIDS.GMX,
         '0x4bfc90322dd638f81f034517359bd447f8e0235a': CoingeckoIDS.NEWO,
+        '0xccbf7c451f81752f7d2237f2c18c371e6e089e69': CoingeckoIDS.AVAX,
     },
     'arbitrum': {
         '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,
@@ -184,6 +187,7 @@ ADDRESS_TO_CGID = {
         '0x85662fd123280827e11c59973ac9fcbe838dc3b4': CoingeckoIDS.FRAX,
         '0xfc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a': CoingeckoIDS.GMX,
         '0x0877154a755b24d499b8e2bd7ecd54d3c92ba433': CoingeckoIDS.NEWO,
+        '0x1a4da80967373fd929961e976b4b53ceec063a15': CoingeckoIDS.LUNA,
     },
     'fantom': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
@@ -194,6 +198,7 @@ ADDRESS_TO_CGID = {
         '0x1852f70512298d56e9c8fdd905e02581e04ddb2a': CoingeckoIDS.FRAX,
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00': CoingeckoIDS.ETH,
         '0x74b23882a30290451a17c44f4f05243b6b58c76d': CoingeckoIDS.ETH,
+        '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48': CoingeckoIDS.SDT,
     },
     'harmony': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
@@ -205,6 +210,7 @@ ADDRESS_TO_CGID = {
         '0xfa7191d292d5633f702b0bd7e3e3bccc0e633200': CoingeckoIDS.FRAX,
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00': CoingeckoIDS.GOHM,
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb': CoingeckoIDS.ETH,
+        '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48': CoingeckoIDS.SDT,
     },
     'boba': {
         '0xb554a55358ff0382fb21f0a478c3546d1106be8c': CoingeckoIDS.SYN,
@@ -228,6 +234,7 @@ ADDRESS_TO_CGID = {
         '0x809dc529f07651bd43a172e8db6f4a7a0d771036': CoingeckoIDS.ETH,
         '0x121ab82b49b2bc4c7901ca46b8277962b4350204': CoingeckoIDS.ETH,
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb': CoingeckoIDS.GOHM,
+        '0x931b8f17764362a3325d30681009f0edd6211231': CoingeckoIDS.LUNA,
     },
     'aurora': {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
