@@ -106,7 +106,8 @@ airdrop_ranges = {
         0: [None, None],
     },
     'metis': {
-        0: [None, None],
+        0: [None, 1293668],
+        0.02: [1293669, None],
     },
 }
 
