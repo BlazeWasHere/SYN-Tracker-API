@@ -10,7 +10,6 @@
 from typing import Any, DefaultDict, Dict, Tuple, Union
 from collections import defaultdict
 from decimal import Decimal
-import copy
 
 from gevent.greenlet import Greenlet
 import gevent
@@ -18,7 +17,7 @@ import gevent
 from syn.utils.price import (CoingeckoIDS, get_historic_price_for_address,
                              get_price_for_address, get_price_coingecko)
 from syn.utils.helpers import (add_to_dict, get_all_keys, raise_if,
-                               calculate_volume_totals)
+                               calculate_volume_totals, recursive_defaultdict)
 from syn.utils.data import LOGS_REDIS_URL, SYN_DATA
 
 
@@ -76,9 +75,6 @@ def create_totals(
 def get_chain_volume_total(direction: str) -> Dict[str, Any]:
     assert direction in ['IN', 'OUT']
 
-    def recursive_defaultdict() -> DefaultDict:
-        return defaultdict(recursive_defaultdict)
-
     res = recursive_defaultdict()
     jobs: Dict[str, Greenlet] = {}
 
@@ -100,9 +96,6 @@ def get_chain_volume_total(direction: str) -> Dict[str, Any]:
 
 def get_chain_tx_count_total(direction: str) -> Dict[str, Dict[str, Decimal]]:
     assert direction in ['IN', 'OUT']
-
-    def recursive_defaultdict() -> DefaultDict:
-        return defaultdict(recursive_defaultdict)
 
     res = recursive_defaultdict()
 
@@ -128,9 +121,6 @@ def get_chain_tx_count_total(direction: str) -> Dict[str, Dict[str, Decimal]]:
 def get_chain_volume_for_address(address: str,
                                  chain: str,
                                  direction: str = '*') -> Dict[str, Any]:
-    def recursive_defaultdict() -> DefaultDict:
-        return defaultdict(recursive_defaultdict)
-
     assert direction in ['IN', 'OUT:*']
 
     res = recursive_defaultdict()

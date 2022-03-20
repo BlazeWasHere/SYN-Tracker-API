@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 from typing import Any, List, Dict, Literal, Optional, TypeVar, Union, cast, \
-    Callable, Generator, TYPE_CHECKING
+    Callable, Generator, TYPE_CHECKING, DefaultDict
 from datetime import datetime, timedelta, date
 from collections import defaultdict
 import contextlib
@@ -641,3 +641,7 @@ def filter_volume_data(data: Dict[str, Any], args: "MultiDict[str, str]"):
             res[k] = v
 
     return {'data': res, 'totals': calculate_volume_totals(res)}
+
+
+def recursive_defaultdict() -> DefaultDict:
+    return defaultdict(recursive_defaultdict)
