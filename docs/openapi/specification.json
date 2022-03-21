@@ -168,6 +168,43 @@
           }
         }
       },
+      "VolumeDataInternal": {
+        "type": "object",
+        "properties": {
+          "tx_count": {
+            "type": "number"
+          },
+          "volume_usd": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "VolumeResponseDetailed": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/VolumeDataInternal"
+                }
+              }
+            }
+          },
+          "totals": {
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/components/schemas/VolumeDataInternal"
+              }
+            }
+          }
+        }
+      },
       "VolumeResponseIN": {
         "type": "object",
         "additionalProperties": {
@@ -513,6 +550,25 @@
           }
         },
         "summary": "total volume of every chain in USD",
+        "tags": ["Bridge Volume"]
+      }
+    },
+    "/api/v1/analytics/volume/total/detailed/out": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VolumeResponseDetailed"
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "detailed outflowing volume of every chain",
         "tags": ["Bridge Volume"]
       }
     },

@@ -12,8 +12,13 @@ from typing import Dict
 
 from flask import Blueprint, jsonify, request
 
-from syn.utils.analytics.volume import get_chain_volume_for_address, \
-    get_chain_volume, get_chain_volume_total, get_chain_tx_count_total
+from syn.utils.analytics.volume import (
+    get_chain_volume_for_address,
+    get_chain_volume,
+    get_chain_volume_total,
+    get_chain_tx_count_total,
+    get_chain_outflows_total,
+)
 from syn.utils.helpers import filter_volume_data
 from syn.utils.data import cache, TOKENS_INFO
 
@@ -97,3 +102,9 @@ def chain_tx_count_total():
 @cache.cached()
 def chain_tx_count_total_out():
     return jsonify(get_chain_tx_count_total(direction='OUT'))
+
+
+@volume_bp.route('/total/detailed/out', methods=['GET'])
+@cache.cached()
+def chain_volume_total_detailed():
+    return jsonify(get_chain_outflows_total())

@@ -94,6 +94,30 @@ def get_chain_volume_total(direction: str) -> Dict[str, Any]:
     return {'data': res, 'totals': calculate_volume_totals(res)}
 
 
+def get_chain_outflows_total() -> Dict[str, Any]:
+    totals = recursive_defaultdict()
+    res = recursive_defaultdict()
+
+    ret = get_all_keys(f'*bridge:*:OUT:*',
+                       serialize=True,
+                       client=LOGS_REDIS_URL,
+                       index=False)
+
+    for k, v in ret.items():
+        from_chain, _, date, address, _, to_chain = k.split(':')
+
+        price = get_historic_price_for_address(from_chain, address, date)
+        volume_usd = Decimal(v['amount']) * price
+
+        add_to_dict(res[from_chain][date][to_chain], 'tx_count', v['txCount'])
+        add_to_dict(res[from_chain][date][to_chain], 'volume_usd', volume_usd)
+
+        add_to_dict(totals[from_chain][to_chain], 'tx_count', v['txCount'])
+        add_to_dict(totals[from_chain][to_chain], 'volume_usd', volume_usd)
+
+    return {'data': res, 'totals': totals}
+
+
 def get_chain_tx_count_total(direction: str) -> Dict[str, Dict[str, Decimal]]:
     assert direction in ['IN', 'OUT']
 
