@@ -196,6 +196,7 @@
             }
           },
           "totals": {
+            "type": "object",
             "additionalProperties": {
               "type": "object",
               "additionalProperties": {
