@@ -318,6 +318,8 @@ TOKENS = {
         '0xca76543cf381ebbb277be79574059e32108e3e65',  # wsOHM
         '0x0ab87046fbb341d058f17cbc4c1133f25a20a52f',  # gOHM
         '0x98585dfc8d9e7d48f0b1ae47ce33332cf4237d96',  # NEWO
+        '0x73968b9a57c6e53d41345fd57a6e6ae27d6cdb2f',  # SDT
+        '0x02b5453d92b730f29a86a0d5ef6e930c4cf8860b',  # USDB
     ],
     'bsc': [
         '0x23b891e5c62e0955ae2bd185990103928ab817b3',  # nUSD
@@ -333,6 +335,7 @@ TOKENS = {
         '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51',  # NFD
         '0xc13b7a43223bb9bf4b69bd68ab20ca1b79d81c75',  # JGN
         '0x88918495892baf4536611e38e75d771dc6ec0863',  # gOHM
+        '0xc8699abbba90c7479dedccef19ef78969a2fc608',  # BSC
     ],
     'polygon': [
         '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695',  # SYN
@@ -346,6 +349,7 @@ TOKENS = {
         '0xeee3371b89fc43ea970e908536fcddd975135d8a',  # DOG
         '0x48a34796653afdaa1647986b33544c911578e767',  # synFRAX
         '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',  # WETH
+        '0xfa1fbb8ef55a4855e5688c0ee13ac3f202486286',  # USDB
     ],
     'avalanche': [
         '0xd586e7f844cea2f87f50152665bcbc2c279d8d70',  # DAI
@@ -364,6 +368,7 @@ TOKENS = {
         #'0x20a9dc684b4d0407ef8c9a302beaaa18ee15f656',  # GMX
         '0x4bfc90322dd638f81f034517359bd447f8e0235a',  # NEWO
         '0xccbf7c451f81752f7d2237f2c18c371e6e089e69',  # SDT
+        '0x5ab7084cb9d270c2cb052dd30dbecbca42f8620c',  # USDB
     ],
     'arbitrum': [
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',  # DAI
@@ -394,6 +399,7 @@ TOKENS = {
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00',  # nETH
         '0x74b23882a30290451a17c44f4f05243b6b58c76d',  # WETH
         '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48',  # SDT
+        '0x6fc9383486c163fa48becdec79d6058f984f62ca',  # USDB
     ],
     'harmony': [
         '0xe55e19fb4f2d85af758950957714292dac1e25b2',  # SYN
@@ -426,6 +432,7 @@ TOKENS = {
         '0x3bf21ce864e58731b6f28d68d5928bcbeb0ad172',  # gOHM
         '0x76906411d07815491a5e577022757ad941fb5066',  # veSOLAR
         '0x98878b06940ae243284ca214f92bb71a2b032b8a',  # WMOVR
+        '0x3e193c39626bafb41ebe8bdd11ec7cca9b3ec0b2',  # USDB
     ],
     'optimism': [
         '0x809dc529f07651bd43a172e8db6f4a7a0d771036',  # nETH

@@ -59,6 +59,8 @@ CUSTOM = {
     'ethereum': {
         # nUSD
         '0x1b84765de8b7566e4ceaf4d0fd3c5af52d3dde4f': 1,
+        # USDB
+        '0x02b5453d92b730f29a86a0d5ef6e930c4cf8860b': 1,
     },
     'bsc': {
         # nUSD
@@ -70,6 +72,8 @@ CUSTOM = {
         '0xdfd717f4e942931c98053d5453f803a1b52838db': 0,
         # JUMP, not really it's price but oh well.
         '0x130025ee738a66e691e6a7a62381cb33c6d9ae83': 0.01,
+        # USDB
+        '0xc8699abbba90c7479dedccef19ef78969a2fc608': 1,
     },
     'polygon': {
         # nUSD
@@ -77,12 +81,16 @@ CUSTOM = {
         '0x81067076dcb7d3168ccf7036117b9d72051205e2': 0,
         # USD-LP
         '0x128a587555d1148766ef4327172129b50ec66e5d': 1,
+        # USDB
+        '0xfa1fbb8ef55a4855e5688c0ee13ac3f202486286': 1,
     },
     'avalanche': {
         # nUSD
         '0xcfc37a6ab183dd4aed08c204d1c2773c0b1bdf46': 1,
         # USD-LP
         '0x55904f416586b5140a0f666cf5acf320adf64846': 1,
+        # USDB
+        '0x5ab7084cb9d270c2cb052dd30dbecbca42f8620c': 1,
     },
     'arbitrum': {
         # nUSD
@@ -97,6 +105,8 @@ CUSTOM = {
         '0x78de9326792ce1d6eca0c978753c6953cdeedd73': 0.01,
         # USD-LP
         '0x43cf58380e69594fa2a5682de484ae00edd83e94': 1,
+        # USDB
+        '0x6fc9383486c163fa48becdec79d6058f984f62ca': 1,
     },
     'harmony': {
         # nUSD
@@ -106,7 +116,10 @@ CUSTOM = {
         # nUSD
         '0x6b4712ae9797c199edd44f897ca09bc57628a1cf': 1,
     },
-    'moonriver': {},
+    'moonriver': {
+        # USDB
+        '0x3e193c39626bafb41ebe8bdd11ec7cca9b3ec0b2': 1,
+    },
     'optimism': {},
     'aurora': {
         # nUSD
@@ -136,6 +149,7 @@ ADDRESS_TO_CGID = {
         '0xca76543cf381ebbb277be79574059e32108e3e65': CoingeckoIDS.WSOHM,
         '0x0ab87046fbb341d058f17cbc4c1133f25a20a52f': CoingeckoIDS.GOHM,
         '0x98585dfc8d9e7d48f0b1ae47ce33332cf4237d96': CoingeckoIDS.NEWO,
+        '0x73968b9a57c6e53d41345fd57a6e6ae27d6cdb2f': CoingeckoIDS.SDT,
     },
     'bsc': {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': CoingeckoIDS.BUSD,
