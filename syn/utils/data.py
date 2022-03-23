@@ -335,7 +335,7 @@ TOKENS = {
         '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51',  # NFD
         '0xc13b7a43223bb9bf4b69bd68ab20ca1b79d81c75',  # JGN
         '0x88918495892baf4536611e38e75d771dc6ec0863',  # gOHM
-        '0xc8699abbba90c7479dedccef19ef78969a2fc608',  # BSC
+        '0xc8699abbba90c7479dedccef19ef78969a2fc608',  # USDB
     ],
     'polygon': [
         '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695',  # SYN
