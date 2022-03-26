@@ -376,6 +376,7 @@ TOKENS = {
         '0x4bfc90322dd638f81f034517359bd447f8e0235a',  # NEWO
         '0xccbf7c451f81752f7d2237f2c18c371e6e089e69',  # SDT
         '0x5ab7084cb9d270c2cb052dd30dbecbca42f8620c',  # USDB
+        '0x997ddaa07d716995de90577c123db411584e5e46',  # JEWEL
     ],
     'arbitrum': [
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',  # DAI
@@ -420,6 +421,7 @@ TOKENS = {
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00',  # gOHM
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb',  # nETH
         '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48',  # SDT
+        '0xd9eaa386ccd65f30b77ff175f6b52115fe454fd6',  # AVAX
     ],
     'boba': [
         '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc',  # USDC
