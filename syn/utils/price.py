@@ -53,6 +53,7 @@ class CoingeckoIDS(Enum):
     NEWO = 'new-order'
     SDT = 'stake-dao'
     LUNA = 'terra-luna'
+    JEWEL = 'defi-kingdoms'
 
 
 CUSTOM = {
@@ -133,7 +134,11 @@ CUSTOM = {
     'metis': {
         # nUSD
         '0x961318fc85475e125b99cc9215f62679ae5200ab': 1,
-    }
+    },
+    'dfk': {
+        # nUSD
+        '0x52285d426120ab91f378b3df4a15a036a62200ae': 1,
+    },
 }
 
 ADDRESS_TO_CGID = {
@@ -275,6 +280,14 @@ ADDRESS_TO_CGID = {
         '0xea32a96608495e54156ae48931a7c20f0dcc1a21': CoingeckoIDS.USDC,
         '0x931b8f17764362a3325d30681009f0edd6211231': CoingeckoIDS.ETH,
         '0x420000000000000000000000000000000000000a': CoingeckoIDS.ETH,
+    },
+    'dfk': {
+        '0xb57b60debdb0b8172bb6316a9164bd3c695f133a': CoingeckoIDS.AVAX,
+        '0xccb93dabd71c8dad03fc4ce5559dc3d89f67a260': CoingeckoIDS.JEWEL,
+        '0x9596a3c6a4b2597adcc5d6d69b281a7c49e3fe6a': CoingeckoIDS.ETH,
+        # TODO: This is NOT pegged to JEWEL, but CG does not track xJEWEL.
+        '0x77f2656d04e158f915bc22f07b779d94c1dc47ff': CoingeckoIDS.JEWEL,
+        '0xb6b5c854a8f71939556d4f3a2e5829f7fcc1bf2a': CoingeckoIDS.SYN,
     },
 }
 
