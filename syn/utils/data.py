@@ -422,6 +422,7 @@ TOKENS = {
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb',  # nETH
         '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48',  # SDT
         '0xd9eaa386ccd65f30b77ff175f6b52115fe454fd6',  # AVAX
+        '0x28b42698caf46b4b012cf38b6c75867e0762186d',  # synJEWEL
     ],
     'boba': [
         '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc',  # USDC
