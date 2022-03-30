@@ -53,6 +53,7 @@ class CoingeckoIDS(Enum):
     NEWO = 'new-order'
     SDT = 'stake-dao'
     LUNA = 'terra-luna'
+    JEWEL = 'defi-kingdoms'
 
 
 CUSTOM = {
@@ -133,7 +134,11 @@ CUSTOM = {
     'metis': {
         # nUSD
         '0x961318fc85475e125b99cc9215f62679ae5200ab': 1,
-    }
+    },
+    'dfk': {
+        # nUSD
+        '0x52285d426120ab91f378b3df4a15a036a62200ae': 1,
+    },
 }
 
 ADDRESS_TO_CGID = {
@@ -189,6 +194,7 @@ ADDRESS_TO_CGID = {
         '0x20a9dc684b4d0407ef8c9a302beaaa18ee15f656': CoingeckoIDS.GMX,
         '0x4bfc90322dd638f81f034517359bd447f8e0235a': CoingeckoIDS.NEWO,
         '0xccbf7c451f81752f7d2237f2c18c371e6e089e69': CoingeckoIDS.AVAX,
+        '0x997ddaa07d716995de90577c123db411584e5e46': CoingeckoIDS.JEWEL,
     },
     'arbitrum': {
         '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,
@@ -225,6 +231,8 @@ ADDRESS_TO_CGID = {
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00': CoingeckoIDS.GOHM,
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb': CoingeckoIDS.ETH,
         '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48': CoingeckoIDS.SDT,
+        '0xd9eaa386ccd65f30b77ff175f6b52115fe454fd6': CoingeckoIDS.AVAX,
+        '0x28b42698caf46b4b012cf38b6c75867e0762186d': CoingeckoIDS.JEWEL,
     },
     'boba': {
         '0xb554a55358ff0382fb21f0a478c3546d1106be8c': CoingeckoIDS.SYN,
@@ -275,6 +283,14 @@ ADDRESS_TO_CGID = {
         '0xea32a96608495e54156ae48931a7c20f0dcc1a21': CoingeckoIDS.USDC,
         '0x931b8f17764362a3325d30681009f0edd6211231': CoingeckoIDS.ETH,
         '0x420000000000000000000000000000000000000a': CoingeckoIDS.ETH,
+    },
+    'dfk': {
+        '0xb57b60debdb0b8172bb6316a9164bd3c695f133a': CoingeckoIDS.AVAX,
+        '0xccb93dabd71c8dad03fc4ce5559dc3d89f67a260': CoingeckoIDS.JEWEL,
+        '0x9596a3c6a4b2597adcc5d6d69b281a7c49e3fe6a': CoingeckoIDS.ETH,
+        # TODO: This is NOT pegged to JEWEL, but CG does not track xJEWEL.
+        '0x77f2656d04e158f915bc22f07b779d94c1dc47ff': CoingeckoIDS.JEWEL,
+        '0xb6b5c854a8f71939556d4f3a2e5829f7fcc1bf2a': CoingeckoIDS.SYN,
     },
 }
 

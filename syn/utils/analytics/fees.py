@@ -42,6 +42,7 @@ _chain_to_cgid = {
     'moonbeam': CoingeckoIDS.GLMR,
     'cronos': CoingeckoIDS.CRO,
     'metis': CoingeckoIDS.METIS,
+    'dfk': CoingeckoIDS.JEWEL,
 }
 
 
