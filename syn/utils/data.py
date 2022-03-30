@@ -228,7 +228,7 @@ SYN_DATA = {
     },
     "dfk": {
         "rpc": os.getenv('DFK_RPC'),
-        "address": "0xccb93dabd71c8dad03fc4ce5559dc3d89f67a260",
+        "address": "0xb6b5c854a8f71939556d4f3a2e5829f7fcc1bf2a",
         "bridge": "0xe05c976d3f045d0e6e7a6f61083d98a15603cf6a",
         "minichef": "0x164c02a681282faaddf4bb10cfab599a8999ed20",
     },
