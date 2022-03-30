@@ -305,6 +305,7 @@ def dispatch_get_logs(
                     'moonriver',
                     'aurora',
                     'moonbeam',
+                    'dfk',
             ]:
                 jobs.append(
                     gevent.spawn(get_logs,

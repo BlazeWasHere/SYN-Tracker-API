@@ -41,6 +41,7 @@ _start_blocks = {
     'moonbeam': 173355,
     'cronos': 1578335,
     'metis': 957508,
+    'dfk': 0,  # Doesn't it feel great to be the first?
 }
 
 airdrop_ranges = {
@@ -108,6 +109,9 @@ airdrop_ranges = {
     'metis': {
         0: [None, 1293668],
         0.02: [1293669, None],
+    },
+    'dfk': {
+        0: [None, None],
     },
 }
 
