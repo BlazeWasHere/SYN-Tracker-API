@@ -111,7 +111,8 @@ airdrop_ranges = {
         0.02: [1293669, None],
     },
     'dfk': {
-        0: [None, None],
+        0: [None, 408],
+        0.01: [409, None],
     },
 }
 
