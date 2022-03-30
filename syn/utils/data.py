@@ -226,6 +226,12 @@ SYN_DATA = {
         "pool": "0x555982d2e211745b96736665e19d9308b615f78e",
         "ethpool": "0x09fec30669d63a13c666d2129230dd5588e2e240",
     },
+    "dfk": {
+        "rpc": os.getenv('DFK_RPC'),
+        "address": "0xb6b5c854a8f71939556d4f3a2e5829f7fcc1bf2a",
+        "bridge": "0xe05c976d3f045d0e6e7a6f61083d98a15603cf6a",
+        "minichef": "0x164c02a681282faaddf4bb10cfab599a8999ed20",
+    },
 }
 
 TREASURY = {
@@ -243,6 +249,7 @@ TREASURY = {
     'moonbeam': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d',
     'cronos': '0x7f91f3111b2009eC7c079Be213570330a37e8aeC',
     'metis': '0xEAEC50eBe1c2A981ED8be02C36b0863Fae322975',
+    'dfk': '0x2e62c47f502f512c75bd5ecd70799efb0fe7baa3',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
@@ -369,6 +376,7 @@ TOKENS = {
         '0x4bfc90322dd638f81f034517359bd447f8e0235a',  # NEWO
         '0xccbf7c451f81752f7d2237f2c18c371e6e089e69',  # SDT
         '0x5ab7084cb9d270c2cb052dd30dbecbca42f8620c',  # USDB
+        '0x997ddaa07d716995de90577c123db411584e5e46',  # JEWEL
     ],
     'arbitrum': [
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',  # DAI
@@ -413,6 +421,8 @@ TOKENS = {
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00',  # gOHM
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb',  # nETH
         '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48',  # SDT
+        '0xd9eaa386ccd65f30b77ff175f6b52115fe454fd6',  # AVAX
+        '0x28b42698caf46b4b012cf38b6c75867e0762186d',  # synJEWEL
     ],
     'boba': [
         '0x66a2a913e447d6b4bf33efbec43aaef87890fbbc',  # USDC
@@ -469,7 +479,15 @@ TOKENS = {
         '0xea32a96608495e54156ae48931a7c20f0dcc1a21',  # USDC
         '0x931b8f17764362a3325d30681009f0edd6211231',  # nETH
         '0x420000000000000000000000000000000000000a',  # WETH 
-    ]
+    ],
+    'dfk': [
+        '0xb57b60debdb0b8172bb6316a9164bd3c695f133a',  # AVAX
+        '0xccb93dabd71c8dad03fc4ce5559dc3d89f67a260',  # WJEWEL
+        '0x9596a3c6a4b2597adcc5d6d69b281a7c49e3fe6a',  # nETH
+        '0x52285d426120ab91f378b3df4a15a036a62200ae',  # nUSD
+        '0x77f2656d04e158f915bc22f07b779d94c1dc47ff',  # xJEWEL
+        '0xb6b5c854a8f71939556d4f3a2e5829f7fcc1bf2a',  # SYN
+    ],
 }
 
 MAX_UINT8 = 2**8 - 1

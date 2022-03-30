@@ -29,6 +29,7 @@ CHAINS = {
     1284: 'moonbeam',
     25: 'cronos',
     1088: 'metis',
+    53935: 'dfk',
 }
 
 
