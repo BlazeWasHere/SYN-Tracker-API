@@ -15,7 +15,7 @@ import simplejson as json
 from web3 import Web3
 
 from syn.utils.data import LOGS_REDIS_URL, SYN_DATA, cache
-from syn.utils.helpers import get_all_keys
+from syn.utils.helpers import get_all_keys, date2block
 
 utils_bp = Blueprint('utils_bp', __name__)
 
@@ -41,10 +41,5 @@ def syncing():
 @utils_bp.route('/date2block/<chain:chain>/<date:date>', methods=['GET'])
 @cache.cached()
 def chain_date_to_block(chain: str, date: datetime):
-    _date = str(date.date())
-
-    ret = LOGS_REDIS_URL.get(f'{chain}:date2block:{_date}')
-    if ret is not None:
-        ret = json.loads(ret)
-
-    return jsonify({_date: ret})
+    _date = date.date()
+    return jsonify({str(_date): date2block(chain, _date)})

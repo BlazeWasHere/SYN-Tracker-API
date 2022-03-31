@@ -29,7 +29,7 @@ import dateutil.parser
 import redis_lock
 import gevent
 
-from .data import REDIS, TOKEN_DECIMALS, SYN_DATA
+from .data import REDIS, TOKEN_DECIMALS, SYN_DATA, LOGS_REDIS_URL
 
 if TYPE_CHECKING:
     from _typeshed import SupportsDunderGT
@@ -646,3 +646,11 @@ def filter_volume_data(data: Dict[str, Any], args: "MultiDict[str, str]"):
 
 def recursive_defaultdict() -> DefaultDict:
     return defaultdict(recursive_defaultdict)
+
+
+def date2block(chain: str, date: date) -> Optional[Dict[str, int]]:
+    ret = LOGS_REDIS_URL.get(f'{chain}:date2block:{date}')
+    if ret is not None:
+        ret = json.loads(ret)
+
+    return ret

@@ -8,7 +8,7 @@
 """
 
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import date, datetime
 from typing import Generator
 from functools import wraps
 from decimal import Decimal
@@ -17,15 +17,17 @@ import time
 import os
 
 import simplejson as json
+from web3 import Web3
 import requests
 
-from syn.utils.helpers import dispatch_get_logs, worker_assert_lock
-from syn.utils.data import schedular, MESSAGE_QUEUE_REDIS, REDIS, \
-    COINGECKO_HISTORIC_URL
+from syn.utils.data import (schedular, MESSAGE_QUEUE_REDIS, REDIS,
+                            COINGECKO_HISTORIC_URL, SYN_DATA)
+from syn.utils.helpers import dispatch_get_logs, worker_assert_lock, date2block
 from syn.utils.analytics.pool import pool_callback
 from syn.utils.cache import _serialize_args_to_str
 from syn.utils.wrappa.rpc import bridge_callback
-from syn.utils.price import CoingeckoIDS
+from syn.utils.contract import get_balance_of
+from syn.utils.price import CoingeckoIDS, get_historic_price
 
 
 def acquire_lock(name: str):
@@ -51,10 +53,44 @@ def acquire_lock(name: str):
     return _decorator
 
 
-def get_price(_id: str, date: str) -> Decimal:
+def get_price_cg(_id: str, date: str) -> Decimal:
     time.sleep(1)
     r = requests.get(COINGECKO_HISTORIC_URL.format(_id, date))
     return r.json(use_decimal=True)['market_data']['current_price']['usd']
+
+
+def get_price_xjewel(date: date) -> Decimal:
+    chain = 'dfk'
+    w3 = SYN_DATA[chain]['w3']
+
+    lp_contract = "0x6AC38A4C112F125eac0eBDbaDBed0BC8F4575d0d"
+    tokens = [
+        "0xCCb93dABD71c8Dad03Fc4CE5559dC3D89F67a260",  # WJEWEL
+        "0x77f2656d04E158f915bC22f07B779D94c1DC47Ff",  # xJEWEL
+    ]
+
+    block = date2block(chain, date)
+    assert block, f'failed to find block: {date} dfk'
+    block = block['block']
+
+    t0bal = get_balance_of(w3, tokens[0], lp_contract, 18, block)
+    t1bal = get_balance_of(w3, tokens[1], lp_contract, 18, block)
+
+    date_cg = date.strftime('%d-%m-%Y')
+    jewel_price = get_historic_price(CoingeckoIDS.JEWEL, date_cg)
+
+    return jewel_price * t0bal / t1bal
+
+
+def get_price(_id: str, date: date) -> Decimal:
+    CUSTOM_PRICE_FUNCS = {
+        'custom-xjewel': get_price_xjewel,
+    }
+
+    if _id in CUSTOM_PRICE_FUNCS:
+        return CUSTOM_PRICE_FUNCS[_id](date)
+
+    return get_price_cg(_id, date.strftime('%d-%m-%Y'))
 
 
 @schedular.task("cron", id="update_prices", hour=0, minute=10, max_instances=1)
@@ -65,7 +101,7 @@ def update_prices():
 
     _now = datetime.now()
     date = _now.strftime('%Y-%m-%d')
-    date_cg = _now.strftime('%d-%m-%Y')
+    date_cg = _now.date()
 
     for x in CoingeckoIDS:
         _key = _serialize_args_to_str(x, date)
@@ -115,7 +151,7 @@ def update_prices_missing():
 
             x = key.split(':')
             _id, date = x[0], x[1]
-            date = datetime.fromisoformat(date).strftime('%d-%m-%Y')
+            date = datetime.fromisoformat(date).date()
 
             try:
                 REDIS.setnx(key, json.dumps(get_price(_id, date)))
