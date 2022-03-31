@@ -291,6 +291,7 @@ ADDRESS_TO_CGID = {
         # TODO: This is NOT pegged to JEWEL, but CG does not track xJEWEL.
         '0x77f2656d04e158f915bc22f07b779d94c1dc47ff': CoingeckoIDS.JEWEL,
         '0xb6b5c854a8f71939556d4f3a2e5829f7fcc1bf2a': CoingeckoIDS.SYN,
+        '0x3ad9dfe640e1a9cc1d9b0948620820d975c3803a': CoingeckoIDS.USDC,
     },
 }
 

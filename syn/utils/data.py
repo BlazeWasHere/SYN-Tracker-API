@@ -487,6 +487,7 @@ TOKENS = {
         '0x52285d426120ab91f378b3df4a15a036a62200ae',  # nUSD
         '0x77f2656d04e158f915bc22f07b779d94c1dc47ff',  # xJEWEL
         '0xb6b5c854a8f71939556d4f3a2e5829f7fcc1bf2a',  # SYN
+        '0x3ad9dfe640e1a9cc1d9b0948620820d975c3803a',  # USDC
     ],
 }
 
