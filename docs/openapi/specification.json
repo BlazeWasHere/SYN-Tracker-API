@@ -432,6 +432,8 @@
     },
     "/api/v1/analytics/fees/admin/{chain}/pending": {
       "get": {
+        "deprecated": true,
+        "description": "DEPRECATED: this endpoint only counts pool tokens, so it misses all other bridged tokens",
         "parameters": [
           {
             "in": "path",
