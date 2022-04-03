@@ -20,8 +20,8 @@ import simplejson as json
 from web3 import Web3
 import requests
 
-from syn.utils.data import (schedular, MESSAGE_QUEUE_REDIS, REDIS,
-                            COINGECKO_HISTORIC_URL, SYN_DATA)
+from syn.utils.data import (LOGS_REDIS_URL, schedular, MESSAGE_QUEUE_REDIS,
+                            REDIS, COINGECKO_HISTORIC_URL, SYN_DATA)
 from syn.utils.helpers import dispatch_get_logs, worker_assert_lock, date2block
 from syn.utils.analytics.pool import pool_callback
 from syn.utils.cache import _serialize_args_to_str
@@ -59,24 +59,33 @@ def get_price_cg(_id: str, date: str) -> Decimal:
     return r.json(use_decimal=True)['market_data']['current_price']['usd']
 
 
-def get_price_xjewel(date: date) -> Decimal:
+def get_price_xjewel(_date: date) -> Decimal:
     chain = 'dfk'
     w3 = SYN_DATA[chain]['w3']
 
+    key = f'dfk:logs:{SYN_DATA[chain]["bridge"]}:MAX_BLOCK_STORED'
     lp_contract = "0x6AC38A4C112F125eac0eBDbaDBed0BC8F4575d0d"
     tokens = [
         "0xCCb93dABD71c8Dad03Fc4CE5559dC3D89F67a260",  # WJEWEL
         "0x77f2656d04E158f915bC22f07B779D94c1DC47Ff",  # xJEWEL
     ]
 
-    block = date2block(chain, date)
-    assert block, f'failed to find block: {date} dfk'
-    block = block['block']
+    # Different logic if date is today as we cannot assume `update_getlogs`
+    # has ran before this function and thus cannot assume `date2block`
+    # will return a valid result.
+    if _date == date.today():
+        block = LOGS_REDIS_URL.get(key)
+        assert block, f'failed to find block: {_date} dfk'
+        block = int(block)
+    else:
+        block = date2block(chain, _date)
+        assert block, f'failed to find block: {_date} dfk'
+        block = block['block']
 
     t0bal = get_balance_of(w3, tokens[0], lp_contract, 18, block)
     t1bal = get_balance_of(w3, tokens[1], lp_contract, 18, block)
 
-    date_cg = date.strftime('%d-%m-%Y')
+    date_cg = _date.strftime('%d-%m-%Y')
     jewel_price = get_historic_price(CoingeckoIDS.JEWEL, date_cg)
 
     return jewel_price * t0bal / t1bal
