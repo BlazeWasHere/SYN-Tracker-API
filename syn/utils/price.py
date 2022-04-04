@@ -9,14 +9,17 @@
 
 from datetime import datetime, timedelta
 from decimal import Decimal
+from typing import Dict, List
 from enum import Enum
 import logging
 
 import dateutil.parser
+import requests
 
-from syn.utils.data import REDIS, POPULATE_CACHE, MESSAGE_QUEUE_REDIS
+from syn.utils.data import (DEFILLAMA_COINS_URL, REDIS, POPULATE_CACHE,
+                            MESSAGE_QUEUE_REDIS)
 from syn.utils.cache import redis_cache, _serialize_args_to_str
-from syn.utils.helpers import date_range
+from syn.utils.helpers import date_range, retry
 
 logger = logging.Logger(__name__)
 
@@ -371,3 +374,38 @@ def get_price_for_address(chain: str, address: str) -> Decimal:
 def get_price_coingecko(_id: CoingeckoIDS, currency: str = "usd") -> Decimal:
     # Proxy method for get_historic_price() with `_date` as today.
     return get_historic_price(_id, datetime.now().date().isoformat(), currency)
+
+
+def defillama_serialize(chain: str, token: str) -> str:
+    misrepresented_chains = {
+        'avalanche': 'avax',
+    }
+
+    if chain in misrepresented_chains:
+        chain = misrepresented_chains[chain]
+
+    return f'{chain}:{token.lower()}'
+
+
+def get_price_defillama_usd(tokens: List[str],
+                            timestamp: int = None) -> Dict[str, Decimal]:
+    json = {'coins': tokens}
+
+    if timestamp is not None:
+        json.update({'timestamp': timestamp})  # type: ignore
+
+    # TODO: Should this be cached?
+    ret = retry(requests.post, DEFILLAMA_COINS_URL, json=json, attempts=3)
+    ret = ret.json(use_decimal=True)['coins']
+
+    res: Dict[str, Decimal] = {}
+
+    # TODO: This does not assert all tokens were returned.
+    if (missing := (set(tokens) - set(ret))):
+        logger.warning(f'no price for tokens: {missing}')
+
+    for token, data in ret.items():
+        token = token.split(':')[1].lower()
+        res[token] = data['price']
+
+    return res

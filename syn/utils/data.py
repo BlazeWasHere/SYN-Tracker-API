@@ -33,6 +33,7 @@ load_dotenv(override=True)
 
 COINGECKO_HISTORIC_URL = "https://api.coingecko.com/api/v3/coins/{0}/history?date={1}&localization=false"
 COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3/simple/price?ids={0}&vs_currencies={1}"
+DEFILLAMA_COINS_URL = "https://coins.llama.fi/prices"
 
 BRIDGE_CONFIG_ABI = """[{"inputs":[{"internalType":"address","name":"tokenAddress","type":"address"},{"internalType":"uint256","name":"chainID","type":"uint256"}],"name":"getToken","outputs":[{"components":[{"internalType":"uint256","name":"chainId","type":"uint256"},{"internalType":"address","name":"tokenAddress","type":"address"},{"internalType":"uint8","name":"tokenDecimals","type":"uint8"},{"internalType":"uint256","name":"maxSwap","type":"uint256"},{"internalType":"uint256","name":"minSwap","type":"uint256"},{"internalType":"uint256","name":"swapFee","type":"uint256"},{"internalType":"uint256","name":"maxSwapFee","type":"uint256"},{"internalType":"uint256","name":"minSwapFee","type":"uint256"},{"internalType":"bool","name":"hasUnderlying","type":"bool"},{"internalType":"bool","name":"isUnderlying","type":"bool"}],"internalType":"struct BridgeConfig.Token","name":"token","type":"tuple"}],"stateMutability":"view","type":"function"}]"""
 MINICHEF_ABI = """[{"inputs":[],"name":"synapsePerSecond","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]"""
