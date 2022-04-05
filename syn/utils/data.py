@@ -409,6 +409,7 @@ TOKENS = {
         '0x74b23882a30290451a17c44f4f05243b6b58c76d',  # WETH
         '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48',  # SDT
         '0x6fc9383486c163fa48becdec79d6058f984f62ca',  # USDB
+        '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',  # WFTM
     ],
     'harmony': [
         '0xe55e19fb4f2d85af758950957714292dac1e25b2',  # SYN

@@ -87,5 +87,31 @@ uniswapv2_syn_frax = Module('uniswapv2', 'ethereum',
                                 '0x0f2d719407fdbeff09d87557abb7232601fd9f29',
                                 '0x853d955acef822db058eb8505911ed77f175b99e',
                             ])
+sushiswap_syn_weth = Module('uniswapv2', 'ethereum',
+                            '0x4a86c01d67965f8cb3d0aaa2c655705e64097c31', [
+                                '0x0f2d719407fdbeff09d87557abb7232601fd9f29',
+                                '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+                            ])
+traderjoe_syn_wavax = Module('uniswapv2', 'avalanche',
+                             '0x20abdc20758990b6afc90da2f2d30cd0aa3f73c6', [
+                                 '0x1f1E7c893855525b303f99bDF5c3c05Be09ca251',
+                                 '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
+                             ])
+solidly_usdc_syn = Module('uniswapv2', 'fantom',
+                          '0xb1b3b96cf35435b2518093acd50e02fe03a0131f', [
+                              '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75',
+                              '0xE55e19Fb4F2D85af758950957714292DAC1e25B2',
+                          ])
+solidly_wftm_syn = Module('uniswapv2', 'fantom',
+                          '0x8aa410d8b0cc3de48aac8eb5d928646a00e6ff04', [
+                              '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+                              '0xE55e19Fb4F2D85af758950957714292DAC1e25B2',
+                          ])
 
-__all__ = ['uniswapv2_syn_frax']
+__all__ = [
+    'uniswapv2_syn_frax',
+    'sushiswap_syn_weth',
+    'traderjoe_syn_wavax',
+    'solidly_usdc_syn',
+    'solidly_wftm_syn',
+]
