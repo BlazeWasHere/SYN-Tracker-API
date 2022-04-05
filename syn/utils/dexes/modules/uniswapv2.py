@@ -34,8 +34,8 @@ def get_tvl(
     assert t1_reserve, f'failed to get t1 {chain=} {tokens[1]} {ret=}'
 
     return {
-        tokens[0]: t0_reserve,
-        tokens[1]: t1_reserve,
+        tokens[0].lower(): t0_reserve,
+        tokens[1].lower(): t1_reserve,
     }
 
 
