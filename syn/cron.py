@@ -93,7 +93,7 @@ def get_price_xjewel(_date: date) -> Decimal:
 
 def get_price(_id: str, date: date) -> Decimal:
     CUSTOM_PRICE_FUNCS = {
-        'custom-xjewel': get_price_xjewel,
+        #  'custom-xjewel': get_price_xjewel,
     }
 
     if _id in CUSTOM_PRICE_FUNCS:

@@ -22,10 +22,6 @@ logger = logging.Logger(__name__)
 
 
 class CoingeckoIDS(Enum):
-    # Custom ID prefixed with `custom` to indicate a price function impl
-    # defined in syn/cron.py.
-    CSTM_XJEWEL = 'custom-xjewel'
-
     HIGH = 'highstreet'
     SYN = 'synapse-2'
     USDT = 'tether'
@@ -58,6 +54,7 @@ class CoingeckoIDS(Enum):
     SDT = 'stake-dao'
     LUNA = 'terra-luna'
     JEWEL = 'defi-kingdoms'
+    XJEWEL = 'xjewel'
 
 
 CUSTOM = {
@@ -292,7 +289,7 @@ ADDRESS_TO_CGID = {
         '0xb57b60debdb0b8172bb6316a9164bd3c695f133a': CoingeckoIDS.AVAX,
         '0xccb93dabd71c8dad03fc4ce5559dc3d89f67a260': CoingeckoIDS.JEWEL,
         '0x9596a3c6a4b2597adcc5d6d69b281a7c49e3fe6a': CoingeckoIDS.ETH,
-        '0x77f2656d04e158f915bc22f07b779d94c1dc47ff': CoingeckoIDS.CSTM_XJEWEL,
+        '0x77f2656d04e158f915bc22f07b779d94c1dc47ff': CoingeckoIDS.XJEWEL,
         '0xb6b5c854a8f71939556d4f3a2e5829f7fcc1bf2a': CoingeckoIDS.SYN,
         '0x3ad9dfe640e1a9cc1d9b0948620820d975c3803a': CoingeckoIDS.USDC,
     },
