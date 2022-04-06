@@ -15,8 +15,7 @@ from syn.utils.analytics.fees import get_admin_fees, get_chain_bridge_fees, \
     get_pending_admin_fees, get_chain_validator_gas_fees, \
     get_chain_airdrop_amounts
 from syn.utils.analytics.treasury import get_treasury_erc20_balances
-from syn.routes.api.v1.analytics.volume import symbol_to_address
-from syn.utils.data import cache
+from syn.utils.data import cache, symbol_to_address
 from syn.utils import verify
 
 fees_bp = Blueprint('fees_bp', __name__)

@@ -29,7 +29,8 @@ import dateutil.parser
 import redis_lock
 import gevent
 
-from .data import REDIS, TOKEN_DECIMALS, SYN_DATA, LOGS_REDIS_URL
+from .data import (REDIS, TOKEN_DECIMALS, SYN_DATA, LOGS_REDIS_URL,
+                   TOKENS_INFO, TokenInfo)
 
 if TYPE_CHECKING:
     from _typeshed import SupportsDunderGT
@@ -153,6 +154,10 @@ def get_all_keys(pattern: str,
             res[key] = ret
 
     return res
+
+
+def get_token_info(chain: str, token: str) -> TokenInfo:
+    return TOKENS_INFO[chain][token.lower()]
 
 
 def convert_amount(chain: str, token: str, amount: int) -> D:

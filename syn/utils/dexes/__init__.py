@@ -17,6 +17,7 @@ from web3.contract import Contract
 from web3 import Web3
 
 from syn.utils.dexes.modules import uniswapv2
+from syn.utils.helpers import get_token_info
 from syn.utils.data import SYN_DATA
 
 _abis_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'abis')
@@ -47,6 +48,7 @@ class Module(object):
         self.name = name
         self.chain = chain
         self.tokens = tokens
+        self.symbol = self._create_pool_symbol()
         self.address = self.w3.toChecksumAddress(address)
         self.contract = self.w3.eth.contract(self.address, abi=self.abi)
 
@@ -62,6 +64,14 @@ class Module(object):
             return timestamp
 
         raise RuntimeError(f'failed to get timestamp: {block=} {ret=}')
+
+    def _create_pool_symbol(self) -> str:
+        symbols = []
+
+        for token in self.tokens:
+            symbols.append(get_token_info(self.chain, token)['symbol'])
+
+        return '/'.join(symbols)
 
     def get_tvl(self, block: BlockIdentifier = 'latest') -> Dict[str, Decimal]:
         return self._module.get_tvl(
