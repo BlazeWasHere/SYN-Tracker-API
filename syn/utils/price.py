@@ -194,7 +194,7 @@ ADDRESS_TO_CGID = {
         '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7': CoingeckoIDS.AVAX,
         '0x20a9dc684b4d0407ef8c9a302beaaa18ee15f656': CoingeckoIDS.GMX,
         '0x4bfc90322dd638f81f034517359bd447f8e0235a': CoingeckoIDS.NEWO,
-        '0xccbf7c451f81752f7d2237f2c18c371e6e089e69': CoingeckoIDS.AVAX,
+        '0xccbf7c451f81752f7d2237f2c18c371e6e089e69': CoingeckoIDS.SDT,
         '0x997ddaa07d716995de90577c123db411584e5e46': CoingeckoIDS.JEWEL,
     },
     'arbitrum': {
