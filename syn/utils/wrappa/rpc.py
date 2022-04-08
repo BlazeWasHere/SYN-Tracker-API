@@ -18,10 +18,10 @@ import simplejson as json
 from web3 import Web3
 import gevent
 
+from syn.utils.helpers import (get_gas_stats_for_tx, handle_decimals,
+                               get_airdrop_value_for_block, convert,
+                               parse_logs_out, parse_tx_in, retry)
 from syn.utils.data import SYN_DATA, LOGS_REDIS_URL, TOKEN_DECIMALS
-from syn.utils.helpers import get_gas_stats_for_tx, handle_decimals, \
-    get_airdrop_value_for_block, convert, parse_logs_out, parse_tx_in, \
-    retry
 from syn.utils.explorer.data import TOPICS, Direction
 from syn.utils.contract import get_bridge_token_info
 

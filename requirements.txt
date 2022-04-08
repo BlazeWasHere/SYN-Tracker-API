@@ -12,3 +12,4 @@ Flask-SocketIO==5.1.1
 gevent-websocket==0.10.1
 simplejson==3.17.6
 python-redis-lock==3.7.0
+bech32==1.2.0
