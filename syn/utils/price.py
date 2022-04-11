@@ -55,6 +55,7 @@ class CoingeckoIDS(Enum):
     LUNA = 'terra-luna'
     JEWEL = 'defi-kingdoms'
     XJEWEL = 'xjewel'
+    UST = 'terrausd'
 
 
 CUSTOM = {
@@ -156,6 +157,7 @@ ADDRESS_TO_CGID = {
         '0x0ab87046fbb341d058f17cbc4c1133f25a20a52f': CoingeckoIDS.GOHM,
         '0x98585dfc8d9e7d48f0b1ae47ce33332cf4237d96': CoingeckoIDS.NEWO,
         '0x73968b9a57c6e53d41345fd57a6e6ae27d6cdb2f': CoingeckoIDS.SDT,
+        '0x0261018aa50e28133c1ae7a29ebdf9bd21b878cb': CoingeckoIDS.UST,
     },
     'bsc': {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': CoingeckoIDS.BUSD,
@@ -167,7 +169,8 @@ ADDRESS_TO_CGID = {
         '0x0fe9778c005a5a6115cbe12b0568a2d50b765a51': CoingeckoIDS.NFD,
         '0x42f6f551ae042cbe50c739158b4f0cac0edb9096': CoingeckoIDS.NRV,
         '0xc13b7a43223bb9bf4b69bd68ab20ca1b79d81c75': CoingeckoIDS.JGN,
-        '0x88918495892baf4536611e38e75d771dc6ec0863': CoingeckoIDS.GOHM
+        '0x88918495892baf4536611e38e75d771dc6ec0863': CoingeckoIDS.GOHM,
+        '0xb7a6c5f0cc98d24cf4b2011842e64316ff6d042c': CoingeckoIDS.UST,
     },
     'polygon': {
         '0xf8f9efc0db77d8881500bb06ff5d6abc3070e695': CoingeckoIDS.SYN,
@@ -179,6 +182,7 @@ ADDRESS_TO_CGID = {
         '0xeee3371b89fc43ea970e908536fcddd975135d8a': CoingeckoIDS.DOG,
         '0x48a34796653afdaa1647986b33544c911578e767': CoingeckoIDS.FRAX,
         '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619': CoingeckoIDS.ETH,
+        '0x565098cba693b3325f9fe01d41b7a1cd792abab1': CoingeckoIDS.UST,
     },
     'avalanche': {
         '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': CoingeckoIDS.SYN,
@@ -196,6 +200,7 @@ ADDRESS_TO_CGID = {
         '0x4bfc90322dd638f81f034517359bd447f8e0235a': CoingeckoIDS.NEWO,
         '0xccbf7c451f81752f7d2237f2c18c371e6e089e69': CoingeckoIDS.SDT,
         '0x997ddaa07d716995de90577c123db411584e5e46': CoingeckoIDS.JEWEL,
+        '0xe97097de8d6a17be3c39d53ae63347706dcf8f43': CoingeckoIDS.UST,
     },
     'arbitrum': {
         '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,
@@ -209,6 +214,7 @@ ADDRESS_TO_CGID = {
         '0xfc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a': CoingeckoIDS.GMX,
         '0x0877154a755b24d499b8e2bd7ecd54d3c92ba433': CoingeckoIDS.NEWO,
         '0x1a4da80967373fd929961e976b4b53ceec063a15': CoingeckoIDS.LUNA,
+        '0x13780e6d5696dd91454f6d3bbc2616687fea43d0': CoingeckoIDS.UST,
     },
     'fantom': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
@@ -220,6 +226,7 @@ ADDRESS_TO_CGID = {
         '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00': CoingeckoIDS.ETH,
         '0x74b23882a30290451a17c44f4f05243b6b58c76d': CoingeckoIDS.ETH,
         '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48': CoingeckoIDS.SDT,
+        '0xa0554607e477cdc9d0ee2a6b087f4b2dc2815c22': CoingeckoIDS.UST,
     },
     'harmony': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
@@ -234,6 +241,7 @@ ADDRESS_TO_CGID = {
         '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48': CoingeckoIDS.SDT,
         '0xd9eaa386ccd65f30b77ff175f6b52115fe454fd6': CoingeckoIDS.AVAX,
         '0x28b42698caf46b4b012cf38b6c75867e0762186d': CoingeckoIDS.JEWEL,
+        '0xa0554607e477cdc9d0ee2a6b087f4b2dc2815c22': CoingeckoIDS.UST,
     },
     'boba': {
         '0xb554a55358ff0382fb21f0a478c3546d1106be8c': CoingeckoIDS.SYN,
@@ -243,6 +251,7 @@ ADDRESS_TO_CGID = {
         '0x96419929d7949d6a801a6909c145c8eef6a40431': CoingeckoIDS.ETH,
         '0xd203de32170130082896b4111edf825a4774c18e': CoingeckoIDS.ETH,
         '0xd22c0a4af486c7fa08e282e9eb5f30f9aaa62c95': CoingeckoIDS.GOHM,
+        '0x61a269a9506272d128d79abfe8e8276570967f00': CoingeckoIDS.UST,
     },
     'moonriver': {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
@@ -251,6 +260,7 @@ ADDRESS_TO_CGID = {
         '0x76906411d07815491a5e577022757ad941fb5066': CoingeckoIDS.SOLAR,
         '0x98878b06940ae243284ca214f92bb71a2b032b8a': CoingeckoIDS.MOVR,
         '0x1a93b23281cc1cde4c4741353f3064709a16197d': CoingeckoIDS.FRAX,
+        '0xa9d0c0e124f53f4be1439ebc35a9c73c0e8275fb': CoingeckoIDS.UST,
     },
     'optimism': {
         '0x5a5fff6f753d7c11a56a52fe47a177a87e431655': CoingeckoIDS.SYN,
@@ -258,11 +268,13 @@ ADDRESS_TO_CGID = {
         '0x121ab82b49b2bc4c7901ca46b8277962b4350204': CoingeckoIDS.ETH,
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb': CoingeckoIDS.GOHM,
         '0x931b8f17764362a3325d30681009f0edd6211231': CoingeckoIDS.LUNA,
+        '0xfb21b70922b9f6e3c6274bcd6cb1aa8a0fe20b80': CoingeckoIDS.UST,
     },
     'aurora': {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
         '0xb12bfca5a55806aaf64e99521918a4bf0fc40802': CoingeckoIDS.USDC,
         '0x4988a896b1227218e4a686fde5eabdcabd91571f': CoingeckoIDS.USDT,
+        '0xb1da21b0531257a7e5aefa0cd3cbf23afc674ce1': CoingeckoIDS.UST,
     },
     'moonbeam': {
         '0xf44938b0125a6662f9536281ad2cd6c499f22004': CoingeckoIDS.SYN,
@@ -273,6 +285,7 @@ ADDRESS_TO_CGID = {
         '0xbf180c122d85831dcb55dc673ab47c8ab9bcefb4': CoingeckoIDS.ETH,
         '0x1d4c2a246311bb9f827f4c768e277ff5787b7d7e': CoingeckoIDS.MOVR,
         '0xa1f8890e39b4d8e33efe296d698fe42fb5e59cc3': CoingeckoIDS.AVAX,
+        '0x5cf84397944b9554a278870b510e86667681ff8d': CoingeckoIDS.UST,
     },
     'cronos': {
         '0xfd0f80899983b8d46152aa1717d76cba71a31616': CoingeckoIDS.SYN,
@@ -284,6 +297,7 @@ ADDRESS_TO_CGID = {
         '0xea32a96608495e54156ae48931a7c20f0dcc1a21': CoingeckoIDS.USDC,
         '0x931b8f17764362a3325d30681009f0edd6211231': CoingeckoIDS.ETH,
         '0x420000000000000000000000000000000000000a': CoingeckoIDS.ETH,
+        '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb': CoingeckoIDS.UST,
     },
     'dfk': {
         '0xb57b60debdb0b8172bb6316a9164bd3c695f133a': CoingeckoIDS.AVAX,
@@ -292,6 +306,7 @@ ADDRESS_TO_CGID = {
         '0x77f2656d04e158f915bc22f07b779d94c1dc47ff': CoingeckoIDS.XJEWEL,
         '0xb6b5c854a8f71939556d4f3a2e5829f7fcc1bf2a': CoingeckoIDS.SYN,
         '0x3ad9dfe640e1a9cc1d9b0948620820d975c3803a': CoingeckoIDS.USDC,
+        '0x360d6dd540e3448371876662fbe7f1acaf08c5ab': CoingeckoIDS.UST,
     },
 }
 
