@@ -166,7 +166,16 @@ def bridge_callback(chain: str, address: str, log: LogReceipt,
         ret = get_bridge_token_info(chain, asset)
 
         if not ret:
-            # Someone tried to bridge an unsupported token - ignore it.
+            if direction == Direction.IN:
+                # All IN txs are with supported tokens.
+                print(f'failed to add new token: {chain} {asset}')
+            else:
+                # Someone tried to bridge an unsupported token - ignore it.
+                print(
+                    f'unsupported bridge token: {chain} {tx_hash.hex()}',
+                    asset,
+                )
+
             return
         else:
             print(f'new token {chain} {asset} {ret}')

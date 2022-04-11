@@ -118,7 +118,7 @@ def get_bridge_token_info(chain: str,
     chain_id = CHAINS_REVERSED[chain]
     token = Web3.toChecksumAddress(token)
 
-    ret = BRIDGE_CONFIG.functions.getToken(token, chain_id).call()
+    ret = BRIDGE_CONFIG.functions.getTokenByAddress(token, chain_id).call()
     # Does not exist - function's default ret.
     if ret == (0, '0x0000000000000000000000000000000000000000', 0, 0, 0, 0, 0,
                0, False, False):
