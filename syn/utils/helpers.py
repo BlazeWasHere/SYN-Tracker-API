@@ -28,6 +28,7 @@ from redis import Redis
 import dateutil.parser
 import redis_lock
 import gevent
+import bech32
 
 from .data import REDIS, TOKEN_DECIMALS, SYN_DATA, LOGS_REDIS_URL
 
@@ -554,10 +555,16 @@ def parse_logs_out(log: LogReceipt) -> Dict[str, Union[int, str]]:
     result['amount'] = int(data[:64], 16)  # Get amount
     data = data[64:]  # Skip 'amount'
 
-    address_to = log['topics'][1].hex()  # Get 'to'
-    result['to'] = '0x' + address_to[-40:]  # last 40 symbols is the address
+    from syn.utils.explorer.data import TOPIC_TO_EVENT, CHAINS_REVERSED
 
-    from syn.utils.explorer.data import TOPIC_TO_EVENT
+    if result['chain_id'] == CHAINS_REVERSED['terra']:
+        # For non-evm chains, addresses are encoded as a `byte32`.
+        result['to'] = bech32.bech32_encode('terra', log['topics'][1])
+    else:
+        # last 40 symbols is the address
+        address_to = log['topics'][1].hex()  # Get 'to'
+        result['to'] = '0x' + address_to[-40:]
+
     event = TOPIC_TO_EVENT[log['topics'][0].hex()]  # Get event topic
     if event.endswith('Swap'):
         # TokenDepositAndSwap or TokenRedeemAndSwap

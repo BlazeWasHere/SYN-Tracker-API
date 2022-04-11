@@ -30,7 +30,10 @@ CHAINS = {
     25: 'cronos',
     1088: 'metis',
     53935: 'dfk',
+    121014925: 'terra',
 }
+
+CHAINS_REVERSED = {v: k for k, v in CHAINS.items()}
 
 
 class Direction(Enum):
@@ -51,6 +54,7 @@ EVENTS = {
     'TokenWithdrawAndRemove': Direction.IN,
     'TokenDeposit': Direction.OUT,
     'TokenWithdraw': Direction.IN,
+    'TokenRedeemV2': Direction.OUT,
 }
 
 TOPICS = {
@@ -81,6 +85,9 @@ TOPICS = {
     # TokenWithdraw
     '0x8b0afdc777af6946e53045a4a75212769075d30455a212ac51c9b16f9c5c9b26':
     Direction.IN,
+    # TokenRedeemV2
+    '0x8e57e8c5fea426159af69d47eda6c5052c7605c9f70967cf749d4aa55b70b499':
+    Direction.OUT,
 }
 
 TOPIC_TO_EVENT = dict(zip(TOPICS.keys(), EVENTS.keys()))
