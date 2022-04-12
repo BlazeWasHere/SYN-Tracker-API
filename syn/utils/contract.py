@@ -20,6 +20,18 @@ from .data import (BRIDGE_CONFIG, SYN_DATA, MAX_UINT8, SYN_DECIMALS,
 from .helpers import handle_decimals
 from .cache import timed_cache
 
+# struct Token {
+#     uint256 chainId;
+#     string tokenAddress;
+#     uint8 tokenDecimals;
+#     uint256 maxSwap;
+#     uint256 minSwap;
+#     uint256 swapFee;
+#     uint256 maxSwapFee;
+#     uint256 minSwapFee;
+#     bool hasUnderlying;
+#     bool isUnderlying;
+# }
 _TokenInfo = Tuple[int, str, int, int, int, int, int, int, bool, bool]
 _pool_cache: Dict[str, Dict[str, Dict[int, str]]] = defaultdict(dict)
 

@@ -19,24 +19,10 @@ from syn.utils.analytics.volume import (
     get_chain_tx_count_total,
     get_chain_outflows_total,
 )
+from syn.utils.data import cache, symbol_to_address
 from syn.utils.helpers import filter_volume_data
-from syn.utils.data import cache, TOKENS_INFO
 
 volume_bp = Blueprint('volume_bp', __name__)
-
-symbol_to_address: Dict[str, Dict[str, str]] = defaultdict(dict)
-
-# `symbol_to_address` is an abstraction of `TOKENS_INFO`
-for chain, v in TOKENS_INFO.items():
-    for token, data in v.items():
-        assert token not in symbol_to_address[chain], \
-            f'duped token? {token} @ {chain} | {symbol_to_address[chain][token]}'
-
-        # Skip GMX wrapper - use GMX instead.
-        if chain == 'avalanche' and token == '0x20a9dc684b4d0407ef8c9a302beaaa18ee15f656':
-            continue
-
-        symbol_to_address[chain].update({data['symbol'].lower(): token})
 
 
 @volume_bp.route('/<chain:chain>/filter/<token>/<direction>', methods=['GET'])

@@ -25,14 +25,15 @@ from gevent import Greenlet
 from web3.main import Web3
 import simplejson as json
 from redis import Redis
-import dateutil.parser
 import redis_lock
 import gevent
 import bech32
 
-from .data import REDIS, TOKEN_DECIMALS, SYN_DATA, LOGS_REDIS_URL
+from syn.utils.data import (REDIS, TOKEN_DECIMALS, SYN_DATA, LOGS_REDIS_URL,
+                            symbol_to_address, _cb, TOKENS_INFO)
 
 if TYPE_CHECKING:
+    from syn.utils.contract import _TokenInfo
     from _typeshed import SupportsDunderGT
 
 logger = logging.Logger(__name__)
@@ -54,39 +55,6 @@ def add_to_dict(dict: Dict[KT, VT], key: KT, value: VT) -> None:
         dict.update({key: value})
 
 
-def merge_many_dicts(dicts: List[Dict[KT, Any]],
-                     is_price_dict: bool = False) -> Dict[KT, Any]:
-    res: Dict[KT, Any] = {}
-
-    for dict in dicts:
-        res.update(merge_dict(res, dict, is_price_dict))
-
-    return res
-
-
-def merge_dict(dict1: Dict[KT, Any],
-               dict2: Dict[KT, Any],
-               is_price_dict: bool = False) -> Dict[KT, Any]:
-    for k, v in dict1.items():
-        if isinstance(v, dict):
-            if k in dict2 and isinstance(dict2[k], dict):
-                merge_dict(dict1[k], dict2[k], is_price_dict)
-        else:
-            if k in dict2:
-                if is_price_dict:
-                    if k in ['adjusted', 'current', 'usd']:
-                        dict1[k] += dict2[k]  # type: ignore
-
-                else:
-                    dict1[k] = dict2[k]
-
-    for k, v in dict2.items():
-        if not k in dict1:
-            dict1[k] = v
-
-    return dict1
-
-
 def flatten_dict(_dict: Dict[Any, Any], _join: str = ':') -> str:
     values = []
 
@@ -104,20 +72,6 @@ def raise_if(val: Any, match: Any) -> Any:
         raise TypeError(val)
 
     return val
-
-
-def store_volume_dict_to_redis(chain: str, _dict: Dict[str, Any]) -> None:
-    # Only cache from 2 days back.
-    # TODO: does this even work?
-    date = (datetime.now().today() - timedelta(days=2)).timestamp()
-    key = chain + ':{date}:{key}'
-
-    for k, v in _dict['data'].items():
-        dt = dateutil.parser.parse(k).timestamp()
-
-        if dt < date:
-            REDIS.setnx(key.format(date=k, key=list(v.keys())[0]),
-                        json.dumps(v))
 
 
 def get_all_keys(pattern: str,
@@ -661,3 +615,22 @@ def date2block(chain: str, date: date) -> Optional[Dict[str, int]]:
         ret = json.loads(ret)
 
     return ret
+
+
+def update_global_data(chain: str, token: str) -> None:
+    """
+    Update all global data dicts with a new token
+    NOTE: Used as a runtime addition of data
+    """
+    w3: Web3 = SYN_DATA[chain]['w3']
+    token = token.lower()
+
+    assert token not in TOKENS_INFO[chain], f'{token=} {chain=} already exists'
+
+    _cb(w3, chain, token)
+    data = TOKENS_INFO[chain][token]
+
+    TOKEN_DECIMALS[chain].update({token: data['decimals']})
+    symbol_to_address[chain].update({data['symbol']: token})
+
+    print(f'new token {chain} {token} {data}')

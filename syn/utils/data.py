@@ -520,7 +520,7 @@ TOKENS_INFO: Dict[str, Dict[str, TokenInfo]] = defaultdict(dict)
 __jobs: List[Greenlet] = []
 
 
-def __cb(w3: Web3, chain: str, token: str) -> None:
+def _cb(w3: Web3, chain: str, token: str) -> None:
     contract = w3.eth.contract(w3.toChecksumAddress(token), abi=ERC20_BARE_ABI)
 
     decimals = contract.functions.decimals().call()
@@ -541,10 +541,12 @@ for chain, tokens in TOKENS.items():
     w3: Web3 = SYN_DATA[chain]['w3']
 
     for token in tokens:
+        token = token.lower()
+        
         assert token not in TOKENS_INFO[chain], \
             f'duped token? {token} @ {chain} | {TOKENS_INFO[chain][token]}'
 
-        __jobs.append(__pool.spawn(__cb, w3, chain, token))
+        __jobs.append(__pool.spawn(_cb, w3, chain, token))
 
 gevent.joinall(__jobs, raise_error=True)
 
@@ -563,3 +565,17 @@ for chain, v in TOKENS_INFO.items():
             f'duped token? {token} @ {chain} | {TOKEN_DECIMALS[chain][token]}'
 
         TOKEN_DECIMALS[chain].update({token: data['decimals']})
+
+symbol_to_address: Dict[str, Dict[str, str]] = defaultdict(dict)
+
+# `symbol_to_address` is an abstraction of `TOKENS_INFO`
+for chain, v in TOKENS_INFO.items():
+    for token, data in v.items():
+        assert token not in symbol_to_address[chain], \
+            f'duped token? {token} @ {chain} | {symbol_to_address[chain][token]}'
+
+        # Skip GMX wrapper - use GMX instead.
+        if chain == 'avalanche' and token == '0x20a9dc684b4d0407ef8c9a302beaaa18ee15f656':
+            continue
+
+        symbol_to_address[chain].update({data['symbol'].lower(): token})

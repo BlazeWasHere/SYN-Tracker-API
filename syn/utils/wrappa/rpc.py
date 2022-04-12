@@ -19,8 +19,8 @@ from web3 import Web3
 import gevent
 
 from syn.utils.helpers import (get_gas_stats_for_tx, handle_decimals,
-                               get_airdrop_value_for_block, convert,
-                               parse_logs_out, parse_tx_in, retry)
+                               get_airdrop_value_for_block, parse_logs_out,
+                               convert, parse_tx_in, update_global_data, retry)
 from syn.utils.data import SYN_DATA, LOGS_REDIS_URL, TOKEN_DECIMALS
 from syn.utils.explorer.data import TOPICS, Direction
 from syn.utils.contract import get_bridge_token_info
@@ -178,8 +178,8 @@ def bridge_callback(chain: str, address: str, log: LogReceipt,
 
             return
         else:
-            print(f'new token {chain} {asset} {ret}')
-            TOKEN_DECIMALS[chain].update({asset.lower(): ret[2]})
+            # New token added.
+            update_global_data(chain, asset)
 
     decimals = TOKEN_DECIMALS[chain][asset]
     # Amount is in nUSD/nETH/SYN/etc

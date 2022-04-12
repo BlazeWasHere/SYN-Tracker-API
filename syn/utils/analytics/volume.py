@@ -18,7 +18,7 @@ from syn.utils.price import (CoingeckoIDS, get_historic_price_for_address,
                              get_price_for_address, get_price_coingecko)
 from syn.utils.helpers import (add_to_dict, get_all_keys, raise_if,
                                calculate_volume_totals, recursive_defaultdict)
-from syn.utils.data import LOGS_REDIS_URL, SYN_DATA
+from syn.utils.data import LOGS_REDIS_URL, SYN_DATA, symbol_to_address
 
 
 def create_totals(
@@ -189,8 +189,6 @@ def get_chain_volume_for_address(address: str,
 
 
 def get_chain_volume(chain: str, direction: str = '*') -> Dict[str, Any]:
-    from syn.routes.api.v1.analytics.volume import symbol_to_address
-
     assert direction in ['IN', 'OUT']
 
     if direction == 'OUT':
