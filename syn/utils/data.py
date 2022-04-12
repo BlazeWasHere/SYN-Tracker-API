@@ -328,6 +328,7 @@ TOKENS = {
         '0x73968b9a57c6e53d41345fd57a6e6ae27d6cdb2f',  # SDT
         '0x02b5453d92b730f29a86a0d5ef6e930c4cf8860b',  # USDB
         '0x0261018aa50e28133c1ae7a29ebdf9bd21b878cb',  # UST
+        '0xa8d7f5e7c78ed0fa097cc5ec66c1dc3104c9bbeb',  # VSTA
     ],
     'bsc': [
         '0x23b891e5c62e0955ae2bd185990103928ab817b3',  # nUSD
@@ -398,6 +399,7 @@ TOKENS = {
         '0x0877154a755b24d499b8e2bd7ecd54d3c92ba433',  # NEWO
         '0x1a4da80967373fd929961e976b4b53ceec063a15',  # LUNA
         '0x13780e6d5696dd91454f6d3bbc2616687fea43d0',  # UST
+        '0xa684cd057951541187f288294a1e1c2646aa2d24',  # VSTA
     ],
     'fantom': [
         '0x04068da6c83afcfa0e13ba15a6696662335d5b75',  # USDC
@@ -542,7 +544,7 @@ for chain, tokens in TOKENS.items():
 
     for token in tokens:
         token = token.lower()
-        
+
         assert token not in TOKENS_INFO[chain], \
             f'duped token? {token} @ {chain} | {TOKENS_INFO[chain][token]}'
 

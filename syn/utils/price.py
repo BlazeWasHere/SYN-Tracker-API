@@ -56,6 +56,7 @@ class CoingeckoIDS(Enum):
     JEWEL = 'defi-kingdoms'
     XJEWEL = 'xjewel'
     UST = 'terrausd'
+    VSTA = 'vesta-finance'
 
 
 CUSTOM = {
@@ -158,6 +159,7 @@ ADDRESS_TO_CGID = {
         '0x98585dfc8d9e7d48f0b1ae47ce33332cf4237d96': CoingeckoIDS.NEWO,
         '0x73968b9a57c6e53d41345fd57a6e6ae27d6cdb2f': CoingeckoIDS.SDT,
         '0x0261018aa50e28133c1ae7a29ebdf9bd21b878cb': CoingeckoIDS.UST,
+        '0xa8d7f5e7c78ed0fa097cc5ec66c1dc3104c9bbeb': CoingeckoIDS.VSTA
     },
     'bsc': {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': CoingeckoIDS.BUSD,
@@ -216,6 +218,7 @@ ADDRESS_TO_CGID = {
         '0x1a4da80967373fd929961e976b4b53ceec063a15': CoingeckoIDS.LUNA,
         '0x13780e6d5696dd91454f6d3bbc2616687fea43d0': CoingeckoIDS.UST,
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': CoingeckoIDS.DAI,
+        '0xa684cd057951541187f288294a1e1c2646aa2d24': CoingeckoIDS.VSTA,
     },
     'fantom': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
