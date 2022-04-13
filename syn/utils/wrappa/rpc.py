@@ -193,7 +193,7 @@ def bridge_callback(chain: str, address: str, log: LogReceipt,
         value['validator'] = gas_stats
 
         # Let's also track how much fees the user paid for the bridge tx
-        value['fees'] = handle_decimals(args['fee'], 18)
+        value['fees'] = handle_decimals(args['fee'], decimals)
 
         # All `IN` txs give some airdrop amounts, well on most chains at least.
         if chain in airdrop_ranges:
