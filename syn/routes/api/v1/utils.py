@@ -11,11 +11,11 @@ from collections import defaultdict
 from datetime import datetime
 
 from flask import Blueprint, jsonify
-import simplejson as json
 from web3 import Web3
 
 from syn.utils.data import LOGS_REDIS_URL, SYN_DATA, cache
 from syn.utils.helpers import get_all_keys, date2block
+from syn.utils.explorer.data import CHAINS
 
 utils_bp = Blueprint('utils_bp', __name__)
 
@@ -43,3 +43,8 @@ def syncing():
 def chain_date_to_block(chain: str, date: datetime):
     _date = date.date()
     return jsonify({str(_date): date2block(chain, _date)})
+
+
+@utils_bp.route('/chains', methods=['GET'])
+def chains():
+    return jsonify(CHAINS)
