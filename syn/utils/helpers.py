@@ -30,7 +30,7 @@ import gevent
 import bech32
 
 from syn.utils.data import (REDIS, TOKEN_DECIMALS, SYN_DATA, LOGS_REDIS_URL,
-                            symbol_to_address, _cb, TOKENS_INFO)
+                            _cb, _tk_d, _sml_adr, TOKENS_INFO)
 
 if TYPE_CHECKING:
     from syn.utils.contract import _TokenInfo
@@ -630,7 +630,7 @@ def update_global_data(chain: str, token: str) -> None:
     _cb(w3, chain, token)
     data = TOKENS_INFO[chain][token]
 
-    TOKEN_DECIMALS[chain].update({token: data['decimals']})
-    symbol_to_address[chain].update({data['symbol']: token})
+    _tk_d(chain, token, data['decimals'])
+    _sml_adr(chain, data['symbol'], token)
 
     print(f'new token {chain} {token} {data}')

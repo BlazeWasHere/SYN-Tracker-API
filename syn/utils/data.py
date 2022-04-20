@@ -560,15 +560,25 @@ TOKENS_INFO['avalanche'].update({
 
 TOKEN_DECIMALS: Dict[str, Dict[str, int]] = defaultdict(dict)
 
+
+def _tk_d(chain: str, token: str, decimals: int) -> None:
+    TOKEN_DECIMALS[chain].update({token: decimals})
+
+
 # `TOKEN_DECIMALS` is an abstraction of `TOKENS_INFO`.
 for chain, v in TOKENS_INFO.items():
     for token, data in v.items():
         assert token not in TOKEN_DECIMALS[chain], \
             f'duped token? {token} @ {chain} | {TOKEN_DECIMALS[chain][token]}'
 
-        TOKEN_DECIMALS[chain].update({token: data['decimals']})
+        _tk_d(chain, token, data['decimals'])
 
 symbol_to_address: Dict[str, Dict[str, str]] = defaultdict(dict)
+
+
+def _sml_adr(chain: str, symbol: str, token: str) -> None:
+    symbol_to_address[chain].update({symbol.lower(): token})
+
 
 # `symbol_to_address` is an abstraction of `TOKENS_INFO`
 for chain, v in TOKENS_INFO.items():
@@ -580,4 +590,4 @@ for chain, v in TOKENS_INFO.items():
         if chain == 'avalanche' and token == '0x20a9dc684b4d0407ef8c9a302beaaa18ee15f656':
             continue
 
-        symbol_to_address[chain].update({data['symbol'].lower(): token})
+        _sml_adr(chain, data['symbol'], token)
