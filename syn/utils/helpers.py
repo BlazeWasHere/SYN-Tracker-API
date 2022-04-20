@@ -227,6 +227,7 @@ def dispatch_get_logs(
                 },
                 'optimism': {
                     'neth': 30819,
+                    'nusd': 6045403,
                 },
                 'aurora': {
                     'nusd': 56441515,

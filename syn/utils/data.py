@@ -197,6 +197,7 @@ SYN_DATA = {
         "address": "0x5a5fff6f753d7c11a56a52fe47a177a87e431655",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
         "ethpool": "0xe27bff97ce92c3e1ff7aa9f86781fdd6d48f5ee9",
+        "pool": "0xf44938b0125a6662f9536281ad2cd6c499f22004",
         "minichef": "0xe8c610fcb63A4974F02Da52f0B4523937012Aaa0",
     },
     "aurora": {
@@ -463,6 +464,8 @@ TOKENS = {
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb',  # gOHM
         '0x931b8f17764362a3325d30681009f0edd6211231',  # LUNA
         '0xfb21b70922b9f6e3c6274bcd6cb1aa8a0fe20b80',  # UST
+        '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00',  # nUSD
+        '0x7f5c764cbc14f9669b88837ca1490cca17c31607',  # USDC
     ],
     'aurora': [
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445',  # SYN

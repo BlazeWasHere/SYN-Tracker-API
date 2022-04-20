@@ -124,7 +124,10 @@ CUSTOM = {
         # USDB
         '0x3e193c39626bafb41ebe8bdd11ec7cca9b3ec0b2': 1,
     },
-    'optimism': {},
+    'optimism': {
+        # n USD
+        '0x67c10c397dd0ba417329543c1a40eb48aaa7cd00': 1,
+    },
     'aurora': {
         # nUSD
         '0x07379565cd8b0cae7c60dc78e7f601b34af2a21c': 1,
@@ -274,6 +277,7 @@ ADDRESS_TO_CGID = {
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb': CoingeckoIDS.GOHM,
         '0x931b8f17764362a3325d30681009f0edd6211231': CoingeckoIDS.LUNA,
         '0xfb21b70922b9f6e3c6274bcd6cb1aa8a0fe20b80': CoingeckoIDS.UST,
+        '0x7f5c764cbc14f9669b88837ca1490cca17c31607': CoingeckoIDS.USDC,
     },
     'aurora': {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
