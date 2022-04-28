@@ -17,7 +17,8 @@ import gevent
 from syn.utils.price import (CoingeckoIDS, get_historic_price_for_address,
                              get_price_for_address, get_price_coingecko)
 from syn.utils.helpers import (add_to_dict, get_all_keys, raise_if,
-                               calculate_volume_totals, recursive_defaultdict)
+                               calculate_volume_totals, recursive_defaultdict,
+                               update_global_data)
 from syn.utils.data import LOGS_REDIS_URL, SYN_DATA, symbol_to_address
 
 
@@ -233,7 +234,18 @@ def get_chain_volume(chain: str, direction: str = '*') -> Dict[str, Any]:
         ]:
             volume[token].update({'token': 'gmx'})
         else:
-            volume[token].update({'token': symbols[addresses.index(token)]})
+            try:
+                symbol = symbols[addresses.index(token)]
+                volume[token].update({'token': symbol})
+            except ValueError:
+                update_global_data(chain, token)
+
+                # Re init
+                addresses = list(symbol_to_address[chain].values())
+                symbols = list(symbol_to_address[chain].keys())
+
+                symbol = symbols[addresses.index(token)]
+                volume[token].update({'token': symbol})
 
     return {
         'stats': {

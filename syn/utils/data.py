@@ -47,6 +47,11 @@ with open(os.path.join(_abis_path, 'bridge.json')) as f:
 with open(os.path.join(_abis_path, 'pool.json')) as f:
     POOL_ABI = json.load(f)['abi']
 
+_runtime_path = os.path.join(os.getcwd(), 'runtime')
+# File for new addition of tokens during runtime, most likely called by
+# :file:syn/utils/helpers.py :func:update_global_data
+new_tokens_file = os.path.join(_runtime_path, 'new_tokens.txt')
+
 if os.getenv('docker') == 'true':
     REDIS = redis.Redis(os.environ['REDIS_DOCKER_HOST'],
                         int(os.environ['REDIS_DOCKER_PORT']),
