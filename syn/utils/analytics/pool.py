@@ -164,6 +164,13 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
             'swap': 2000000,
         },
     },
+    'cronos': {
+        'nusd': {
+            'address': '0xcb6674548586f20ca39c97a52a0ded86f48814de',
+            'admin': 6000000000,
+            'swap': 2000000,
+        },
+    },
 }
 
 # https://github.com/synapsecns/synapse-contracts/blob/b3829f7c2177e9daf35d176713243acb6c43ea2b/contracts/amm/SwapUtils.sol#L112

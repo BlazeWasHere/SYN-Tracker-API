@@ -236,6 +236,9 @@ def dispatch_get_logs(
                     'nusd': 1251758,
                     'neth': 1698938,
                 },
+                'cronos': {
+                    'nusd': 2511054,
+                },
             }
 
             if 'pool_contract' in SYN_DATA[chain]:

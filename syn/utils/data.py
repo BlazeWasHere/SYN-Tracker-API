@@ -223,6 +223,7 @@ SYN_DATA = {
         "address": "0xfd0f80899983b8d46152aa1717d76cba71a31616",
         "bridge": "0xe27bff97ce92c3e1ff7aa9f86781fdd6d48f5ee9",
         "minichef": "0xa9e90579eb086bcda910dd94041ffe041fb4ac89",
+        "pool": "0xcb6674548586f20ca39c97a52a0ded86f48814de",
     },
     "metis": {
         "rpc": os.getenv('METIS_RPC'),
@@ -496,6 +497,7 @@ TOKENS = {
         '0xfd0f80899983b8d46152aa1717d76cba71a31616',  # SYN
         '0x396c9c192dd323995346632581bef92a31ac623b',  # nUSD
         '0xbb0a63a6ca2071c6c4bcac11a1a317b20e3e999c',  # gOHM
+        '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59',  # USDC
     ],
     'metis': [
         '0xfb21b70922b9f6e3c6274bcd6cb1aa8a0fe20b80',  # gOHM

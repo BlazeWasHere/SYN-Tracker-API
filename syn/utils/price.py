@@ -302,6 +302,7 @@ ADDRESS_TO_CGID = {
     'cronos': {
         '0xfd0f80899983b8d46152aa1717d76cba71a31616': CoingeckoIDS.SYN,
         '0xbb0a63a6ca2071c6c4bcac11a1a317b20e3e999c': CoingeckoIDS.GOHM,
+        '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59': CoingeckoIDS.USDC,
     },
     'metis': {
         '0xfb21b70922b9f6e3c6274bcd6cb1aa8a0fe20b80': CoingeckoIDS.GOHM,
