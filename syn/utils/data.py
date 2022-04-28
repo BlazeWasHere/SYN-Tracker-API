@@ -330,6 +330,7 @@ TOKENS = {
         '0x02b5453d92b730f29a86a0d5ef6e930c4cf8860b',  # USDB
         '0x0261018aa50e28133c1ae7a29ebdf9bd21b878cb',  # UST
         '0xa8d7f5e7c78ed0fa097cc5ec66c1dc3104c9bbeb',  # VSTA
+        '0xb753428af26e81097e7fd17f40c88aaa3e04902c',  # SFI
     ],
     'bsc': [
         '0x23b891e5c62e0955ae2bd185990103928ab817b3',  # nUSD
@@ -383,6 +384,7 @@ TOKENS = {
         '0x5ab7084cb9d270c2cb052dd30dbecbca42f8620c',  # USDB
         '0x997ddaa07d716995de90577c123db411584e5e46',  # JEWEL
         '0xe97097de8d6a17be3c39d53ae63347706dcf8f43',  # UST
+        '0xc2bf0a1f7d8da50d608bc96cf701110d4a438312',  # SFI
     ],
     'arbitrum': [
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1',  # DAI
@@ -498,6 +500,7 @@ TOKENS = {
         '0x931b8f17764362a3325d30681009f0edd6211231',  # nETH
         '0x420000000000000000000000000000000000000a',  # WETH
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb',  # UST
+        '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48',  # JUMP
     ],
     'dfk': [
         '0xb57b60debdb0b8172bb6316a9164bd3c695f133a',  # AVAX

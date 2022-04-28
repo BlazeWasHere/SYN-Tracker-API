@@ -57,6 +57,7 @@ class CoingeckoIDS(Enum):
     XJEWEL = 'xjewel'
     UST = 'terrausd'
     VSTA = 'vesta-finance'
+    SFI = 'saffron-finance'
 
 
 CUSTOM = {
@@ -162,7 +163,8 @@ ADDRESS_TO_CGID = {
         '0x98585dfc8d9e7d48f0b1ae47ce33332cf4237d96': CoingeckoIDS.NEWO,
         '0x73968b9a57c6e53d41345fd57a6e6ae27d6cdb2f': CoingeckoIDS.SDT,
         '0x0261018aa50e28133c1ae7a29ebdf9bd21b878cb': CoingeckoIDS.UST,
-        '0xa8d7f5e7c78ed0fa097cc5ec66c1dc3104c9bbeb': CoingeckoIDS.VSTA
+        '0xa8d7f5e7c78ed0fa097cc5ec66c1dc3104c9bbeb': CoingeckoIDS.VSTA,
+        '0xb753428af26e81097e7fd17f40c88aaa3e04902c': CoingeckoIDS.SFI,
     },
     'bsc': {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': CoingeckoIDS.BUSD,
@@ -206,6 +208,7 @@ ADDRESS_TO_CGID = {
         '0xccbf7c451f81752f7d2237f2c18c371e6e089e69': CoingeckoIDS.SDT,
         '0x997ddaa07d716995de90577c123db411584e5e46': CoingeckoIDS.JEWEL,
         '0xe97097de8d6a17be3c39d53ae63347706dcf8f43': CoingeckoIDS.UST,
+        '0xc2bf0a1f7d8da50d608bc96cf701110d4a438312': CoingeckoIDS.SFI,
     },
     'arbitrum': {
         '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,
@@ -307,6 +310,7 @@ ADDRESS_TO_CGID = {
         '0x931b8f17764362a3325d30681009f0edd6211231': CoingeckoIDS.ETH,
         '0x420000000000000000000000000000000000000a': CoingeckoIDS.ETH,
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb': CoingeckoIDS.UST,
+        '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48': CoingeckoIDS.JUMP,
     },
     'dfk': {
         '0xb57b60debdb0b8172bb6316a9164bd3c695f133a': CoingeckoIDS.AVAX,
