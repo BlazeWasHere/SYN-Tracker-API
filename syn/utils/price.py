@@ -141,6 +141,8 @@ CUSTOM = {
     'metis': {
         # nUSD
         '0x961318fc85475e125b99cc9215f62679ae5200ab': 1,
+        # JUMP, not really it's price but oh well.
+        '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48': 0.01,
     },
     'dfk': {
         # nUSD
@@ -311,7 +313,6 @@ ADDRESS_TO_CGID = {
         '0x931b8f17764362a3325d30681009f0edd6211231': CoingeckoIDS.ETH,
         '0x420000000000000000000000000000000000000a': CoingeckoIDS.ETH,
         '0x0b5740c6b4a97f90ef2f0220651cca420b868ffb': CoingeckoIDS.UST,
-        '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48': CoingeckoIDS.JUMP,
     },
     'dfk': {
         '0xb57b60debdb0b8172bb6316a9164bd3c695f133a': CoingeckoIDS.AVAX,
