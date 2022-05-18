@@ -409,6 +409,7 @@ TOKENS = {
         '0x1a4da80967373fd929961e976b4b53ceec063a15',  # LUNA
         '0x13780e6d5696dd91454f6d3bbc2616687fea43d0',  # UST
         '0xa684cd057951541187f288294a1e1c2646aa2d24',  # VSTA
+        '0x087d18a77465c34cdfd3a081a2504b7e86ce4ef8',  # SDT
     ],
     'fantom': [
         '0x04068da6c83afcfa0e13ba15a6696662335d5b75',  # USDC
@@ -551,7 +552,7 @@ def _cb(w3: Web3, chain: str, token: str) -> None:
     })
 
 
-__pool = Pool(size=16)
+__pool = Pool(size=64)
 for chain, tokens in TOKENS.items():
     w3: Web3 = SYN_DATA[chain]['w3']
 

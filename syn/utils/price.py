@@ -227,6 +227,7 @@ ADDRESS_TO_CGID = {
         '0x13780e6d5696dd91454f6d3bbc2616687fea43d0': CoingeckoIDS.UST,
         '0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': CoingeckoIDS.DAI,
         '0xa684cd057951541187f288294a1e1c2646aa2d24': CoingeckoIDS.VSTA,
+        '0x087d18a77465c34cdfd3a081a2504b7e86ce4ef8': CoingeckoIDS.SDT,
     },
     'fantom': {
         '0xe55e19fb4f2d85af758950957714292dac1e25b2': CoingeckoIDS.SYN,
