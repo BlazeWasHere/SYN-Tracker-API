@@ -265,6 +265,7 @@ ADDRESS_TO_CGID = {
         '0xd203de32170130082896b4111edf825a4774c18e': CoingeckoIDS.ETH,
         '0xd22c0a4af486c7fa08e282e9eb5f30f9aaa62c95': CoingeckoIDS.GOHM,
         '0x61a269a9506272d128d79abfe8e8276570967f00': CoingeckoIDS.UST,
+        '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000': CoingeckoIDS.ETH,
     },
     'moonriver': {
         '0xd80d8688b02b3fd3afb81cdb124f188bb5ad0445': CoingeckoIDS.SYN,
@@ -304,7 +305,7 @@ ADDRESS_TO_CGID = {
     'cronos': {
         '0xfd0f80899983b8d46152aa1717d76cba71a31616': CoingeckoIDS.SYN,
         '0xbb0a63a6ca2071c6c4bcac11a1a317b20e3e999c': CoingeckoIDS.GOHM,
-        '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59': CoingeckoIDS.USDC,
+        '0xc21223249ca28397b4b6541dffaecc539bff0c59': CoingeckoIDS.USDC,
     },
     'metis': {
         '0xfb21b70922b9f6e3c6274bcd6cb1aa8a0fe20b80': CoingeckoIDS.GOHM,

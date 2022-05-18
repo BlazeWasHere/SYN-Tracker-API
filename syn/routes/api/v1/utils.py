@@ -13,8 +13,9 @@ from datetime import datetime
 from flask import Blueprint, jsonify
 from web3 import Web3
 
-from syn.utils.data import LOGS_REDIS_URL, SYN_DATA, cache
+from syn.utils.data import LOGS_REDIS_URL, SYN_DATA, cache, TOKENS_INFO
 from syn.utils.helpers import get_all_keys, date2block
+from syn.utils.price import ADDRESS_TO_CGID, CUSTOM
 from syn.utils.explorer.data import CHAINS
 
 utils_bp = Blueprint('utils_bp', __name__)
@@ -48,3 +49,24 @@ def chain_date_to_block(chain: str, date: datetime):
 @utils_bp.route('/chains', methods=['GET'])
 def chains():
     return jsonify(CHAINS)
+
+
+@utils_bp.route('/tokens', methods=['GET'])
+def tokens():
+    res = defaultdict(dict)
+
+    for chain, data in TOKENS_INFO.items():
+        for token, _data in data.items():
+            res[chain][token] = {
+                'decimals': _data['decimals'],
+                'symbol': _data['symbol'],
+                'name': _data['name'],
+            }
+
+            if token in CUSTOM[chain]:
+                res[chain][token].update({'cgid': None})
+            else:
+                cgid = ADDRESS_TO_CGID[chain][token].value
+                res[chain][token].update({'cgid': cgid})
+
+    return res
