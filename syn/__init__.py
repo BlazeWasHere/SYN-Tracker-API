@@ -7,6 +7,7 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
+from typing import Callable
 from gevent import monkey
 import gevent
 
@@ -103,9 +104,22 @@ def init() -> Flask:
     cache.init_app(app)
 
     @app.after_request
-    def after_request(response: Response):
+    def after_request(response: Response) -> Response:
         header = response.headers
         header['Access-Control-Allow-Origin'] = '*'
         return response
+
+    def _after_request_dec(f: Callable):
+        def wrappa(*args, **kwargs) -> Response:
+            return after_request(app.make_response(f(*args, **kwargs)))
+        return wrappa
+
+    # Run `after_request` even on (user) exceptions.
+    app.handle_exception = _after_request_dec( # type: ignore
+        app.handle_exception,
+    )
+    app.handle_user_exception = _after_request_dec( # type: ignore
+        app.handle_user_exception,
+    )
 
     return app
