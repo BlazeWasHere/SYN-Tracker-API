@@ -73,7 +73,7 @@ def tokens():
     return res
 
 
-@utils_bp.route('/token_price/<chain_id:chain_id>/<token:token>', methods=['GET'])
+@utils_bp.route('/token_price/<int:chain_id>/<token>', methods=['GET'])
 @cache.cached()
 def token_price(chain_id: int, token: str):
     date = request.args.get('date', None)
