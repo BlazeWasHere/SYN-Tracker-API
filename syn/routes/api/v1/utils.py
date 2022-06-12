@@ -52,47 +52,21 @@ def chains():
     return jsonify(CHAINS)
 
 
-@utils_bp.route('/tokens', methods=['GET'])
-def tokens():
-    res = defaultdict(dict)
-
-    for chain, data in TOKENS_INFO.items():
-        for token, _data in data.items():
-            res[chain][token] = {
-                'decimals': _data['decimals'],
-                'symbol': _data['symbol'],
-                'name': _data['name'],
-            }
-
-            if token in CUSTOM[chain]:
-                res[chain][token].update({'cgid': None})
-            else:
-                cgid = ADDRESS_TO_CGID[chain][token].value
-                res[chain][token].update({'cgid': cgid})
-
-    return res
-
-
-@utils_bp.route('/token_price/<int:chain_id>/<token>', methods=['GET'])
+@utils_bp.route('/token_price/<chain:chain>/<token>', methods=['GET'])
 @cache.cached()
-def token_price(chain_id: int, token: str):
+def token_price(chain: str, token: str):
     date = request.args.get('date', None)
 
-    # validate chain id
-    if chain_id not in CHAINS.keys():
-        return (jsonify({'error': 'invalid chain id'}), 400)
-    chain_name = CHAINS[chain_id]
-
     # validate token address
-    if token not in ADDRESS_TO_CGID[chain_name]:
+    if token not in ADDRESS_TO_CGID[chain]:
         return (jsonify({'error': 'token for chain not supported'}), 400)
 
     if date:
-        res = get_historic_price_for_address(chain=chain_name,
+        res = get_historic_price_for_address(chain=chain,
                                              address=token,
                                              date=date)
     else:
         # get current price if no date entered
-        res = get_price_for_address(chain=chain_name, address=token)
+        res = get_price_for_address(chain=chain, address=token)
 
     return jsonify({'price': res})
