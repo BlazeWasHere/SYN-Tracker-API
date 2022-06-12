@@ -922,7 +922,7 @@
       "get": {
         "parameters": [
           {
-            "in": "query",
+            "in": "path",
             "name": "chain_id",
             "required": true,
             "description": "chain on which token is present",
@@ -931,7 +931,7 @@
             }
           },
           {
-            "in": "query",
+            "in": "path",
             "name": "token",
             "required": true,
             "description": "token address on chain entered",

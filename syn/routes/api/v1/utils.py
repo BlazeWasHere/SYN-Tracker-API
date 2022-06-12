@@ -73,11 +73,9 @@ def tokens():
     return res
 
 
-@utils_bp.route('/token_price', methods=['GET'])
+@utils_bp.route('/token_price/<chain_id:chain_id>/<token:token>', methods=['GET'])
 @cache.cached()
-def token_price():
-    chain_id = request.args.get('chain_id', None, type=int)
-    token = request.args.get('token', None)
+def token_price(chain_id: int, token: str):
     date = request.args.get('date', None)
 
     # validate chain id
@@ -90,14 +88,6 @@ def token_price():
         return (jsonify({'error': 'token for chain not supported'}), 400)
 
     if date:
-        # validate date format if entered, and get historical price
-        try:
-            datetime.fromisoformat(date)
-        except ValueError:
-            return (jsonify({
-                'error':
-                'invalid date entered. Must be formatted as yyyy-mm-dd'
-            })), 400
         res = get_historic_price_for_address(chain=chain_name,
                                              address=token,
                                              date=date)
