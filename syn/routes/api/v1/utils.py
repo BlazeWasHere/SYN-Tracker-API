@@ -81,9 +81,9 @@ def token_price():
     date = request.args.get('date', None)
 
     # validate chain id
-    if chain_id not in CHAINS_REVERSED:
+    if chain_id not in CHAINS.keys():
         return (jsonify({'error': 'invalid chain id'}), 400)
-    chain_name = CHAINS_REVERSED[chain_id]
+    chain_name = CHAINS[chain_id]
 
     # validate token address
     if token not in ADDRESS_TO_CGID[chain_name]:
