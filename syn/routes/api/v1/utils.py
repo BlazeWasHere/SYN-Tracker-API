@@ -16,7 +16,6 @@ from web3 import Web3
 from syn.utils.data import LOGS_REDIS_URL, SYN_DATA, cache, TOKENS_INFO
 from syn.utils.helpers import get_all_keys, date2block
 from syn.utils.price import ADDRESS_TO_CGID, CUSTOM, get_price_for_address, get_historic_price_for_address
-
 from syn.utils.explorer.data import CHAINS, CHAINS_REVERSED
 from syn.utils import verify
 
@@ -77,29 +76,33 @@ def tokens():
 @utils_bp.route('/token_price', methods=['GET'])
 @cache.cached()
 def token_price():
-    chain_id = request.args.get('token', None)
+    chain_id = request.args.get('chain_id', None, type=int)
     token = request.args.get('token', None)
     date = request.args.get('date', None)
 
     # validate chain id
-    if not verify.isdigit(chain_id) or (chain_id := int(chain_id) not in CHAINS_REVERSED):
-        return jsonify({'error': 'invalid chain id'}), 400
+    if chain_id not in CHAINS_REVERSED:
+        return (jsonify({'error': 'invalid chain id'}), 400)
     chain_name = CHAINS_REVERSED[chain_id]
 
     # validate token address
     if token not in ADDRESS_TO_CGID[chain_name]:
-        return jsonify({'error': 'token for chain not supported'}), 400
+        return (jsonify({'error': 'token for chain not supported'}), 400)
 
-    # validate date format if entered
     if date:
+        # validate date format if entered, and get historical price
         try:
-            datetime.strptime(date, '%d-%m-%Y')
+            datetime.fromisoformat(date)
         except ValueError:
-            return jsonify({'error': 'invalid date entered. Must be formatted as %d-%m-%Y'}), 400
-        res = get_historic_price_for_address(chain=chain_name, address=token, date=date)
+            return (jsonify({
+                'error':
+                'invalid date entered. Must be formatted as yyyy-mm-dd'
+            })), 400
+        res = get_historic_price_for_address(chain=chain_name,
+                                             address=token,
+                                             date=date)
     else:
+        # get current price if no date entered
         res = get_price_for_address(chain=chain_name, address=token)
 
-    return jsonify({
-        'price': str(res)
-    })
+    return jsonify({'price': res})
