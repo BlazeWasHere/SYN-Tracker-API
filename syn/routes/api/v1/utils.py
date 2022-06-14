@@ -74,7 +74,7 @@ def tokens():
 
 
 @utils_bp.route('/price/<chain:chain>/<token>', methods=['GET'])
-#@cache.cached(query_string=True)
+@cache.cached(query_string=True)
 def token_price(chain: str, token: str):
     date = request.args.get('date', type=datetime.fromisoformat)
     token = token.lower()
