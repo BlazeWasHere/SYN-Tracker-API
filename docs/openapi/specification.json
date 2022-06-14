@@ -918,6 +918,59 @@
         "tags": ["Utils"]
       }
     },
+    "/api/v1/utils/price/{chain}/{token}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chain",
+            "required": true,
+            "description": "chain on which token is present",
+            "schema": {
+              "$ref": "#/components/schemas/Chains"
+            }
+          },
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "description": "token address or symbol",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "date",
+            "required": false,
+            "description": "date for which token price is wanted. If no date entered, the latest price is returned",
+            "schema": {
+              "$ref": "#/components/schemas/date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "price": { "type": "number", "format": "float" }
+                  }
+                },
+                "example": {
+                  "price": 0.00012
+                }
+              }
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "get price for a token",
+        "tags": ["Utils"]
+      }
+    },
     "/api/v1/analytics/fees/validator/{chain}": {
       "get": {
         "parameters": [
