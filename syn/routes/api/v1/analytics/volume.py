@@ -7,10 +7,7 @@
 		  https://www.boost.org/LICENSE_1_0.txt)
 """
 
-from collections import defaultdict
-from typing import Dict
-
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, redirect, url_for
 
 from syn.utils.analytics.volume import (
     get_chain_volume_for_address,
@@ -63,6 +60,10 @@ def chain_volume(chain: str, direction: str):
 
 
 @volume_bp.route('/total', methods=['GET'])
+def chain_volume_total_redirect():
+    return redirect(url_for('.chain_volume_total'))
+
+
 @volume_bp.route('/total/in', methods=['GET'])
 @cache.cached(query_string=True)
 def chain_volume_total():
@@ -75,6 +76,11 @@ def chain_volume_total():
 def chain_volume_total_out():
     data = get_chain_volume_total(direction='OUT')
     return jsonify(filter_volume_data(data, request.args))
+
+
+@volume_bp.route('/total/tx_count', methods=['GET'])
+def chain_tx_count_total_redirect():
+    return redirect(url_for('.chain_tx_count_total'))
 
 
 @volume_bp.route('/total/tx_count', methods=['GET'])

@@ -918,23 +918,23 @@
         "tags": ["Utils"]
       }
     },
-    "/api/v1/utils/token_price": {
+    "/api/v1/utils/price/{chain}/{token}": {
       "get": {
         "parameters": [
           {
             "in": "path",
-            "name": "chain_id",
+            "name": "chain",
             "required": true,
             "description": "chain on which token is present",
             "schema": {
-              "type": "integer"
+              "$ref": "#/components/schemas/Chains"
             }
           },
           {
             "in": "path",
             "name": "token",
             "required": true,
-            "description": "token address on chain entered",
+            "description": "token address or symbol",
             "schema": {
               "type": "string"
             }
@@ -955,8 +955,8 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "additionalProperties": {
-                    "type": "float"
+                  "properties": {
+                    "price": { "type": "number", "format": "float" }
                   }
                 },
                 "example": {
