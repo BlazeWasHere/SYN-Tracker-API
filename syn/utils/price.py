@@ -58,6 +58,7 @@ class CoingeckoIDS(Enum):
     UST = 'terrausd'
     VSTA = 'vesta-finance'
     SFI = 'saffron-finance'
+    H2O = 'h2o'
 
 
 CUSTOM = {
@@ -167,6 +168,7 @@ ADDRESS_TO_CGID = {
         '0x0261018aa50e28133c1ae7a29ebdf9bd21b878cb': CoingeckoIDS.UST,
         '0xa8d7f5e7c78ed0fa097cc5ec66c1dc3104c9bbeb': CoingeckoIDS.VSTA,
         '0xb753428af26e81097e7fd17f40c88aaa3e04902c': CoingeckoIDS.SFI,
+        '0x0642026e7f0b6ccac5925b4e7fa61384250e1701': CoingeckoIDS.H2O,
     },
     'bsc': {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': CoingeckoIDS.BUSD,
@@ -192,6 +194,7 @@ ADDRESS_TO_CGID = {
         '0x48a34796653afdaa1647986b33544c911578e767': CoingeckoIDS.FRAX,
         '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619': CoingeckoIDS.ETH,
         '0x565098cba693b3325f9fe01d41b7a1cd792abab1': CoingeckoIDS.UST,
+        '0xc5248aa0629c0b2d6a02834a5f172937ac83cbd3': CoingeckoIDS.H2O,
     },
     'avalanche': {
         '0x1f1e7c893855525b303f99bdf5c3c05be09ca251': CoingeckoIDS.SYN,

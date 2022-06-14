@@ -337,6 +337,7 @@ TOKENS = {
         '0x0261018aa50e28133c1ae7a29ebdf9bd21b878cb',  # UST
         '0xa8d7f5e7c78ed0fa097cc5ec66c1dc3104c9bbeb',  # VSTA
         '0xb753428af26e81097e7fd17f40c88aaa3e04902c',  # SFI
+        '0x0642026e7f0b6ccac5925b4e7fa61384250e1701',  # H2O
     ],
     'bsc': [
         '0x23b891e5c62e0955ae2bd185990103928ab817b3',  # nUSD
@@ -369,6 +370,7 @@ TOKENS = {
         '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',  # WETH
         '0xfa1fbb8ef55a4855e5688c0ee13ac3f202486286',  # USDB
         '0x565098cba693b3325f9fe01d41b7a1cd792abab1',  # UST
+        '0xc5248aa0629c0b2d6a02834a5f172937ac83cbd3',  # H20
     ],
     'avalanche': [
         '0xd586e7f844cea2f87f50152665bcbc2c279d8d70',  # DAI
