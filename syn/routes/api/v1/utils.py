@@ -65,11 +65,10 @@ def tokens():
                 'name': _data['name'],
             }
 
-            if token in CUSTOM[chain]:
-                res[chain][token].update({'cgid': None})
+            if (cgid := ADDRESS_TO_CGID[chain].get(token)):
+                res[chain][token].update({'cgid': cgid.value})
             else:
-                cgid = ADDRESS_TO_CGID[chain][token].value
-                res[chain][token].update({'cgid': cgid})
+                res[chain][token].update({'cgid': None})
 
     return res
 
