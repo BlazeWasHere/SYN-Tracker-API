@@ -70,11 +70,15 @@ else:
 # We use this for processes to interact w/ eachother.
 MESSAGE_QUEUE_REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/3'
 MESSAGE_QUEUE_REDIS = redis.Redis.from_url(MESSAGE_QUEUE_REDIS_URL,
+                                           password=os.environ['REDIS_PASSWORD'],
+                                           username=os.environ['REDIS_USERNAME'],
                                            decode_responses=True)
 # We use this for storing eth_GetLogs and stuff related to that.
 LOGS_REDIS_URL = redis.Redis(REDIS_HOST,
                              REDIS_PORT,
                              db=4,
+                             password=os.environ['REDIS_PASSWORD'],
+                             username=os.environ['REDIS_USERNAME'],
                              decode_responses=True)
 
 _POPULATE_CACHE = os.getenv('POPULATE_CACHE')
