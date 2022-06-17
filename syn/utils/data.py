@@ -27,7 +27,7 @@ import redis
 
 from syn.patches.cache import PatchedCache
 
-load_dotenv(find_dotenv('.env.sample'))
+load_dotenv(find_dotenv('.env'))
 # If `.env` exists, let it override the sample env file.
 load_dotenv(override=True)
 
@@ -61,6 +61,8 @@ if os.getenv('docker') == 'true':
 else:
     REDIS = redis.Redis(os.environ['REDIS_HOST'],
                         int(os.environ['REDIS_PORT']),
+                        password=os.environ['REDIS_PASSWORD'],
+                        username=os.environ['REDIS_USERNAME'],
                         decode_responses=True)
     REDIS_HOST = os.environ['REDIS_HOST']
     REDIS_PORT = int(os.environ['REDIS_PORT'])
@@ -261,6 +263,7 @@ TREASURY = {
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
 for key, value in SYN_DATA.items():
+    print(value['rpc'])
     w3 = Web3(Web3.HTTPProvider(value['rpc']))
     assert w3.isConnected(), key
 
