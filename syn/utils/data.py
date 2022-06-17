@@ -52,20 +52,20 @@ _runtime_path = os.path.join(os.getcwd(), 'runtime')
 # :file:syn/utils/helpers.py :func:update_global_data
 new_tokens_file = os.path.join(_runtime_path, 'new_tokens.txt')
 
-if os.getenv('docker') == 'true':
-    REDIS = redis.Redis(os.environ['REDIS_DOCKER_HOST'],
-                        int(os.environ['REDIS_DOCKER_PORT']),
-                        decode_responses=True)
-    REDIS_HOST = os.environ['REDIS_DOCKER_HOST']
-    REDIS_PORT = int(os.environ['REDIS_DOCKER_PORT'])
-else:
-    REDIS = redis.Redis(os.environ['REDIS_HOST'],
-                        int(os.environ['REDIS_PORT']),
-                        password=os.environ['REDIS_PASSWORD'],
-                        username=os.environ['REDIS_USERNAME'],
-                        decode_responses=True)
-    REDIS_HOST = os.environ['REDIS_HOST']
-    REDIS_PORT = int(os.environ['REDIS_PORT'])
+# if os.getenv('docker') == 'true':
+#     REDIS = redis.Redis(os.environ['REDIS_DOCKER_HOST'],
+#                         int(os.environ['REDIS_DOCKER_PORT']),
+#                         decode_responses=True)
+#     REDIS_HOST = os.environ['REDIS_DOCKER_HOST']
+#     REDIS_PORT = int(os.environ['REDIS_DOCKER_PORT'])
+# else:
+REDIS = redis.Redis(os.environ['REDIS_HOST'],
+                    int(os.environ['REDIS_PORT']),
+                    password=os.environ['REDIS_PASSWORD'],
+                    username=os.environ['REDIS_USERNAME'],
+                    decode_responses=True)
+REDIS_HOST = os.environ['REDIS_HOST']
+REDIS_PORT = int(os.environ['REDIS_PORT'])
 
 # We use this for processes to interact w/ eachother.
 MESSAGE_QUEUE_REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/3'
