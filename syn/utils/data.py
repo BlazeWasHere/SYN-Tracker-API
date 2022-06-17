@@ -67,6 +67,8 @@ REDIS = redis.Redis(os.environ['REDIS_HOST'],
 REDIS_HOST = os.environ['REDIS_HOST']
 REDIS_PORT = int(os.environ['REDIS_PORT'])
 
+print("hi")
+
 # We use this for processes to interact w/ eachother.
 MESSAGE_QUEUE_REDIS = redis.Redis(os.environ['REDIS_HOST'],
                                            int(os.environ['REDIS_PORT']),
