@@ -68,8 +68,9 @@ REDIS_HOST = os.environ['REDIS_HOST']
 REDIS_PORT = int(os.environ['REDIS_PORT'])
 
 # We use this for processes to interact w/ eachother.
-MESSAGE_QUEUE_REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/3'
-MESSAGE_QUEUE_REDIS = redis.Redis.from_url(MESSAGE_QUEUE_REDIS_URL,
+MESSAGE_QUEUE_REDIS = redis.Redis(os.environ['REDIS_HOST'],
+                                           int(os.environ['REDIS_PORT']),
+                                           db=3,
                                            password=os.environ['REDIS_PASSWORD'],
                                            username=os.environ['REDIS_USERNAME'],
                                            decode_responses=True)
