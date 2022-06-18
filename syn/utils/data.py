@@ -59,29 +59,27 @@ new_tokens_file = os.path.join(_runtime_path, 'new_tokens.txt')
 #     REDIS_HOST = os.environ['REDIS_DOCKER_HOST']
 #     REDIS_PORT = int(os.environ['REDIS_DOCKER_PORT'])
 # else:
-REDIS = redis.Redis(os.environ['REDIS_HOST'],
-                    int(os.environ['REDIS_PORT']),
-                    password=os.environ['REDIS_PASSWORD'],
-                    username=os.environ['REDIS_USERNAME'],
+REDIS = redis.Redis(os.environ['ANALYTICS_REDIS_HOST'],
+                    int(os.environ['ANALYTICS_REDIS_PORT']),
+                    password=os.environ['ANALYTICS_REDIS_PASSWORD'],
+                    username=os.environ['ANALYTICS_REDIS_USERNAME'],
                     decode_responses=True)
-REDIS_HOST = os.environ['REDIS_HOST']
-REDIS_PORT = int(os.environ['REDIS_PORT'])
+# REDIS_HOST = os.environ['REDIS_HOST']
+# REDIS_PORT = int(os.environ['REDIS_PORT'])
 
 print("hi")
 
 # We use this for processes to interact w/ eachother.
-MESSAGE_QUEUE_REDIS = redis.Redis(os.environ['REDIS_HOST'],
-                                           int(os.environ['REDIS_PORT']),
-                                           db=3,
-                                           password=os.environ['REDIS_PASSWORD'],
-                                           username=os.environ['REDIS_USERNAME'],
+MESSAGE_QUEUE_REDIS = redis.Redis(os.environ['MESSAGE_REDIS_HOST'],
+                                           int(os.environ['MESSAGE_REDIS_PORT']),
+                                           password=os.environ['MESSAGE_REDIS_PASSWORD'],
+                                           username=os.environ['MESSAGE_REDIS_USERNAME'],
                                            decode_responses=True)
 # We use this for storing eth_GetLogs and stuff related to that.
-LOGS_REDIS_URL = redis.Redis(REDIS_HOST,
-                             REDIS_PORT,
-                             db=4,
-                             password=os.environ['REDIS_PASSWORD'],
-                             username=os.environ['REDIS_USERNAME'],
+LOGS_REDIS_URL = redis.Redis(os.environ['LOG_REDIS_HOST'],
+                             int(os.environ['LOG_REDIS_PORT']),
+                             password=os.environ['LOG_REDIS_PASSWORD'],
+                             username=os.environ['LOG_REDIS_USERNAME'],
                              decode_responses=True)
 
 _POPULATE_CACHE = os.getenv('POPULATE_CACHE')
@@ -97,16 +95,15 @@ NULL_ADDR = '0x0000000000000000000000000000000000000000'
 
 CACHE_CONFIG = {
     'CACHE_TYPE': 'RedisCache',
-    'CACHE_REDIS_DB': 2,
-    'CACHE_REDIS_HOST': REDIS_HOST,
-    'CACHE_REDIS_PORT': REDIS_PORT
+    'CACHE_REDIS_HOST': os.environ['CACHE_REDIS_HOST'],
+    'CACHE_REDIS_PORT': int(os.environ['CACHE_REDIS_PORT'])
 }
 
 cache = PatchedCache(config=CACHE_CONFIG)
 
 SCHEDULER_CONFIG = {
     'SCHEDULER_JOBSTORES': {
-        'default': RedisJobStore(db=1, host=REDIS_HOST, port=REDIS_PORT)
+        'default': RedisJobStore(host=os.environ['JOB_REDIS_HOST'], port=int(os.environ['JOB_REDIS_PORT']))
     }
 }
 
