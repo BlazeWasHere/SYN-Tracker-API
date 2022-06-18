@@ -96,14 +96,15 @@ NULL_ADDR = '0x0000000000000000000000000000000000000000'
 CACHE_CONFIG = {
     'CACHE_TYPE': 'RedisCache',
     'CACHE_REDIS_HOST': os.environ['CACHE_REDIS_HOST'],
-    'CACHE_REDIS_PORT': int(os.environ['CACHE_REDIS_PORT'])
+    'CACHE_REDIS_PORT': int(os.environ['CACHE_REDIS_PORT']),
+    'CACHE_REDIS_PASSWORD': os.environ['CACHE_REDIS_PASSWORD'],
 }
 
 cache = PatchedCache(config=CACHE_CONFIG)
 
 SCHEDULER_CONFIG = {
     'SCHEDULER_JOBSTORES': {
-        'default': RedisJobStore(host=os.environ['JOB_REDIS_HOST'], port=int(os.environ['JOB_REDIS_PORT']))
+        'default': RedisJobStore(host=os.environ['JOB_REDIS_HOST'], password=os.environ['JOB_REDIS_PASSWORD'], username=os.environ['JOB_REDIS_USERNAME'], port=int(os.environ['JOB_REDIS_PORT']))
     }
 }
 
