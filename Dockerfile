@@ -14,4 +14,4 @@ COPY . .
 # Allow print statements to work.
 ENV PYTHONUNBUFFERED=TRUE
 
-CMD [ "gunicorn", "--preload", "--timeout", "0", "--worker-class=gevent", "-w", "4", "-b", "0.0.0.0:80", "main:app", "--capture-output"]
+CMD [ "gunicorn", "--preload", "--timeout", "0", "--worker-class=gevent", "-w", "16", "-b", "0.0.0.0:80", "main:app", "--capture-output"]
