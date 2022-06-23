@@ -31,12 +31,14 @@ CHAINS = {
     1088: 'metis',
     53935: 'dfk',
     121014925: 'terra',
+    8217: 'klatyn',
 }
 
 CHAINS_REVERSED = {v: k for k, v in CHAINS.items()}
 
 
 class Direction(Enum):
+
     def __str__(self) -> str:
         return self.name
 

@@ -42,6 +42,7 @@ _start_blocks = {
     'cronos': 1578335,
     'metis': 957508,
     'dfk': 0,  # Doesn't it feel great to be the first?
+    'klatyn': 93622381,
 }
 
 airdrop_ranges = {
@@ -113,6 +114,9 @@ airdrop_ranges = {
     'dfk': {
         0: [None, 408],
         0.01: [409, None],
+    },
+    'klatyn': {
+        0.1: [None, None],
     },
 }
 
