@@ -173,7 +173,7 @@ POOLS: Dict[str, Dict[str, Dict[str, Union[str, int]]]] = {
     },
     'klaytn': {
         'nusd': {
-            'address': '0x9508bf380c1e6f751d97604732ef1bae6673f299',
+            'address': '0xfdbad1699a550f933efebf652a735f2f89d3833c',
             'admin': 6000000000,
             'swap': 2000000,
         },

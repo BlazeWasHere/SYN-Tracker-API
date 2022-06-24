@@ -65,6 +65,11 @@ def get_all_tokens_in_pool(chain: str,
     data = SYN_DATA[chain]
     res: List[str] = []
 
+    # TODO(blaze): REMOVE! Klaytn rpc node returns a weird response which
+    # web3.py cannot handle.
+    if not max_index and chain == 'klaytn':
+        max_index = 2
+
     for i in range(max_index or MAX_UINT8):
         try:
             res.append(call_abi(data, func, 'getToken', i))
@@ -147,7 +152,13 @@ def get_pool_data(chain: str, address: str):
     contract = w3.eth.contract(w3.toChecksumAddress(address), abi=BASEPOOL_ABI)
     res: Dict[int, str] = {}
 
-    for i in range(MAX_UINT8):
+    # TODO(blaze): REMOVE! Klaytn rpc node returns a weird response which
+    # web3.py cannot handle.
+    _till = MAX_UINT8
+    if chain == 'klaytn':
+        _till = 2
+
+    for i in range(_till):
         try:
             # TODO: block indentifier?
             res[i] = contract.functions.getToken(i).call()
