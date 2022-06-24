@@ -339,7 +339,7 @@ ADDRESS_TO_CGID = {
         '0xdcbacf3f7a069922e677912998c8d57423c37dfa': CoingeckoIDS.WBTC,
         '0xcd6f29dc9ca217d0973d3d21bf58edd3ca871a86': CoingeckoIDS.ETH,
         '0xcee8faf64bb97a73bb51e115aa89c17ffa8dd167': CoingeckoIDS.USDT,
-        '0x9508bf380c1e6f751d97604732ef1bae6673f299': CoingeckoIDS.SYN,
+        '0xf5f3650f54da85e4a4d8e490139c77275b167c53': CoingeckoIDS.SYN,
     },
 }
 

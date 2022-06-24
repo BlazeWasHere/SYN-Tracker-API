@@ -241,9 +241,10 @@ SYN_DATA = {
     },
     "klaytn": {
         "rpc": os.getenv('KLAYTN_RPC'),
-        "address": "0x9508bf380c1e6f751d97604732ef1bae6673f299",
+        "address": "0xf5f3650f54da85e4a4d8e490139c77275b167c53",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
         "minichef": "0xf68cd56cf9a9e1cda181fb2c44c5f0e98b5cc541",
+        "pool": "0xfdbad1699a550f933efebf652a735f2f89d3833c",
     },
 }
 
@@ -537,7 +538,7 @@ TOKENS = {
         '0xDCbacF3f7a069922E677912998c8d57423C37dfA',  # WBTC
         '0xCD6f29dC9Ca217d0973d3D21bF58eDd3CA871a86',  # WETH
         '0xceE8FAF64bB97a73bb51E115Aa89C17FfA8dD167',  # oUSDT
-        '0x9508bf380c1e6f751d97604732ef1bae6673f299',  # SYN
+        '0xF5f3650f54dA85e4A4D8E490139C77275B167c53',  # SYN
     ],
 }
 
