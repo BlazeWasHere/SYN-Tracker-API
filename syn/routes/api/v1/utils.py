@@ -84,7 +84,7 @@ def token_price(chain: str, token: str):
     token = symbol_to_address[chain].get(token, token)
 
     # validate token address
-    if token not in ADDRESS_TO_CGID[chain]:
+    if token not in ADDRESS_TO_CGID[chain] and token not in CUSTOM[chain]:
         return (jsonify({'error': 'token for chain not supported'}), 400)
 
     if date is not None:
