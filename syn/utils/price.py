@@ -151,6 +151,7 @@ CUSTOM = {
         # nUSD
         '0x52285d426120ab91f378b3df4a15a036a62200ae': 1,
     },
+    'klaytn': {},
 }
 
 ADDRESS_TO_CGID = {
