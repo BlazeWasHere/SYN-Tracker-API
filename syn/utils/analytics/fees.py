@@ -43,7 +43,7 @@ _chain_to_cgid = {
     'cronos': CoingeckoIDS.CRO,
     'metis': CoingeckoIDS.METIS,
     'dfk': CoingeckoIDS.JEWEL,
-    'klatyn': CoingeckoIDS.KLAY,
+    'klaytn': CoingeckoIDS.KLAY,
 }
 
 

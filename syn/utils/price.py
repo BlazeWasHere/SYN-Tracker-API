@@ -331,7 +331,7 @@ ADDRESS_TO_CGID = {
         '0x3ad9dfe640e1a9cc1d9b0948620820d975c3803a': CoingeckoIDS.USDC,
         '0x360d6dd540e3448371876662fbe7f1acaf08c5ab': CoingeckoIDS.UST,
     },
-    'klatyn': {
+    'klaytn': {
         '0x078db7827a5531359f6cb63f62cfa20183c4f10c': CoingeckoIDS.DAI,
         '0x6270b58be569a7c0b8f47594f191631ae5b2c86c': CoingeckoIDS.USDC,
         '0xd6dab4cff47df175349e6e7ee2bf7c40bb8c05a3': CoingeckoIDS.USDT,

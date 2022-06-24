@@ -239,11 +239,12 @@ SYN_DATA = {
         "bridge": "0xe05c976d3f045d0e6e7a6f61083d98a15603cf6a",
         "minichef": "0x164c02a681282faaddf4bb10cfab599a8999ed20",
     },
-    "klatyn": {
-        "rpc": os.getenv('KLATYN_RPC'),
+    "klaytn": {
+        "rpc": os.getenv('KLAYTN_RPC'),
         "address": "0x9508bf380c1e6f751d97604732ef1bae6673f299",
         "bridge": "0xaf41a65f786339e7911f4acdad6bd49426f2dc6b",
-    }
+        "minichef": "0xf68cd56cf9a9e1cda181fb2c44c5f0e98b5cc541",
+    },
 }
 
 TREASURY = {
@@ -262,7 +263,7 @@ TREASURY = {
     'cronos': '0x7f91f3111b2009eC7c079Be213570330a37e8aeC',
     'metis': '0xEAEC50eBe1c2A981ED8be02C36b0863Fae322975',
     'dfk': '0x2e62c47f502f512c75bd5ecd70799efb0fe7baa3',
-    'klatyn': '0x8f17B483982d1CC09296Aed8F1b09Ad830358A8D',
+    'klaytn': '0x8f17B483982d1CC09296Aed8F1b09Ad830358A8D',
 }
 
 # Init 'func' to append `contract` to SYN_DATA so we can call the ABI simpler later.
@@ -529,7 +530,7 @@ TOKENS = {
         '0x3ad9dfe640e1a9cc1d9b0948620820d975c3803a',  # USDC
         '0x360d6dd540e3448371876662fbe7f1acaf08c5ab',  # UST
     ],
-    'klatyn': [
+    'klaytn': [
         '0x078dB7827a5531359f6CB63f62CFA20183c4F10c',  # DAI
         '0x6270B58BE569a7c0b8f47594F191631Ae5b2C86C',  # USDC
         '0xd6dAb4CfF47dF175349e6e7eE2BF7c40Bb8C05A3',  # USDT
