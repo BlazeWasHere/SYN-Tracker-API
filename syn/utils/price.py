@@ -80,6 +80,8 @@ CUSTOM = {
         '0xdfd717f4e942931c98053d5453f803a1b52838db': 0,
         # JUMP, not really it's price but oh well.
         '0x130025ee738a66e691e6a7a62381cb33c6d9ae83': 0.01,
+        '0x2b4618996fad3ee7bc9ba8c98969a8eaf01b5e20': 0.01,
+        '0x7f0a733b03ec455cb340e0f6af736a13d8fbb851': 0.01,
         # USDB
         '0xc8699abbba90c7479dedccef19ef78969a2fc608': 1,
     },
@@ -140,12 +142,15 @@ CUSTOM = {
     'cronos': {
         # nUSD
         '0x396c9c192dd323995346632581bef92a31ac623b': 1,
+        # DAI
+        '0xf2001b145b43032aaf5ee2884e456ccd805f677d': 1
     },
     'metis': {
         # nUSD
         '0x961318fc85475e125b99cc9215f62679ae5200ab': 1,
         # JUMP, not really it's price but oh well.
         '0xe3c82a836ec85311a433fbd9486efaf4b1afbf48': 0.01,
+        '0xa565037058df44f336e01683e096cdde45cfe5c2': 0.01
     },
     'dfk': {
         # nUSD
@@ -218,6 +223,8 @@ ADDRESS_TO_CGID = {
         '0x997ddaa07d716995de90577c123db411584e5e46': CoingeckoIDS.JEWEL,
         '0xe97097de8d6a17be3c39d53ae63347706dcf8f43': CoingeckoIDS.UST,
         '0xc2bf0a1f7d8da50d608bc96cf701110d4a438312': CoingeckoIDS.SFI,
+        '0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab': CoingeckoIDS.ETH,
+        '0x4f60a160d8c2dddaafe16fcc57566db84d674bd6': CoingeckoIDS.JEWEL
     },
     'arbitrum': {
         '0x080f6aed32fc474dd5717105dba5ea57268f46eb': CoingeckoIDS.SYN,
@@ -263,6 +270,9 @@ ADDRESS_TO_CGID = {
         '0x28b42698caf46b4b012cf38b6c75867e0762186d': CoingeckoIDS.JEWEL,
         '0xa0554607e477cdc9d0ee2a6b087f4b2dc2815c22': CoingeckoIDS.UST,
         '0xa9ce83507d872c5e1273e745abcfda849daa654f': CoingeckoIDS.XJEWEL,
+        '0x72cb10c6bfa5624dd07ef608027e366bd690048f': CoingeckoIDS.JEWEL,
+        '0x6983d1e6def3690c4d616b13597a09e6193ea013': CoingeckoIDS.ETH,
+        '0xb12c13e66ade1f72f71834f2fc5082db8c091358': CoingeckoIDS.AVAX
     },
     'boba': {
         '0xb554a55358ff0382fb21f0a478c3546d1106be8c': CoingeckoIDS.SYN,
