@@ -69,7 +69,8 @@
           "moonbeam",
           "cronos",
           "metis",
-          "dfk"
+          "dfk",
+          "klaytn"
         ]
       },
       "AirdropResponse": {

@@ -59,6 +59,8 @@ class CoingeckoIDS(Enum):
     VSTA = 'vesta-finance'
     SFI = 'saffron-finance'
     H2O = 'h2o'
+    WBTC = 'wrapped-bitcoin'
+    KLAY = 'klay-token'
 
 
 CUSTOM = {
@@ -149,6 +151,7 @@ CUSTOM = {
         # nUSD
         '0x52285d426120ab91f378b3df4a15a036a62200ae': 1,
     },
+    'klaytn': {},
 }
 
 ADDRESS_TO_CGID = {
@@ -169,6 +172,7 @@ ADDRESS_TO_CGID = {
         '0xa8d7f5e7c78ed0fa097cc5ec66c1dc3104c9bbeb': CoingeckoIDS.VSTA,
         '0xb753428af26e81097e7fd17f40c88aaa3e04902c': CoingeckoIDS.SFI,
         '0x0642026e7f0b6ccac5925b4e7fa61384250e1701': CoingeckoIDS.H2O,
+        '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': CoingeckoIDS.WBTC,
     },
     'bsc': {
         '0xe9e7cea3dedca5984780bafc599bd69add087d56': CoingeckoIDS.BUSD,
@@ -327,6 +331,15 @@ ADDRESS_TO_CGID = {
         '0xb6b5c854a8f71939556d4f3a2e5829f7fcc1bf2a': CoingeckoIDS.SYN,
         '0x3ad9dfe640e1a9cc1d9b0948620820d975c3803a': CoingeckoIDS.USDC,
         '0x360d6dd540e3448371876662fbe7f1acaf08c5ab': CoingeckoIDS.UST,
+    },
+    'klaytn': {
+        '0x078db7827a5531359f6cb63f62cfa20183c4f10c': CoingeckoIDS.DAI,
+        '0x6270b58be569a7c0b8f47594f191631ae5b2c86c': CoingeckoIDS.USDC,
+        '0xd6dab4cff47df175349e6e7ee2bf7c40bb8c05a3': CoingeckoIDS.USDT,
+        '0xdcbacf3f7a069922e677912998c8d57423c37dfa': CoingeckoIDS.WBTC,
+        '0xcd6f29dc9ca217d0973d3d21bf58edd3ca871a86': CoingeckoIDS.ETH,
+        '0xcee8faf64bb97a73bb51e115aa89c17ffa8dd167': CoingeckoIDS.USDT,
+        '0xf5f3650f54da85e4a4d8e490139c77275b167c53': CoingeckoIDS.SYN,
     },
 }
 

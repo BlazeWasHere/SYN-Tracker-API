@@ -7,6 +7,7 @@ RUN python -m pip install -r requirements.txt
 
 # Patches
 COPY syn/patches/request.py /usr/local/lib/python3.9/site-packages/web3/_utils/request.py
+COPY syn/patches/method_formatters.py /usr/local/lib/python3.9/site-packages/web3/_utils/method_formatters.py
 
 # When rebuilding the docker image, the cache will end from here.
 COPY . .

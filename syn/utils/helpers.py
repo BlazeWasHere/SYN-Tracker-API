@@ -239,6 +239,9 @@ def dispatch_get_logs(
                 'cronos': {
                     'nusd': 2511054,
                 },
+                'klaytn': {
+                    'nusd': 94136612,
+                },
             }
 
             if 'pool_contract' in SYN_DATA[chain]:
@@ -343,6 +346,7 @@ def is_in_range(value: SupportsDunderGT, min: SupportsDunderGT,
 
 def get_airdrop_value_for_block(ranges: Dict[float, List[Optional[int]]],
                                 block: int) -> D:
+
     def _transform(num: float) -> D:
         return D(str(num))
 
